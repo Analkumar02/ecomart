@@ -1,0 +1,35 @@
+$primary-color: #34690f;
+$secondary-color: #83c223;
+$orange-color: #f07918;
+$body-font-color: #161925;
+$border-color: #d7d7d7;
+$gray-font-color: #626571;
+$gray-font-color2: #d7d7d7;
+$white-color: #ffffff;
+$gray-color: #f7f7f7;
+$red-body-color: #e00000;
+
+$font-family-body: "Inter", sans-serif;
+$font-family-heading: "Salsa", cursive;
+
+$font-weight-body: 400;
+
+$font-size-body: "clamp(0.75rem, 0.6693rem + 0.3445vw, 1rem)";
+$font-size-h1: clamp(2.25rem, 2.0078rem + 1.0336vw, 3rem);
+$font-size-h2: clamp(1.5rem, 1.0155rem + 2.0672vw, 3rem);
+$font-size-h3: clamp(1.25rem, 1.0885rem + 0.6891vw, 1.75rem);
+$font-size-h4: clamp(1.125rem, 1.0039rem + 0.5168vw, 1.5rem);
+$font-size-h5: clamp(1rem, 0.9193rem + 0.3445vw, 1.25rem);
+
+$font-size-h6: clamp(0.75rem, 0.6693rem + 0.3445vw, 1rem);
+
+$line-height: (
+  body: 1.5,
+);
+
+$font-weight-extrabold: 800;
+$font-weight-bold: 700;
+$font-weight-semibold: 600;
+$font-weight-medium: 500;
+$font-weight-regular: 400;
+$font-weight-light: 300;

@@ -1,0 +1,19 @@
+// Global styles
+@import "./mixins";
+@import "./variables";
+@import "./global";
+
+// Components styles
+@import "./components/header";
+@import "./components/footer";
+@import "./components/product-card";
+@import "./components/product-card-small";
+
+// Pages styles
+@import "./pages/home";
+@import "./pages/shop";
+@import "./pages/product";
+@import "./pages/cart";
+@import "./pages/checkout";
+@import "./pages/wishlist";
+@import "./pages/thankyou";
