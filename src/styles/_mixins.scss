@@ -1,0 +1,13 @@
+@mixin gap {
+  padding: 40px 0;
+  @media (max-width: 991px) {
+    padding: 30px 0;
+  }
+  @media (max-width: 767px) {
+    padding: 20px 0;
+  }
+}
+
+@mixin ease-all {
+  transition: all 0.3s ease;
+}

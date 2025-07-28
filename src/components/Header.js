@@ -165,7 +165,7 @@ const Header = () => {
         <div className="mid-header">
           <div className="container-xl">
             <div className="mid-header-box">
-              <Link to="/" className="header-logo-dt">
+              <Link to="/" className="header-logo-dt img-fluid">
                 <img
                   src={`${imageBase}logo.png`}
                   srcSet={`
@@ -393,7 +393,7 @@ const Header = () => {
                   Contact
                 </Link>
               </div>
-              <Link className="help-contact">
+              <a href="tel:+919999912345" className="help-contact">
                 <div className="phone-icon">
                   <Icon
                     icon="mage:phone-call"
@@ -406,7 +406,7 @@ const Header = () => {
                   <span className="help-text">Need Help? Call Us</span>
                   <span className="phone-number">+91 99999 12345</span>
                 </div>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -706,10 +706,14 @@ const Header = () => {
           </div>
           <div className="mobile-menu-social">
             <Icon icon="ri:facebook-fill" width="20" height="20" />
-            <Icon icon="mdi:twitter" width="20" height="20" />
-            <Icon icon="mdi:pinterest" width="20" height="20" />
-            <Icon icon="mdi:instagram" width="20" height="20" />
-            <Icon icon="mdi:tiktok" width="20" height="20" />
+            <Icon icon="prime:twitter" width="20" height="20" />
+            <Icon icon="ri:instagram-line" width="20" height="20" />
+            <Icon
+              icon="streamline-logos:thread-logo-logo-solid"
+              width="20"
+              height="20"
+            />
+            <Icon icon="ic:round-whatsapp" width="20" height="20" />
           </div>
         </div>
       </div>

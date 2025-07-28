@@ -4,7 +4,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #fff;
+  background: $white-color;
   box-shadow: 2px 0 24px rgba(0, 0, 0, 0.16);
   z-index: 2000;
   transform: translateX(-130%);
@@ -13,7 +13,7 @@
   flex-direction: column;
   justify-content: flex-start;
   padding: 0;
-  border-right: 1px solid #eee;
+  border-right: 1px solid $border-color;
   overflow: hidden;
 
   @media (min-width: 576px) {
@@ -42,7 +42,7 @@
       border: none;
       padding: 8px;
       cursor: pointer;
-      color: #fff;
+      color: $white-color;
       font-size: 24px;
       border-radius: 50%;
       transition: all 0.2s;
@@ -57,9 +57,9 @@
       }
     }
     .menu-title {
-      color: #fff;
+      color: $white-color;
       font-size: 18px;
-      font-weight: 600;
+      font-weight: $font-weight-semibold;
       margin: 0;
     }
   }
@@ -74,9 +74,9 @@
     overflow-y: auto;
     .mobile-menu-link {
       font-size: 16px;
-      color: #333;
+      color: $body-font-color;
       text-decoration: none;
-      font-weight: 500;
+      font-weight: $font-weight-medium;
       padding: 14px 16px;
       border-radius: 12px;
       display: flex;
@@ -85,8 +85,8 @@
       border-left: 3px solid transparent;
       &:hover {
         background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
-        color: #2e7d32;
-        border-left-color: #2e7d32;
+        color: $primary-color;
+        border-left-color: $primary-color;
         transform: translateX(4px);
       }
       svg {
@@ -98,13 +98,13 @@
 
   .mobile-menu-contact {
     font-size: 13px;
-    color: #666;
+    color: $gray-font-color;
     margin: 0 22px 24px 22px;
     background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f4 100%);
     border-radius: 16px;
     padding: 20px 18px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e8eaed;
+    border: 1px solid $border-color;
     display: flex;
     flex-direction: column;
     gap: 8px;

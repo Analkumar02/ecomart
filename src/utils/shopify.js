@@ -96,7 +96,7 @@ export async function getProducts() {
   let allProducts = [];
   let hasNextPage = true;
   let after = null;
-  const first = 100; // Shopify max is 250, but 50 is safe for most stores
+  const first = 250; // Shopify max is 250, but 50 is safe for most stores
   while (hasNextPage) {
     const variables = { first, after };
     const data = await shopifyRequest(query, variables);
