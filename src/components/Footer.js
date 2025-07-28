@@ -11,13 +11,6 @@ const Footer = () => {
         <div className="container">
           <div className="icon-box-area">
             <div className="icon-box">
-              <Icon icon="ph:farm-thin" width="40" height="40" />
-              <div className="icon-text">
-                <p>100% Organic</p>
-                <span>from natural farms</span>
-              </div>
-            </div>
-            <div className="icon-box">
               <Icon
                 icon="fluent:food-apple-20-regular"
                 width="40"
@@ -33,13 +26,6 @@ const Footer = () => {
               <div className="icon-text">
                 <p>10 min delivery*</p>
                 <span>On selected locations</span>
-              </div>
-            </div>
-            <div className="icon-box">
-              <Icon icon="lets-icons:watch-light" width="40" height="40" />
-              <div className="icon-text">
-                <p>On time</p>
-                <span>Guarantee</span>
               </div>
             </div>
             <div className="icon-box">
