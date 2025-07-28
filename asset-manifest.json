@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/ecomart/static/css/main.ce2b44ce.css",
+    "main.js": "/ecomart/static/js/main.9f4f7ba2.js",
+    "index.html": "/ecomart/index.html",
+    "main.ce2b44ce.css.map": "/ecomart/static/css/main.ce2b44ce.css.map",
+    "main.9f4f7ba2.js.map": "/ecomart/static/js/main.9f4f7ba2.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ce2b44ce.css",
+    "static/js/main.9f4f7ba2.js"
+  ]
+}
