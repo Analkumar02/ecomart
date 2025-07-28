@@ -49,7 +49,7 @@ export async function shopifyRequest(query, variables = {}) {
 }
 
 /**
- * Example: Get products (customize the query as needed)
+ * Get products (customize the query as needed)
  */
 export async function getProducts() {
   const query = `
@@ -106,4 +106,65 @@ export async function getProducts() {
     after = data.products.pageInfo.endCursor;
   }
   return allProducts;
+}
+
+/**
+ * Get collections with images (excluding collections without images)
+ */
+export async function getCollections() {
+  const query = `
+    query getCollections($first: Int!, $after: String) {
+      collections(first: $first, after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            id
+            title
+            handle
+            description
+            image {
+              src
+              altText
+            }
+            products(first: 1) {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+  let allCollections = [];
+  let hasNextPage = true;
+  let after = null;
+  const first = 100;
+
+  while (hasNextPage) {
+    const variables = { first, after };
+    const data = await shopifyRequest(query, variables);
+    const edges = data.collections.edges;
+
+    // Filter collections that have images and at least one product
+    const collectionsWithImages = edges
+      .map((edge) => edge.node)
+      .filter(
+        (collection) =>
+          collection.image &&
+          collection.image.src &&
+          collection.products.edges.length > 0
+      );
+
+    allCollections = allCollections.concat(collectionsWithImages);
+    hasNextPage = data.collections.pageInfo.hasNextPage;
+    after = data.collections.pageInfo.endCursor;
+  }
+
+  return allCollections;
 }

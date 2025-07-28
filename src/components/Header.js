@@ -8,52 +8,77 @@ import "swiper/css/navigation";
 import "swiper/css/autoplay";
 import { Navigation, Autoplay } from "swiper/modules";
 import { Link, useNavigate } from "react-router-dom";
-import { getProducts } from "../utils/shopify";
+import { getProducts, getCollections } from "../utils/shopify";
 
 const Header = () => {
   const imageBase = useImagePath();
   const { cart, wishlist } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [allProducts, setAllProducts] = useState([]);
+  const [allCollections, setAllCollections] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [filteredCollections, setFilteredCollections] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchBoxRef = useRef(null);
+  const mobileSearchRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProductsAndCollections = async () => {
       try {
-        const products = await getProducts();
+        const [products, collections] = await Promise.all([
+          getProducts(),
+          getCollections(),
+        ]);
         setAllProducts(products);
+        setAllCollections(collections);
       } catch (error) {
-        console.error("Failed to fetch products:", error);
-        // Set empty array to prevent further errors
+        console.error("Failed to fetch products and collections:", error);
+        // Set empty arrays to prevent further errors
         setAllProducts([]);
-        // Optionally add user notification here if needed
+        setAllCollections([]);
       }
     };
 
-    fetchProducts();
+    fetchProductsAndCollections();
   }, []);
 
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredProducts([]);
+      setFilteredCollections([]);
       setShowSuggestions(false);
       return;
     }
     const term = searchTerm.toLowerCase();
-    const matches = allProducts.filter((p) =>
+
+    // Filter products
+    const matchingProducts = allProducts.filter((p) =>
       p.title.toLowerCase().includes(term)
     );
-    setFilteredProducts(matches.slice(0, 4));
+
+    // Filter collections
+    const matchingCollections = allCollections.filter((c) =>
+      c.title.toLowerCase().includes(term)
+    );
+
+    setFilteredProducts(matchingProducts.slice(0, 3)); // Show 3 products
+    setFilteredCollections(matchingCollections.slice(0, 2)); // Show 2 collections
     setShowSuggestions(true); // Show suggestions even when no matches (for "no results" message)
-  }, [searchTerm, allProducts]);
+  }, [searchTerm, allProducts, allCollections]);
 
   useEffect(() => {
     function handleClickOutside(e) {
       if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
         setShowSuggestions(false);
+      }
+      if (
+        mobileSearchRef.current &&
+        !mobileSearchRef.current.contains(e.target)
+      ) {
+        setMobileSearchOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -64,10 +89,14 @@ const Header = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleSuggestionClick = (handle) => {
+  const handleSuggestionClick = (handle, type = "product") => {
     setSearchTerm("");
     setShowSuggestions(false);
-    navigate(`/product/${handle}`);
+    if (type === "collection") {
+      navigate(`/collections/${handle}`);
+    } else {
+      navigate(`/product/${handle}`);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -75,6 +104,14 @@ const Header = () => {
     if (searchTerm.trim() && filteredProducts.length > 0) {
       navigate(`/product/${filteredProducts[0].handle}`);
       setSearchTerm("");
+      setShowSuggestions(false);
+      setMobileSearchOpen(false);
+    }
+  };
+
+  const handleMobileSearchToggle = () => {
+    setMobileSearchOpen(!mobileSearchOpen);
+    if (!mobileSearchOpen) {
       setShowSuggestions(false);
     }
   };
@@ -163,8 +200,342 @@ const Header = () => {
                 </form>
                 {showSuggestions && (
                   <div className="search-suggestions">
-                    {filteredProducts.length > 0 ? (
-                      filteredProducts.map((product) => (
+                    {filteredProducts.length > 0 ||
+                    filteredCollections.length > 0 ? (
+                      <>
+                        {/* Collections */}
+                        {filteredCollections.map((collection) => (
+                          <div
+                            className="suggestion-item collection-item"
+                            key={`collection-${collection.id}`}
+                            onClick={() =>
+                              handleSuggestionClick(
+                                collection.handle,
+                                "collection"
+                              )
+                            }
+                          >
+                            <img
+                              src={
+                                collection.image?.src ||
+                                `${imageBase}placeholder.png`
+                              }
+                              alt={collection.title}
+                              className="suggestion-thumb"
+                            />
+                            <div className="suggestion-info">
+                              <div className="suggestion-title">
+                                <Icon
+                                  icon="material-symbols:folder-outline"
+                                  width="14"
+                                  height="14"
+                                  style={{
+                                    marginRight: "6px",
+                                    color: "#34690f",
+                                  }}
+                                />
+                                {collection.title}
+                              </div>
+                              <div className="suggestion-category">
+                                Collection
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Products */}
+                        {filteredProducts.map((product) => (
+                          <div
+                            className="suggestion-item"
+                            key={product.id}
+                            onClick={() =>
+                              handleSuggestionClick(product.handle)
+                            }
+                          >
+                            <img
+                              src={
+                                product.images &&
+                                product.images.edges &&
+                                product.images.edges[0]
+                                  ? product.images.edges[0].node.src
+                                  : `${imageBase}placeholder.png`
+                              }
+                              alt={product.title}
+                              className="suggestion-thumb"
+                            />
+                            <div className="suggestion-info">
+                              <div className="suggestion-title">
+                                {product.title}
+                              </div>
+                              <div className="suggestion-prices">
+                                {product.variants &&
+                                product.variants.edges &&
+                                product.variants.edges[0] ? (
+                                  product.variants.edges[0].node
+                                    .compareAtPrice &&
+                                  product.variants.edges[0].node.compareAtPrice
+                                    .amount !==
+                                    product.variants.edges[0].node.price
+                                      .amount ? (
+                                    <>
+                                      <span className="suggestion-price-discounted">
+                                        $
+                                        {parseFloat(
+                                          product.variants.edges[0].node.price
+                                            .amount
+                                        ).toFixed(2)}
+                                      </span>
+                                      <span className="suggestion-price-original">
+                                        $
+                                        {parseFloat(
+                                          product.variants.edges[0].node
+                                            .compareAtPrice.amount
+                                        ).toFixed(2)}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    <span className="suggestion-price">
+                                      $
+                                      {parseFloat(
+                                        product.variants.edges[0].node.price
+                                          .amount
+                                      ).toFixed(2)}
+                                    </span>
+                                  )
+                                ) : null}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="no-results">
+                        <div className="no-results-icon">
+                          <Icon
+                            icon="healthicons:sad-outline"
+                            width="32"
+                            height="32"
+                          />
+                        </div>
+                        <div className="no-results-text">
+                          <div className="no-results-title">
+                            No products or collections found
+                          </div>
+                          <div className="no-results-subtitle">
+                            Try searching with different keywords
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="header-icons">
+                <div className="icon-badge-box">
+                  <Link to="/" className="icon-link">
+                    <Icon icon="basil:user-outline" width="24" height="24" />
+                  </Link>
+                </div>
+
+                <div className="icon-badge-box">
+                  <Link to="/wishlist" className="icon-link">
+                    <Icon icon="solar:heart-linear" width="24" height="24" />
+                    {wishlist.length > 0 && (
+                      <span className="icon-badge wishlist-badge">
+                        {wishlist.length}
+                      </span>
+                    )}
+                  </Link>
+                </div>
+                <div className="icon-badge-box">
+                  <Link to="/cart" className="icon-link">
+                    <Icon icon="mage:basket" width="24" height="24" />
+                    {cart.length > 0 && (
+                      <span className="icon-badge cart-badge">
+                        {cart.length}
+                      </span>
+                    )}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bottom-header position-sticky">
+          <div className="container-xl">
+            <div className="bottom-header-content">
+              <div className="menu-links">
+                <Link to="/" className="menu-link">
+                  Home
+                </Link>
+                <Link to="/shop" className="menu-link">
+                  Shop
+                </Link>
+                <Link to="/fresh-fruits" className="menu-link">
+                  <Icon
+                    icon="healthicons:fruits-outline"
+                    width="16"
+                    height="16"
+                    style={{ marginRight: "6px" }}
+                  />
+                  Fresh Fruits
+                </Link>
+                <Link to="/beverage" className="menu-link">
+                  <Icon
+                    icon="arcticons:bottle-jump"
+                    width="16"
+                    height="16"
+                    style={{ marginRight: "6px" }}
+                  />
+                  Beverage
+                </Link>
+                <Link to="/contact" className="menu-link">
+                  Contact
+                </Link>
+              </div>
+              <Link className="help-contact">
+                <div className="phone-icon">
+                  <Icon
+                    icon="mage:phone-call"
+                    width="40"
+                    height="40"
+                    style={{ color: "#fff" }}
+                  />
+                </div>
+                <div className="contact-text">
+                  <span className="help-text">Need Help? Call Us</span>
+                  <span className="phone-number">+91 99999 12345</span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="header-mob d-block d-lg-none">
+        <div className="container-xl">
+          <div className="header-mob-box">
+            <Link to="/" className="header-logo-mob">
+              <img
+                src={`${imageBase}logo.png`}
+                srcSet={`
+                  ${imageBase}logo.png 1x,
+                  ${imageBase}logo@2x.png 2x,
+                  ${imageBase}logo@3x.png 3x
+                `}
+                alt="Ecomart Logo"
+              />
+            </Link>
+            <div className="header-icons">
+              <div className="icon-badge-box">
+                <button
+                  className="icon-link"
+                  onClick={handleMobileSearchToggle}
+                  aria-label="Toggle search"
+                >
+                  <Icon icon="mingcute:search-line" width="20" height="20" />
+                </button>
+              </div>
+              <div className="icon-badge-box">
+                <Link to="/wishlist" className="icon-link">
+                  <Icon icon="solar:heart-linear" width="20" height="20" />
+                  {wishlist.length > 0 && (
+                    <span className="icon-badge wishlist-badge">
+                      {wishlist.length}
+                    </span>
+                  )}
+                </Link>
+              </div>
+              <div className="icon-badge-box">
+                <Link to="/cart" className="icon-link">
+                  <Icon icon="mage:basket" width="20" height="20" />
+                  {cart.length > 0 && (
+                    <span className="icon-badge cart-badge">{cart.length}</span>
+                  )}
+                </Link>
+              </div>
+              <div className="icon-badge-box">
+                <button
+                  className="icon-link menu-toggle-btn"
+                  onClick={() => setMobileMenuOpen(true)}
+                  aria-label="Open menu"
+                >
+                  <Icon
+                    icon="bitcoin-icons:menu-filled"
+                    width="20"
+                    height="20"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Search Bar */}
+        <div
+          className={`mobile-search-bar${mobileSearchOpen ? " open" : ""}`}
+          ref={mobileSearchRef}
+        >
+          <div className="container-xl">
+            <div className="mobile-search-box">
+              <form onSubmit={handleSubmit} autoComplete="off">
+                <input
+                  type="text"
+                  className="mobile-search-input"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={handleInputChange}
+                  onFocus={() => {
+                    if (searchTerm.trim() !== "") setShowSuggestions(true);
+                  }}
+                />
+                <button type="submit" className="mobile-search-btn">
+                  <Icon icon="mingcute:search-line" width="18" height="18" />
+                </button>
+              </form>
+              {showSuggestions && (
+                <div className="mobile-search-suggestions">
+                  {filteredProducts.length > 0 ||
+                  filteredCollections.length > 0 ? (
+                    <>
+                      {/* Collections */}
+                      {filteredCollections.map((collection) => (
+                        <div
+                          className="suggestion-item collection-item"
+                          key={`mobile-collection-${collection.id}`}
+                          onClick={() =>
+                            handleSuggestionClick(
+                              collection.handle,
+                              "collection"
+                            )
+                          }
+                        >
+                          <img
+                            src={
+                              collection.image?.src ||
+                              `${imageBase}placeholder.png`
+                            }
+                            alt={collection.title}
+                            className="suggestion-thumb"
+                          />
+                          <div className="suggestion-info">
+                            <div className="suggestion-title">
+                              <Icon
+                                icon="material-symbols:folder-outline"
+                                width="12"
+                                height="12"
+                                style={{ marginRight: "4px", color: "#34690f" }}
+                              />
+                              {collection.title}
+                            </div>
+                            <div className="suggestion-category">
+                              Collection
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Products */}
+                      {filteredProducts.map((product) => (
                         <div
                           className="suggestion-item"
                           key={product.id}
@@ -223,162 +594,132 @@ const Header = () => {
                             </div>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="no-results">
-                        <div className="no-results-icon">
-                          <Icon
-                            icon="healthicons:sad-outline"
-                            width="32"
-                            height="32"
-                          />
+                      ))}
+                    </>
+                  ) : (
+                    <div className="no-results">
+                      <div className="no-results-icon">
+                        <Icon
+                          icon="healthicons:sad-outline"
+                          width="32"
+                          height="32"
+                        />
+                      </div>
+                      <div className="no-results-text">
+                        <div className="no-results-title">
+                          No products or collections found
                         </div>
-                        <div className="no-results-text">
-                          <div className="no-results-title">
-                            No products found
-                          </div>
-                          <div className="no-results-subtitle">
-                            Try searching with different keywords
-                          </div>
+                        <div className="no-results-subtitle">
+                          Try searching with different keywords
                         </div>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="header-icons">
-                <div className="icon-badge-box">
-                  <Link to="/" className="icon-link">
-                    <Icon icon="basil:user-outline" width="24" height="24" />
-                  </Link>
+                    </div>
+                  )}
                 </div>
-
-                <div className="icon-badge-box">
-                  <Link to="/wishlist" className="icon-link">
-                    <Icon icon="solar:heart-linear" width="24" height="24" />
-                    {wishlist.length > 0 && (
-                      <span className="icon-badge wishlist-badge">
-                        {wishlist.length}
-                      </span>
-                    )}
-                  </Link>
-                </div>
-                <div className="icon-badge-box">
-                  <Link to="/cart" className="icon-link">
-                    <Icon icon="mage:basket" width="24" height="24" />
-                    {cart.length > 0 && (
-                      <span className="icon-badge cart-badge">
-                        {cart.length}
-                      </span>
-                    )}
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bottom-header">
-          <div className="container-xl">
-            <div className="bottom-header-content">
-              <div className="menu-links">
-                <Link to="/" className="menu-link">
-                  Home
-                </Link>
-                <Link to="/shop" className="menu-link">
-                  Shop
-                </Link>
-                <Link to="/fresh-fruits" className="menu-link">
-                  <Icon
-                    icon="healthicons:fruits-outline"
-                    width="16"
-                    height="16"
-                    style={{ marginRight: "6px" }}
-                  />
-                  Fresh Fruits
-                </Link>
-                <Link to="/beverage" className="menu-link">
-                  <Icon
-                    icon="arcticons:bottle-jump"
-                    width="16"
-                    height="16"
-                    style={{ marginRight: "6px" }}
-                  />
-                  Beverage
-                </Link>
-                <Link to="/contact" className="menu-link">
-                  Contact
-                </Link>
-              </div>
-              <div className="help-contact">
-                <div className="phone-icon">
-                  <Icon
-                    icon="solar:phone-bold"
-                    width="18"
-                    height="18"
-                    style={{ color: "#fff" }}
-                  />
-                </div>
-                <div className="contact-text">
-                  <span className="help-text">Need Help? Call Us</span>
-                  <span className="phone-number">+91 99999 12345</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <div className="header-mob d-block d-lg-none">
-        <div className="container-xl">
-          <div className="header-mob-box">
-            <Link to="/" className="header-logo-mob">
-              <img
-                src={`${imageBase}logo.png`}
-                srcSet={`
-                  ${imageBase}logo.png 1x,
-                  ${imageBase}logo@2x.png 2x,
-                  ${imageBase}logo@3x.png 3x
-                `}
-                alt="Ecomart Logo"
-              />
-            </Link>
-            <div className="header-icons">
-              <div className="icon-badge-box">
-                <Link to="/" className="icon-link">
-                  <Icon icon="basil:user-outline" width="20" height="20" />
-                </Link>
-              </div>
 
-              <div className="icon-badge-box">
-                <Link to="/wishlist" className="icon-link">
-                  <Icon icon="solar:heart-linear" width="20" height="20" />
-                  {wishlist.length > 0 && (
-                    <span className="icon-badge wishlist-badge">
-                      {wishlist.length}
-                    </span>
-                  )}
-                </Link>
-              </div>
-              <div className="icon-badge-box">
-                <Link to="/cart" className="icon-link">
-                  <Icon icon="mage:basket" width="20" height="20" />
-                  {cart.length > 0 && (
-                    <span className="icon-badge cart-badge">{cart.length}</span>
-                  )}
-                </Link>
-              </div>
-              <div className="icon-badge-box">
-                <Link className="icon-link">
-                  <Icon
-                    icon="bitcoin-icons:menu-filled"
-                    width="20"
-                    height="20"
-                  />
-                </Link>
-              </div>
-            </div>
+      {/* Mobile Menu Drawer */}
+      <div className={`mobile-menu-drawer${mobileMenuOpen ? " open" : ""}`}>
+        <div className="mobile-menu-header">
+          <h3 className="menu-title">Menu</h3>
+          <button
+            className="close-btn"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <Icon icon="ic:round-close" width="20" height="20" />
+          </button>
+        </div>
+        {/* Mobile Menu Search Bar removed as requested */}
+        <nav className="mobile-menu-nav">
+          <Link
+            to="/"
+            className="mobile-menu-link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link
+            to="/shop"
+            className="mobile-menu-link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Shop
+          </Link>
+          <Link
+            to="/fresh-fruits"
+            className="mobile-menu-link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <Icon
+              icon="healthicons:fruits-outline"
+              width="16"
+              height="16"
+              style={{ marginRight: "6px" }}
+            />
+            Fresh Fruits
+          </Link>
+          <Link
+            to="/beverage"
+            className="mobile-menu-link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <Icon
+              icon="arcticons:bottle-jump"
+              width="16"
+              height="16"
+              style={{ marginRight: "6px" }}
+            />
+            Beverage
+          </Link>
+          <Link
+            to="/contact"
+            className="mobile-menu-link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Contact
+          </Link>
+        </nav>
+        <div className="mobile-menu-contact">
+          <div>EcoMart Grocery Store</div>
+          <div>
+            <a href="/">
+              <Icon icon="ep:location" width="14" height="14" />
+              Eco Space, New Town, AA II
+            </a>
+          </div>
+          <div>
+            <a href="tel:+919876543210">
+              <Icon icon="mage:phone-call" width="14" height="14" />
+              +91 9876543210
+            </a>
+          </div>
+          <div>
+            <a href="mailto:support@ecomart.com">
+              <Icon icon="nimbus:mail" width="14" height="14" />
+              support@ecomart.com
+            </a>
+          </div>
+          <div className="mobile-menu-social">
+            <Icon icon="ri:facebook-fill" width="20" height="20" />
+            <Icon icon="mdi:twitter" width="20" height="20" />
+            <Icon icon="mdi:pinterest" width="20" height="20" />
+            <Icon icon="mdi:instagram" width="20" height="20" />
+            <Icon icon="mdi:tiktok" width="20" height="20" />
           </div>
         </div>
       </div>
+      {/* Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="mobile-menu-overlay"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
     </header>
   );
 };
