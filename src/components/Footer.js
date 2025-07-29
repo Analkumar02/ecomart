@@ -8,7 +8,7 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-top">
-        <div className="container">
+        <div className="container-xxl">
           <div className="icon-box-area">
             <div className="icon-box">
               <Icon
@@ -50,7 +50,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="main-footer">
-        <div className="container">
+        <div className="container-xxl">
           <div className="row">
             <div className="col-lg-3 col-md-12 col-sm-12 col-12">
               <div className="footer-info">
@@ -154,13 +154,66 @@ const Footer = () => {
               <div className="footer-news">
                 <h5>Sign Up Newsletter</h5>
                 <p>₹200 discount for your first order</p>
+                <form
+                  className="newsletter-form"
+                  onSubmit={(e) => e.preventDefault()}
+                >
+                  <input
+                    type="email"
+                    className="newsletter-input"
+                    placeholder="Enter Your E-mail"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="newsletter-submit"
+                    aria-label="Subscribe"
+                  >
+                    <Icon
+                      icon="tabler:send"
+                      width="20"
+                      height="20"
+                      style={{ color: "white" }}
+                    />
+                  </button>
+                </form>
+                <div className="download-text">
+                  <p>
+                    <b>Download App on Mobile :</b>
+                  </p>
+                  <p>₹200 discount for your first order</p>
+                </div>
+                <div className="download-btn">
+                  <Link to="/">
+                    <img
+                      src={`${imageBase}play-store.png`}
+                      srcSet={`
+                  ${imageBase}play-store.png 1x,
+                  ${imageBase}play-store@2x.png 2x,
+                  ${imageBase}play-store@3x.png 3x
+                `}
+                      alt="Download from Playstore"
+                    />
+                  </Link>
+                  <Link to="/">
+                    <img
+                      src={`${imageBase}app-store.png`}
+                      srcSet={`
+                  ${imageBase}app-store.png 1x,
+                  ${imageBase}app-store@2x.png 2x,
+                  ${imageBase}app-store@3x.png 3x
+                `}
+                      alt="Download from Appstore"
+                    />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div className="footer-bottom">
-        <div className="container">
+        <div className="container-xxl">
           <div className="footer-bottom-content">
             <p>
               Copyright 2025 © Ecomart India Pvt. Ltd.. All rights reserved.

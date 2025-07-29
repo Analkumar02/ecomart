@@ -68,7 +68,9 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
-      margin-bottom: 2rem;
+      @media (max-width: 991px) {
+        margin-bottom: 2rem;
+      }
       .footer-logo {
         img {
           max-height: 70px;
@@ -113,7 +115,7 @@
           @include ease-all;
           &:hover {
             svg {
-              color: $secondary-color;
+              color: $light-green;
             }
           }
         }
@@ -123,10 +125,14 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
-      margin-bottom: 2rem;
+      @media (max-width: 991px) {
+        margin-bottom: 2rem;
+        gap: 10px;
+      }
       H5 {
         font-family: $font-family-body;
         font-weight: $font-weight-bold;
+        margin-bottom: 0;
       }
       ul {
         padding-left: 0;
@@ -140,6 +146,80 @@
             line-height: 2;
             &:hover {
               color: $primary-color;
+            }
+          }
+        }
+      }
+    }
+    .footer-news {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 2rem;
+      @media (max-width: 767px) {
+        margin-bottom: 10px;
+      }
+      H5 {
+        font-family: $font-family-body;
+        font-weight: $font-weight-bold;
+        margin-bottom: 0;
+      }
+      p {
+        font-size: 14px;
+        color: $gray-font-color;
+        margin-bottom: 0;
+      }
+      .newsletter-form {
+        display: flex;
+        align-items: center;
+        background: $bg-gray;
+        border-radius: 6px;
+        overflow: hidden;
+        height: 38px;
+        width: 100%;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        .newsletter-input {
+          flex: 1;
+          border: none;
+          outline: none;
+          background: transparent;
+          padding: 0 10px;
+          font-size: 12px;
+          color: $body-font-color;
+          height: 100%;
+        }
+        .newsletter-submit {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: $primary-color;
+          border: none;
+          width: 40px;
+          height: 100%;
+          cursor: pointer;
+          transition: background 0.2s;
+          border-radius: 0 6px 6px 0;
+          padding: 0;
+          &:hover {
+            background: $light-green;
+          }
+        }
+      }
+      .download-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      @media (max-width: 767px) {
+        .newsletter-form {
+          .newsletter-input {
+            font-size: 12px;
+            padding: 0 12px;
+          }
+          .newsletter-submit {
+            svg {
+              width: 16px;
+              height: 16px;
             }
           }
         }

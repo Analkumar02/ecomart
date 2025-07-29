@@ -120,7 +120,7 @@ const Header = () => {
     <header className="main-header">
       <div className="header-dt d-none d-lg-block">
         <div className="topbar">
-          <div className="container-xl">
+          <div className="container-xxl">
             <div className="row">
               <div className="col-lg-6">
                 <div className="topbar-left">
@@ -163,7 +163,7 @@ const Header = () => {
           </div>
         </div>
         <div className="mid-header">
-          <div className="container-xl">
+          <div className="container-xxl">
             <div className="mid-header-box">
               <Link to="/" className="header-logo-dt img-fluid">
                 <img
@@ -362,7 +362,7 @@ const Header = () => {
           </div>
         </div>
         <div className="bottom-header position-sticky">
-          <div className="container-xl">
+          <div className="container-xxl">
             <div className="bottom-header-content">
               <div className="menu-links">
                 <Link to="/" className="menu-link">
@@ -412,7 +412,7 @@ const Header = () => {
         </div>
       </div>
       <div className="header-mob d-block d-lg-none">
-        <div className="container-xl">
+        <div className="container-xxl">
           <div className="header-mob-box">
             <Link to="/" className="header-logo-mob">
               <img
@@ -475,7 +475,7 @@ const Header = () => {
           className={`mobile-search-bar${mobileSearchOpen ? " open" : ""}`}
           ref={mobileSearchRef}
         >
-          <div className="container-xl">
+          <div className="container-xxl">
             <div className="mobile-search-box">
               <form onSubmit={handleSubmit} autoComplete="off">
                 <input

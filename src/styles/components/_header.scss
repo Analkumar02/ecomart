@@ -17,7 +17,7 @@
           gap: 5px;
 
           &:hover {
-            color: $secondary-color;
+            color: $light-green;
           }
         }
       }
@@ -101,7 +101,7 @@
           }
 
           .search-btn {
-            background: $secondary-color;
+            background: $light-green;
             color: $body-font-color;
             border: none;
             border-radius: 0 24px 24px 0;
@@ -276,7 +276,7 @@
               position: relative;
               transition: color 0.3s ease;
               &:hover {
-                color: $secondary-color;
+                color: $light-green;
               }
               .icon-badge {
                 position: absolute;
@@ -437,7 +437,7 @@
             border: none;
             background-color: transparent;
             &:hover {
-              color: $secondary-color;
+              color: $light-green;
             }
             .icon-badge {
               position: absolute;
@@ -514,7 +514,7 @@
         }
 
         .mobile-search-btn {
-          background: $secondary-color;
+          background: $light-green;
           color: $body-font-color;
           border: none;
           padding: 0 16px;

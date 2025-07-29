@@ -1,0 +1,91 @@
+.hero-area {
+  @include gap;
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+
+    @media (min-width: 768px) {
+      grid-template-columns: 60% 38%;
+      grid-template-areas:
+        "hero1 hero2"
+        "hero1 hero3";
+    }
+    .hero1 {
+      grid-area: hero1;
+      img {
+        width: 100%;
+        border-radius: 20px;
+        z-index: 1;
+      }
+      .hero-left-text {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        z-index: 2;
+        transform: translateY(-50%);
+        padding: 0 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        z-index: 2;
+        max-width: 550px;
+        .tag {
+          background-color: $red-body-color;
+          padding: 0 10px;
+          color: $white-color;
+          font-size: $font-size-h5;
+          font-weight: $font-weight-medium;
+          width: fit-content;
+          border-radius: 3px;
+        }
+        h1 {
+          font-size: $font-size-h1;
+          color: $body-font-color;
+        }
+        h6 {
+          font-size: $font-size-h6;
+          color: $primary-color;
+          font-weight: $font-weight-semibold;
+          font-family: $font-family-body;
+        }
+        .hero-left-btn {
+          @include green-btn-big;
+        }
+      }
+    }
+    .hero2 {
+      grid-area: hero2;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 20px;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+      }
+    }
+    .hero3 {
+      grid-area: hero3;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 20px;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+      }
+    }
+  }
+}
