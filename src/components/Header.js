@@ -4,9 +4,10 @@ import { useStore } from "../context/StoreContext";
 import { Icon } from "@iconify/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import "swiper/css/effect-fade";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
-import { Navigation, Autoplay } from "swiper/modules";
+import { Navigation, EffectFade, Autoplay } from "swiper/modules";
 import { Link, useNavigate } from "react-router-dom";
 import { getProducts, getCollections } from "../utils/shopify";
 
@@ -143,8 +144,12 @@ const Header = () => {
                   <Swiper
                     navigation={true}
                     loop={true}
+                    effect={"fade"}
+                    fadeEffect={{
+                      crossFade: true,
+                    }}
                     autoplay={{ delay: 5000, disableOnInteraction: false }}
-                    modules={[Navigation, Autoplay]}
+                    modules={[Navigation, EffectFade, Autoplay]}
                     className="topbar-swiper"
                   >
                     <SwiperSlide>

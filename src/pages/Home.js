@@ -1,48 +1,146 @@
 import { useImagePath } from "../context/ImagePathContext";
-import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import { useState, useEffect } from "react";
+import { getCollections } from "../utils/shopify";
 
 const Home = () => {
   const imageBase = useImagePath();
+  const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      try {
+        setLoading(true);
+        const collectionsData = await getCollections();
+        // Sort collections alphabetically by title
+        const sortedCollections = collectionsData.sort((a, b) =>
+          a.title.localeCompare(b.title)
+        );
+        setCollections(sortedCollections);
+      } catch (error) {
+        console.error("Error fetching collections:", error);
+        setCollections([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCollections();
+  }, []);
+
   return (
-    <section className="hero-area">
-      <div className="container-xxl">
-        <div className="hero-content">
-          <div className="hero1 position-relative">
-            <img
-              className="img-fluid"
-              src={`${imageBase}/hero-left.jpg`}
-              srcSet={`${imageBase}/hero-left@2x.jpg 2x, ${imageBase}/hero-left@3x.jpg 3x`}
-              alt="Hero Left"
-            />
-            <div className="hero-left-text">
-              <div className="tag">100% Farm Fresh Food</div>
-              <h1>The Taste of Nature, Now in Every Order.</h1>
-              <h6>Fresh from the farm, straight to your doorstep.</h6>
-              <Link to="/shop" className="hero-left-btn">
-                Shop Now
-              </Link>
+    <>
+      <section className="hero-area">
+        <div className="container-xxl">
+          <div className="hero-content">
+            <div className="hero-left position-relative">
+              <img
+                className="img-fluid"
+                src={`${imageBase}/hero-left.jpg`}
+                srcSet={`${imageBase}/hero-left@2x.jpg 2x, ${imageBase}/hero-left@3x.jpg 3x`}
+                alt="Hero Left"
+              />
+              <div className="hero-left-text">
+                <div className="tag">100% Farm Fresh Food</div>
+                <h1>The Taste of Nature, Now in Every Order.</h1>
+                <h6>Fresh from the farm, straight to your doorstep.</h6>
+                <Link to="/shop" className="hero-left-btn">
+                  Shop Now
+                </Link>
+              </div>
+            </div>
+            <div className="hero-right">
+              <div className="hero2 position-relative">
+                <img
+                  className="img-fluid"
+                  src={`${imageBase}/hero2.jpg`}
+                  srcSet={`${imageBase}/hero2@2x.jpg 2x, ${imageBase}/hero2@3x.jpg 3x`}
+                  alt="Hero Left"
+                />
+                <div className="hero2-text">
+                  <h4>Fresh Lentils for Every Indian Kitchen!</h4>
+                  <Link to="/shop" className="hero-right-btn">
+                    Shop Now
+                  </Link>
+                </div>
+              </div>
+              <div className="hero3 position-relative">
+                <img
+                  className="img-fluid"
+                  src={`${imageBase}/hero3.jpg`}
+                  srcSet={`${imageBase}/hero3@2x.jpg 2x, ${imageBase}/hero3@3x.jpg 3x`}
+                  alt="Hero Left"
+                />
+                <div className="hero3-text">
+                  <h4>Fresh. Crunchy. Delicious.</h4>
+                  <Link to="/shop" className="hero-right-btn">
+                    Shop Now
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="hero2 position-relative">
-            <img
-              className="img-fluid"
-              src={`${imageBase}/hero2.jpg`}
-              srcSet={`${imageBase}/hero2@2x.jpg 2x, ${imageBase}/hero2@3x.jpg 3x`}
-              alt="Hero Left"
-            />
-          </div>
-          <div className="hero3 position-relative">
-            <img
-              className="img-fluid"
-              src={`${imageBase}/hero3.jpg`}
-              srcSet={`${imageBase}/hero3@2x.jpg 2x, ${imageBase}/hero3@3x.jpg 3x`}
-              alt="Hero Left"
-            />
+        </div>
+      </section>
+
+      <section className="category-area">
+        <div className="container-xxl">
+          <div className="category-content">
+            <Swiper
+              modules={[Navigation]}
+              navigation={true}
+              loop={true}
+              slidesPerView="auto"
+              spaceBetween={0}
+              breakpoints={{
+                0: {
+                  slidesPerView: 2,
+                },
+                576: {
+                  slidesPerView: 3,
+                },
+                768: {
+                  slidesPerView: 4,
+                },
+                992: {
+                  slidesPerView: 5,
+                },
+                1200: {
+                  slidesPerView: 6,
+                },
+                1400: {
+                  slidesPerView: 7,
+                },
+              }}
+              className="category-swiper"
+            >
+              {collections.map((collection) => (
+                <SwiperSlide key={collection.id}>
+                  <Link
+                    to={`/collections/${collection.handle}`}
+                    className="category-slide"
+                  >
+                    <img
+                      src={
+                        collection.image?.src || `${imageBase}placeholder.png`
+                      }
+                      alt={collection.title}
+                      className="category-image"
+                    />
+                    <p className="category-name">{collection.title}</p>
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
