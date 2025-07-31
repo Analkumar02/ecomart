@@ -6,6 +6,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { useState, useEffect } from "react";
 import { getCollections } from "../utils/shopify";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import ProductCard from "../components/ProductCard";
 
 const Home = () => {
   const imageBase = useImagePath();
@@ -166,7 +168,23 @@ const Home = () => {
               </div>
             </div>
             <div className="col-lg-9 col-md-12 col-sm-12">
-              <div className="smartcart-product"></div>
+              <div className="smartcart-product">
+                <div className="product-header">
+                  <p>My Smart Cart</p>
+                  <div className="divider1">
+                    <span className="green-line"></span>
+                    <span className="gray-line"></span>
+                  </div>
+                  <Link to="/shop" className="see-more-btn">
+                    See more
+                    <Icon icon="ep:arrow-right" height="16" width="16" />
+                  </Link>
+                </div>
+                <div className="product-area">
+                  <ProductCard />
+                  <div className="product-card-small"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

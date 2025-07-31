@@ -168,3 +168,86 @@ export async function getCollections() {
 
   return allCollections;
 }
+
+/**
+ * Get products from a specific collection by handle
+ * @param {string} collectionHandle - The handle of the collection
+ * @returns {Promise<Array>} - Array of products
+ */
+export async function getProductsByCollection(collectionHandle) {
+  const query = `
+    query getProductsByCollection($handle: String!, $first: Int!, $after: String) {
+      collectionByHandle(handle: $handle) {
+        id
+        title
+        products(first: $first, after: $after, sortKey: PRICE, reverse: true) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          edges {
+            node {
+              id
+              title
+              handle
+              description
+              productType
+              tags
+              images(first: 5) {
+                edges {
+                  node {
+                    src
+                    altText
+                  }
+                }
+              }
+              variants(first: 10) {
+                edges {
+                  node {
+                    id
+                    title
+                    price {
+                      amount
+                      currencyCode
+                    }
+                    compareAtPrice {
+                      amount
+                      currencyCode
+                    }
+                    availableForSale
+                    image {
+                      src
+                      altText
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  let allProducts = [];
+  let hasNextPage = true;
+  let after = null;
+  const first = 50;
+
+  while (hasNextPage) {
+    const variables = { handle: collectionHandle, first, after };
+    const data = await shopifyRequest(query, variables);
+
+    if (!data.collectionByHandle) {
+      console.warn(`Collection with handle "${collectionHandle}" not found`);
+      return [];
+    }
+
+    const edges = data.collectionByHandle.products.edges;
+    allProducts = allProducts.concat(edges.map((edge) => edge.node));
+    hasNextPage = data.collectionByHandle.products.pageInfo.hasNextPage;
+    after = data.collectionByHandle.products.pageInfo.endCursor;
+  }
+
+  return allProducts;
+}

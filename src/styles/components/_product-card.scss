@@ -1,0 +1,190 @@
+.product-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
+  position: relative;
+  overflow: hidden;
+  .category {
+    color: $gray-font-color;
+    font-size: 11px;
+    font-weight: $font-weight-regular;
+    margin-bottom: 0;
+  }
+  img {
+    max-width: 280px;
+  }
+  .variant-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    .variant {
+      color: $gray-font-color;
+      border: 1px solid $border-color;
+      border-radius: 30px;
+      padding: 5px 15px;
+      text-align: center;
+      font-size: 11px;
+    }
+    .active {
+      color: $primary-color;
+      border: 1px solid $primary-color;
+    }
+  }
+  .price-box {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    .org-price {
+      color: $gray-font-color;
+      font-weight: $font-weight-medium;
+      text-decoration: line-through;
+      font-size: $font-size-body;
+    }
+    .sale-price {
+      color: $body-font-color;
+      font-weight: $font-weight-semibold;
+      font-size: $font-size-body;
+    }
+  }
+  .stars {
+    display: flex;
+    align-items: center;
+    svg {
+      color: #fcb428;
+    }
+  }
+  .pr-title {
+    font-size: 14px;
+    font-weight: $font-weight-regular;
+    color: $body-font-color;
+    margin: 0;
+    text-decoration: none;
+    &:hover {
+      color: $primary-color;
+      text-decoration: none;
+    }
+  }
+  .wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border-radius: 30px;
+    padding: 5px;
+    cursor: pointer;
+    svg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $gray-font-color;
+      @include ease-all;
+    }
+    &:hover {
+      background-color: $secondary-color;
+      svg {
+        color: $white-color;
+      }
+    }
+  }
+  .wl-active {
+    svg {
+      color: $white-color;
+      background-color: $secondary-color;
+    }
+  }
+  .add-cart-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: $secondary-color;
+    transition: all 0.3s ease-in-out;
+    svg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $white-color;
+      @include ease-all;
+    }
+  }
+
+  .qty-box {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease-in-out;
+    pointer-events: none;
+
+    &.show {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      background-color: $white-color;
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+      .qty-btn {
+        width: 28px;
+        height: 18px;
+        border: none;
+        background-color: $secondary-color;
+        color: $white-color;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        @include ease-all;
+
+        &:hover:not(:disabled) {
+          background-color: darken($secondary-color, 10%);
+        }
+
+        &:disabled {
+          background-color: $gray-font-color;
+          cursor: not-allowed;
+        }
+
+        svg {
+          color: inherit;
+        }
+      }
+
+      .qty-display {
+        min-width: 50px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $gray-color;
+        color: $body-font-color;
+        font-size: 14px;
+        font-weight: $font-weight-medium;
+      }
+    }
+  }
+
+  // Show qty-box when product has show-qty class
+  &.show-qty .qty-box {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  // Hide add-cart-btn when qty-box is shown
+  &.show-qty .add-cart-btn {
+    opacity: 0;
+    pointer-events: none;
+  }
+}

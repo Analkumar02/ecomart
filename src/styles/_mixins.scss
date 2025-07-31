@@ -36,6 +36,25 @@
   transition: background-color 0.2s ease, box-shadow 0.2s ease,
     transform 0.2s ease;
 }
+@mixin btn-big-responsive {
+  @media (max-width: 991px) {
+    padding: 10px 24px;
+    width: 120px;
+    height: 40px;
+  }
+  @media (max-width: 767px) {
+    width: 110px;
+    height: 35px;
+  }
+}
+@mixin btn-small-responsive {
+  @media (max-width: 991px) {
+    font-size: 12px;
+    padding: 10px 15px;
+    width: 100px;
+    height: 30px;
+  }
+}
 
 @mixin green-btn {
   @include btn-default;
@@ -70,6 +89,7 @@
 }
 @mixin white-btn-big {
   @include white-btn;
+  @include btn-big-responsive;
   font-size: $font-size-body;
   padding: 16px 36px;
   width: 150px;
@@ -77,6 +97,7 @@
 }
 @mixin green-btn-big {
   @include green-btn;
+  @include btn-big-responsive;
   font-size: $font-size-body;
   padding: 16px 36px;
   width: 150px;
@@ -84,6 +105,7 @@
 }
 @mixin white-btn-small {
   @include white-btn;
+  @include btn-small-responsive;
   font-size: 14px;
   padding: 14px 24px;
   width: 117px;
@@ -91,8 +113,27 @@
 }
 @mixin green-btn-small {
   @include green-btn;
+  @include btn-small-responsive;
   font-size: 14px;
   padding: 14px 24px;
   width: 117px;
   height: 43px;
+}
+
+@mixin see-more {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 12px;
+  gap: 5px;
+  width: 110px;
+  height: 30px;
+  border: 1px solid $border-color;
+  border-radius: 3px;
+  font-weight: $font-weight-regular;
+  font-size: 14px;
+  text-align: center;
+  color: $gray-font-color;
+  text-decoration: none;
 }
