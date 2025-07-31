@@ -140,6 +140,37 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      <section className="smartcart-area">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-lg-3 d-none d-lg-block">
+              <div className="smartcart-left">
+                <img
+                  className="img-fluid"
+                  src={`${imageBase}/smart-banner.jpg`}
+                  srcSet={`${imageBase}/smart-banner@2x.jpg 2x, ${imageBase}/smart-banner@3x.jpg 3x`}
+                  alt="Smart Cart banner"
+                />
+                <div className="text-area">
+                  <h4>
+                    Freshest Products
+                    <br />
+                    every hour.
+                  </h4>
+                  <p>Best Bakery Products</p>
+                  <Link to="/shop" className="smartcart-btn">
+                    Shop Now
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-9 col-md-12 col-sm-12">
+              <div className="smartcart-product"></div>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 };
