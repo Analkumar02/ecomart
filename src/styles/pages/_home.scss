@@ -479,6 +479,13 @@
           font-size: 18px;
         }
       }
+      .product-area {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        .product-card {
+          grid-column: span 2 / span 2;
+        }
+      }
     }
   }
 }

@@ -66,13 +66,9 @@ const ProductCard = ({ collectionHandle = "smart-cart" }) => {
   };
 
   const handleAddToCart = () => {
-    if (!showQuantityBox) {
-      // First click: show quantity box
-      setShowQuantityBox(true);
-    } else {
-      // Second click: add to cart
-      addToCart();
-    }
+    // Show quantity box and add to cart immediately
+    setShowQuantityBox(true);
+    addToCart();
   };
 
   const handleQuantityIncrease = () => {
@@ -105,17 +101,19 @@ const ProductCard = ({ collectionHandle = "smart-cart" }) => {
       localStorage.setItem("cart", JSON.stringify(existingCart));
 
       // Dispatch cart updated event with total items count
-      window.dispatchEvent(
-        new CustomEvent("cartUpdated", {
-          detail: {
-            cart: existingCart,
-            totalItems: existingCart.reduce(
-              (total, item) => total + item.quantity,
-              0
-            ),
-          },
-        })
-      );
+      const cartUpdatedEvent = new CustomEvent("cartUpdated", {
+        detail: {
+          cart: existingCart,
+          totalItems: existingCart.reduce(
+            (total, item) => total + item.quantity,
+            0
+          ),
+        },
+      });
+      window.dispatchEvent(cartUpdatedEvent);
+
+      console.log("Quantity updated in cart:", existingCart);
+      console.log("Event dispatched:", cartUpdatedEvent.detail);
     }
   };
 
@@ -155,20 +153,20 @@ const ProductCard = ({ collectionHandle = "smart-cart" }) => {
     setIsInCart(true);
 
     // Dispatch custom event to update cart count in header
-    window.dispatchEvent(
-      new CustomEvent("cartUpdated", {
-        detail: {
-          cart: existingCart,
-          totalItems: existingCart.reduce(
-            (total, item) => total + item.quantity,
-            0
-          ),
-        },
-      })
-    );
+    const cartUpdatedEvent = new CustomEvent("cartUpdated", {
+      detail: {
+        cart: existingCart,
+        totalItems: existingCart.reduce(
+          (total, item) => total + item.quantity,
+          0
+        ),
+      },
+    });
+    window.dispatchEvent(cartUpdatedEvent);
 
     console.log("Added to cart:", cartItem);
     console.log("Updated cart:", existingCart);
+    console.log("Event dispatched:", cartUpdatedEvent.detail);
   };
 
   const getCurrentImage = () => {

@@ -18,6 +18,9 @@ $font-family-heading: "Salsa", cursive;
 $font-weight-body: 400;
 
 $font-size-body: clamp(0.75rem, 0.6693rem + 0.3445vw, 1rem);
+$font-size-base: 1rem;
+$font-size-sm: 0.875rem;
+$font-size-xs: 0.75rem;
 $font-size-h1: clamp(1.5rem, 2.0078rem + 1.0336vw, 3rem);
 $font-size-h2: clamp(1.5rem, 1.0155rem + 2.0672vw, 3rem);
 $font-size-h3: clamp(1.25rem, 1.0885rem + 0.6891vw, 1.75rem);
@@ -37,3 +40,4 @@ $font-weight-regular: 400;
 $font-weight-light: 300;
 
 $border-radius: 6px;
+$border-radius-lg: 12px;

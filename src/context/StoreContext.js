@@ -17,14 +17,17 @@ export const StoreProvider = ({ children }) => {
   // Listen for cart updates from ProductCard
   useEffect(() => {
     const handleCartUpdate = (event) => {
+      console.log("StoreContext received cartUpdated event:", event.detail);
       const { cart: updatedCart } = event.detail;
       setCart(updatedCart);
     };
 
     window.addEventListener("cartUpdated", handleCartUpdate);
+    console.log("StoreContext: Event listener added for cartUpdated");
 
     return () => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
+      console.log("StoreContext: Event listener removed for cartUpdated");
     };
   }, []);
 

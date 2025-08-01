@@ -18,6 +18,13 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [allProducts, setAllProducts] = useState([]);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const bottomHeaderRef = useRef(null);
+
+  // Calculate total items in cart
+  const getTotalCartItems = () => {
+    return cart.reduce((total, item) => total + (item.quantity || 1), 0);
+  };
   const [allCollections, setAllCollections] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filteredCollections, setFilteredCollections] = useState([]);
@@ -84,6 +91,43 @@ const Header = () => {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle scroll detection for sticky header
+  useEffect(() => {
+    let bottomHeaderOffset = 0;
+
+    const handleScroll = () => {
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
+      const bottomHeader = bottomHeaderRef.current;
+
+      if (bottomHeader && bottomHeaderOffset === 0) {
+        bottomHeaderOffset = bottomHeader.offsetTop;
+      }
+
+      if (bottomHeader) {
+        if (scrollTop >= bottomHeaderOffset) {
+          setIsScrolled(true);
+          bottomHeader.classList.add("fixed-sticky");
+          // Add padding to body to prevent content jump
+          document.body.style.paddingTop = bottomHeader.offsetHeight + "px";
+        } else {
+          setIsScrolled(false);
+          bottomHeader.classList.remove("fixed-sticky");
+          // Remove padding from body
+          document.body.style.paddingTop = "0px";
+        }
+      }
+    };
+
+    // Calculate initial offset
+    if (bottomHeaderRef.current) {
+      bottomHeaderOffset = bottomHeaderRef.current.offsetTop;
+    }
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleInputChange = (e) => {
@@ -355,9 +399,9 @@ const Header = () => {
                 <div className="icon-badge-box">
                   <Link to="/cart" className="icon-link">
                     <Icon icon="mage:basket" width="24" height="24" />
-                    {cart.length > 0 && (
+                    {getTotalCartItems() > 0 && (
                       <span className="icon-badge cart-badge">
-                        {cart.length}
+                        {getTotalCartItems()}
                       </span>
                     )}
                   </Link>
@@ -366,7 +410,10 @@ const Header = () => {
             </div>
           </div>
         </div>
-        <div className="bottom-header position-sticky">
+        <div
+          className={`bottom-header${isScrolled ? " scrolled" : ""}`}
+          ref={bottomHeaderRef}
+        >
           <div className="container-xxl">
             <div className="bottom-header-content">
               <div className="menu-links">
@@ -453,8 +500,10 @@ const Header = () => {
               <div className="icon-badge-box">
                 <Link to="/cart" className="icon-link">
                   <Icon icon="mage:basket" width="20" height="20" />
-                  {cart.length > 0 && (
-                    <span className="icon-badge cart-badge">{cart.length}</span>
+                  {getTotalCartItems() > 0 && (
+                    <span className="icon-badge cart-badge">
+                      {getTotalCartItems()}
+                    </span>
                   )}
                 </Link>
               </div>

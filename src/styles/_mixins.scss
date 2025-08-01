@@ -137,3 +137,39 @@
   color: $gray-font-color;
   text-decoration: none;
 }
+
+@mixin floating-element {
+  position: fixed;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: $border-radius;
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin button-hover {
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@mixin text-style(
+  $size: $font-size-sm,
+  $weight: $font-weight-medium,
+  $color: $white-color
+) {
+  font-size: $size;
+  font-weight: $weight;
+  color: $color;
+  line-height: 1.2;
+}

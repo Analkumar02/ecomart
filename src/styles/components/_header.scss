@@ -311,6 +311,21 @@
       }
     }
     .bottom-header {
+      position: -webkit-sticky; /* Safari */
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      width: 100%;
+
+      &.fixed-sticky {
+        position: fixed;
+        top: 10px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 999;
+      }
+
       .bottom-header-content {
         background-color: $bg-gray;
         border: 1px solid $border-color;
@@ -401,11 +416,13 @@
         }
       }
     }
-    .position-sticky {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
+
+    // Remove the separate position-sticky class since we're applying sticky directly to bottom-header
+    // .position-sticky {
+    //   position: sticky;
+    //   top: 0;
+    //   z-index: 1000;
+    // }
   }
   .header-mob {
     display: flex;
