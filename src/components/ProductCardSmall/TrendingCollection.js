@@ -8,7 +8,7 @@ const TrendingCollection = ({ excludeProductId }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productStates, setProductStates] = useState({});
-  const [maxProducts, setMaxProducts] = useState(8);
+  const [maxProducts, setMaxProducts] = useState(4);
   const imageBase = useImagePath();
 
   // Function to determine max products based on screen size
@@ -20,7 +20,7 @@ const TrendingCollection = ({ excludeProductId }) => {
         return 4; // Tablet: 4 products in 2x2 grid
       }
     }
-    return 8; // Desktop: 8 products in 2x4 grid
+    return 4; // Desktop: 4 products in 2x2 grid (trending uses 3-column layout)
   };
 
   // Handle screen resize
@@ -89,8 +89,8 @@ const TrendingCollection = ({ excludeProductId }) => {
     const fetchTrendingProducts = async () => {
       try {
         setLoading(true);
-        // Fetch products from trending collection
-        const allProducts = await getProductsByCollection("trending");
+        // Fetch products from trending-products collection
+        const allProducts = await getProductsByCollection("trending-products");
 
         if (allProducts && allProducts.length > 0) {
           // Filter out the excluded product if provided

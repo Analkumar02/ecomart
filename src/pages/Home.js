@@ -179,7 +179,10 @@ const Home = () => {
                   </Link>
                 </div>
                 <div className="product-area">
-                  <ProductCard onProductLoad={setMainProductId} />
+                  <ProductCard
+                    onProductLoad={setMainProductId}
+                    collectionType="smart-cart"
+                  />
                   <ProductCardSmall
                     excludeProductId={mainProductId}
                     collectionType="smart-cart"
@@ -233,6 +236,119 @@ const Home = () => {
                   <Link to="/shop" className="promo-left-btn">
                     Shop Now
                   </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="trending-area">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-lg-3 d-none d-lg-block">
+              <div className="best-selling">
+                <div className="best-header">
+                  <h5>Best Selling</h5>
+                  <div className="divider1">
+                    <span className="green-line"></span>
+                    <span className="gray-line"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-9 col-md-12 col-sm-12">
+              <div className="trending-product">
+                <div className="product-header">
+                  <p>Trending Products</p>
+                  <div className="divider1">
+                    <span className="green-line"></span>
+                    <span className="gray-line"></span>
+                  </div>
+                  <Link to="/shop" className="see-more-btn">
+                    See more
+                    <Icon icon="ep:arrow-right" height="16" width="16" />
+                  </Link>
+                </div>
+                <div className="product-area">
+                  <ProductCardSmall
+                    excludeProductId={mainProductId}
+                    collectionType="trending"
+                    className="d-none d-lg-block"
+                  />
+                  <ProductCard
+                    onProductLoad={setMainProductId}
+                    collectionType="trending"
+                  />
+                  <ProductCardSmall
+                    excludeProductId={mainProductId}
+                    collectionType="trending"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="fresh-banner-area">
+        <div className="container-xxl">
+          <div className="fresh-text">
+            <h2>Say yes to season’s fresh</h2>
+            <p>Refresh the day, the fruity way</p>
+            <Link to="/shop" className="fresh-btn">
+              Shop Now
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="new-arrival-area">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-lg-3 d-none d-lg-block">
+              <div className="new-arrival-left">
+                <img
+                  className="img-fluid"
+                  src={`${imageBase}/new-banner.jpg`}
+                  srcSet={`${imageBase}/new-banner@2x.jpg 2x, ${imageBase}/new-banner@3x.jpg 3x`}
+                  alt="Smart Cart banner"
+                />
+                <div className="text-area">
+                  <h4>
+                    Freshest Products
+                    <br />
+                    every hour.
+                  </h4>
+                  <p>Best Bakery Products</p>
+                  <Link to="/shop" className="new-arrival-btn">
+                    Shop Now
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-9 col-md-12 col-sm-12">
+              <div className="new-arrival-product">
+                <div className="product-header">
+                  <p>New Arrivals</p>
+                  <div className="divider1">
+                    <span className="green-line"></span>
+                    <span className="gray-line"></span>
+                  </div>
+                  <Link to="/shop" className="see-more-btn">
+                    See more
+                    <Icon icon="ep:arrow-right" height="16" width="16" />
+                  </Link>
+                </div>
+                <div className="product-area">
+                  <ProductCardSmall
+                    excludeProductId={mainProductId}
+                    collectionType="new"
+                  />
+                  <ProductCard
+                    onProductLoad={setMainProductId}
+                    collectionType="new"
+                  />
                 </div>
               </div>
             </div>

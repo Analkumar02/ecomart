@@ -39,8 +39,8 @@ const TrendingCard = ({ onProductLoad }) => {
     const fetchTrendingProduct = async () => {
       try {
         setLoading(true);
-        // Fetch products from trending collection
-        const products = await getProductsByCollection("trending");
+        // Fetch products from trending-products collection
+        const products = await getProductsByCollection("trending-products");
 
         if (products && products.length > 0) {
           // Get the first product (highest priced due to sorting in query)

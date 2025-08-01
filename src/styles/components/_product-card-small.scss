@@ -12,6 +12,17 @@
     gap: 12px;
   }
 
+  // Special styling for trending section (4 rows × 1 column with 4 products)
+  .trending-product & {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(1, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+    }
+  }
+
   .no-products {
     grid-column: 1 / -1;
     text-align: center;

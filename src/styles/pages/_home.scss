@@ -285,25 +285,7 @@
         margin-bottom: 0;
         white-space: nowrap;
       }
-      .divider1 {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 5px;
-        width: 100%;
-        height: 4px;
-        .green-line {
-          width: 30px;
-          height: 4px;
-          border-radius: $border-radius;
-          background-color: $secondary-color;
-        }
-        .gray-line {
-          width: 100%;
-          height: 1%;
-          background-color: $border-color;
-        }
-      }
+      @include divider;
       .see-more-btn {
         @include see-more;
         text-decoration: none;
@@ -381,6 +363,273 @@
       }
       .promo-left-btn {
         @include white-btn-small;
+      }
+    }
+  }
+}
+
+// Trending area styles
+.trending-area {
+  @include gap;
+  .best-selling {
+    border-radius: $border-radius;
+    border: 2px solid $red-body-color;
+    padding: 30px;
+    .best-header {
+      margin-bottom: 25px;
+      h5 {
+        font-size: $font-size-h5;
+        color: $body-font-color;
+        margin-bottom: 10px;
+        font-family: $font-family-body;
+        font-weight: $font-weight-semibold;
+      }
+      @include divider;
+    }
+  }
+  .trending-product {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    .product-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: nowrap;
+      p {
+        font-size: 26px;
+        font-weight: $font-weight-semibold;
+        color: $body-font-color;
+        width: fit-content;
+        margin-bottom: 0;
+        white-space: nowrap;
+      }
+      .divider1 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 5px;
+        width: 100%;
+        height: 4px;
+        .green-line {
+          width: 30px;
+          height: 4px;
+          border-radius: $border-radius;
+          background-color: $secondary-color;
+        }
+        .gray-line {
+          width: 100%;
+          height: 1%;
+          background-color: $border-color;
+        }
+      }
+      .see-more-btn {
+        @include see-more;
+        text-decoration: none;
+        white-space: nowrap;
+        svg {
+          width: 16px;
+          height: 16px;
+          color: $gray-font-color;
+          @include ease-all;
+        }
+        &:hover {
+          svg {
+            transform: translateX(4px);
+          }
+        }
+      }
+    }
+    .product-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr; // Three equal columns: SmallCards | LargeCard | SmallCards
+      gap: 15px;
+      min-height: 400px;
+
+      .product-card {
+        // Large product card in middle
+        display: flex;
+        flex-direction: column;
+        order: 2;
+      }
+
+      .product-card-small-grid {
+        // Small cards grids on left and right
+        height: 100%;
+
+        &:first-child {
+          order: 1; // Left side small cards
+        }
+
+        &:last-child {
+          order: 3; // Right side small cards
+        }
+      }
+
+      // Mobile responsive: ProductCard first, then remaining ProductCardSmall
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        gap: 20px;
+
+        .product-card {
+          order: 1; // Large card first on mobile
+        }
+
+        .product-card-small-grid:last-child {
+          order: 2; // Only the visible (last) small cards section on mobile
+        }
+
+        // First ProductCardSmall is hidden via d-none d-lg-block class
+        .product-card-small-grid:first-child {
+          display: none; // Ensure it's hidden on mobile
+        }
+      }
+    }
+  }
+}
+
+// Fresh banner styles
+.fresh-banner-area {
+  padding: 30px 0;
+  background-image: url("../../../public/assets/images/banner-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  .fresh-text {
+    @include flex-center;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 2;
+    position: relative;
+    h2 {
+      font-size: $font-size-h2;
+      color: $white-color;
+      margin-bottom: 0;
+    }
+    p {
+      font-size: clamp(0.875rem, 0.7758rem + 0.4233vw, 1.125rem);
+      color: $white-color;
+      margin-bottom: 0;
+    }
+  }
+  .fresh-btn {
+    @include white-btn-big;
+    margin-top: 20px;
+  }
+}
+
+// New Arrival area styles
+.new-arrival-area {
+  @include gap;
+  .new-arrival-left {
+    border-radius: $border-radius;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: $border-radius;
+    }
+    .text-area {
+      position: absolute;
+      top: 5%;
+      left: 0;
+      z-index: 2;
+      transform: translateY(-10%);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 15px;
+      max-width: 250px;
+      h4 {
+        font-size: $font-size-h4;
+        color: $body-font-color;
+        margin-bottom: 0;
+      }
+      p {
+        font-size: $font-size-body;
+        color: $body-font-color;
+        margin-bottom: 0;
+      }
+      .new-arrival-btn {
+        @include green-btn-small;
+      }
+    }
+  }
+  .new-arrival-product {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    .product-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: nowrap;
+      p {
+        font-size: 26px;
+        font-weight: $font-weight-semibold;
+        color: $body-font-color;
+        width: fit-content;
+        margin-bottom: 0;
+        white-space: nowrap;
+      }
+      @include divider;
+      .see-more-btn {
+        @include see-more;
+        text-decoration: none;
+        white-space: nowrap;
+        svg {
+          width: 16px;
+          height: 16px;
+          color: $gray-font-color;
+          @include ease-all;
+        }
+        &:hover {
+          svg {
+            transform: translateX(4px);
+          }
+        }
+      }
+    }
+    .product-area {
+      display: grid;
+      grid-template-columns: 2fr 1fr; // Small cards on left (2fr), large card on right (1fr)
+      gap: 15px;
+      min-height: 400px;
+
+      .product-card {
+        // Large product card on right
+        display: flex;
+        flex-direction: column;
+        order: 2;
+      }
+
+      .product-card-small-grid {
+        // Small cards grid on left
+        height: 100%;
+        order: 1;
+      }
+
+      // Mobile responsive: ProductCard comes first (top), ProductCardSmall comes second (bottom)
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        gap: 20px;
+
+        .product-card {
+          order: 1; // Large card first on mobile
+        }
+
+        .product-card-small-grid {
+          order: 2; // Small cards second on mobile
+        }
       }
     }
   }
@@ -554,6 +803,71 @@
   .promo-area {
     .promo-left {
       margin-bottom: 1rem;
+    }
+  }
+
+  .trending-area {
+    .trending-product {
+      gap: 10px;
+      .product-header {
+        p {
+          font-size: 18px;
+        }
+      }
+      .product-area {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        .product-card {
+          order: 1;
+        }
+
+        .product-card-small-grid {
+          order: 2;
+        }
+      }
+    }
+  }
+
+  .fresh-banner-area {
+    background-position: left center;
+    position: relative;
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      background-color: rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  .new-arrival-area {
+    .new-arrival-product {
+      gap: 10px;
+      .product-header {
+        p {
+          font-size: 18px;
+        }
+      }
+      .product-area {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        .product-card {
+          order: 1;
+        }
+
+        .product-card-small-grid {
+          order: 2;
+        }
+      }
     }
   }
 }
