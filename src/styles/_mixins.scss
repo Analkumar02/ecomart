@@ -25,9 +25,7 @@
 }
 
 @mixin btn-default {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @include flex-center;
   border-radius: 50px;
   text-decoration: none;
   font-weight: $font-weight-semibold;
@@ -121,10 +119,8 @@
 }
 
 @mixin see-more {
-  display: flex;
+  @include flex-center;
   flex-direction: row;
-  justify-content: center;
-  align-items: center;
   padding: 6px 12px;
   gap: 5px;
   width: 110px;

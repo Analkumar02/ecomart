@@ -1,3 +1,15 @@
+// Animation for cart dropdown
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .main-header {
   .header-dt {
     .topbar {
@@ -33,9 +45,7 @@
             font-size: 12px;
             font-weight: $font-weight-body;
             text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            @include flex-center;
           }
           .swiper-button-prev,
           .swiper-button-next {
@@ -286,12 +296,10 @@
                 height: 20px;
                 background: $red-body-color;
                 color: $white-color;
-                font-size: 12px;
+                font-size: 10px;
                 font-weight: $font-weight-bold;
                 border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                @include flex-center;
                 box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
                 border: 2px solid $white-color;
                 z-index: 1;
@@ -387,9 +395,7 @@
 
           .phone-icon {
             margin-right: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            @include flex-center;
             z-index: 1;
           }
 
@@ -430,9 +436,18 @@
     align-items: center;
     background-color: $bg-gray;
     padding: 12px 0;
-    position: sticky;
-    top: 0;
+    position: relative;
     z-index: 1000;
+
+    &.fixed-sticky-mobile {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
     .header-mob-box {
       display: flex;
       align-items: center;
@@ -467,14 +482,12 @@
               right: -7px;
               min-width: 20px;
               height: 20px;
-              background: $red-body-color;
+              background: $primary-color;
               color: $white-color;
-              font-size: 12px;
+              font-size: 10px;
               font-weight: $font-weight-bold;
               border-radius: 50%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
+              @include flex-center;
               box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
               border: 2px solid $white-color;
               z-index: 1;
@@ -541,9 +554,7 @@
           border: none;
           padding: 0 16px;
           height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          @include flex-center;
           cursor: pointer;
           transition: all 0.25s ease;
           min-width: 50px;

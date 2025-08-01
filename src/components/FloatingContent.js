@@ -1,138 +1,26 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { useStore } from "../context/StoreContext";
+import React, { useState, useEffect, useCallback } from "react";
+import { useImagePath } from "../context/ImagePathContext";
+import { Icon } from "@iconify/react";
 
 const FloatingContent = () => {
-  const { cart } = useStore();
+  const [notifications, setNotifications] = useState([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [isCartVisible, setIsCartVisible] = useState(false);
-  const [showAddToCartPopup, setShowAddToCartPopup] = useState(false);
-  const [popupAction, setPopupAction] = useState(""); // 'added' or 'removed'
-  const [affectedProduct, setAffectedProduct] = useState(null);
-  const isInitialMount = useRef(true);
-  const prevCartItems = useRef([]);
-  const popupTimeoutRef = useRef(null);
+  const imageBase = useImagePath();
 
-  // Calculate total items and subtotal
-  const getTotalItems = () => {
-    return cart.reduce((total, item) => total + (item.quantity || 1), 0);
-  };
+  const removeNotification = useCallback((id) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
 
-  const getSubtotal = () => {
-    return cart.reduce((total, item) => {
-      const price = parseFloat(item.price || 0);
-      const quantity = item.quantity || 1;
-      return total + price * quantity;
-    }, 0);
-  };
-
-  // Handle scroll events
+  // Handle scroll to top visibility
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop =
         window.pageYOffset || document.documentElement.scrollTop;
-
-      // Show scroll to top button after 300px scroll
       setShowScrollTop(scrollTop > 300);
-
-      // Show floating cart after some scroll and when cart has items
-      setIsCartVisible(scrollTop > 100 && cart.length > 0);
     };
 
     window.addEventListener("scroll", handleScroll);
-
-    // Initial check
-    handleScroll();
-
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [cart.length]);
-
-  // Detect when items are added or removed from cart
-  useEffect(() => {
-    // Skip the first render (initial mount) to prevent popup on page refresh
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      prevCartItems.current = [...cart];
-      return;
-    }
-
-    // Helper function to create unique key for product + variant combination
-    const getCartItemKey = (item) => {
-      return `${item.id}_${item.variant || "default"}`;
-    };
-
-    // Create maps for easier comparison
-    const prevItemsMap = new Map();
-    prevCartItems.current.forEach((item) => {
-      prevItemsMap.set(getCartItemKey(item), item);
-    });
-
-    const currentItemsMap = new Map();
-    cart.forEach((item) => {
-      currentItemsMap.set(getCartItemKey(item), item);
-    });
-
-    // Check for newly added products (including variants)
-    const newlyAddedProducts = cart.filter((currentItem) => {
-      const key = getCartItemKey(currentItem);
-      const prevItem = prevItemsMap.get(key);
-      return !prevItem || (prevItem.quantity === 0 && currentItem.quantity > 0);
-    });
-
-    // Check for removed products (including variants)
-    const removedProducts = prevCartItems.current.filter((prevItem) => {
-      const key = getCartItemKey(prevItem);
-      const currentItem = currentItemsMap.get(key);
-      return (
-        !currentItem ||
-        (prevItem.quantity > 0 && (!currentItem || currentItem.quantity === 0))
-      );
-    });
-
-    // Clear any existing timeout
-    if (popupTimeoutRef.current) {
-      clearTimeout(popupTimeoutRef.current);
-      popupTimeoutRef.current = null;
-    }
-
-    if (newlyAddedProducts.length > 0) {
-      // Show popup for newly added product
-      setAffectedProduct(newlyAddedProducts[0]);
-      setPopupAction("added");
-      setShowAddToCartPopup(true);
-
-      // Set timeout to hide popup after 2 seconds
-      popupTimeoutRef.current = setTimeout(() => {
-        setShowAddToCartPopup(false);
-        setAffectedProduct(null);
-        popupTimeoutRef.current = null;
-      }, 2000);
-    } else if (removedProducts.length > 0) {
-      // Show popup for removed product
-      setAffectedProduct(removedProducts[0]);
-      setPopupAction("removed");
-      setShowAddToCartPopup(true);
-
-      // Set timeout to hide popup after 2 seconds
-      popupTimeoutRef.current = setTimeout(() => {
-        setShowAddToCartPopup(false);
-        setAffectedProduct(null);
-        popupTimeoutRef.current = null;
-      }, 2000);
-    }
-
-    // Update previous cart items
-    prevCartItems.current = [...cart];
-  }, [cart]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (popupTimeoutRef.current) {
-        clearTimeout(popupTimeoutRef.current);
-      }
-    };
   }, []);
 
   // Scroll to top function
@@ -143,24 +31,109 @@ const FloatingContent = () => {
     });
   };
 
+  useEffect(() => {
+    const handleCartUpdated = (event) => {
+      const { action, item } = event.detail;
+
+      if (action && item) {
+        const notification = {
+          id: Date.now() + Math.random(),
+          type: action, // 'added' or 'removed'
+          item: item,
+          timestamp: Date.now(),
+        };
+
+        setNotifications((prev) => [...prev, notification]);
+
+        // Remove notification after 2 seconds
+        const timeoutId = setTimeout(() => {
+          removeNotification(notification.id);
+        }, 2000);
+
+        // Store timeout ID for cleanup if needed
+        notification.timeoutId = timeoutId;
+      }
+    };
+
+    window.addEventListener("cartNotification", handleCartUpdated);
+    return () =>
+      window.removeEventListener("cartNotification", handleCartUpdated);
+  }, [removeNotification]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      notifications.forEach((notification) => {
+        if (notification.timeoutId) {
+          clearTimeout(notification.timeoutId);
+        }
+      });
+    };
+  }, [notifications]);
+
+  const getActionText = (type) => {
+    return type === "added" ? "Added to Cart" : "Removed from Cart";
+  };
+
+  const getActionIcon = (type) => {
+    return type === "added" ? "mdi:cart-plus" : "mdi:cart-minus";
+  };
+
+  const getActionClass = (type) => {
+    return type === "added"
+      ? "floating-notification--success"
+      : "floating-notification--warning";
+  };
+
   return (
-    <div className="floating-content">
-      {/* Floating Cart */}
-      {isCartVisible && (
-        <div className="floating-cart">
-          <Link to="/cart" className="floating-cart-link">
-            <div className="cart-icon">
-              <Icon icon="mage:basket" width="24" height="24" />
-            </div>
-            <div className="cart-details">
-              <div className="cart-items">
-                {getTotalItems()} Item{getTotalItems() !== 1 ? "s" : ""}
+    <>
+      <div className="floating-notifications">
+        {notifications.map((notification) => (
+          <div
+            key={notification.id}
+            className={`floating-notification ${getActionClass(
+              notification.type
+            )}`}
+          >
+            <div className="floating-notification__content">
+              <div className="floating-notification__image">
+                <img
+                  src={notification.item.image || `${imageBase}/pr-img.png`}
+                  alt={notification.item.title}
+                  onError={(e) => {
+                    e.target.src = `${imageBase}/pr-img.png`;
+                  }}
+                />
               </div>
-              <div className="cart-subtotal">${getSubtotal().toFixed(2)}</div>
+              <div className="floating-notification__details">
+                <div className="floating-notification__header">
+                  <Icon
+                    icon={getActionIcon(notification.type)}
+                    width="16"
+                    height="16"
+                    className="floating-notification__icon"
+                  />
+                  <span className="floating-notification__action">
+                    {getActionText(notification.type)}
+                  </span>
+                </div>
+                <div className="floating-notification__title">
+                  {notification.item.title}
+                </div>
+                {notification.item.variant &&
+                  notification.item.variant !== "Default Title" && (
+                    <div className="floating-notification__variant">
+                      Variant: {notification.item.variant}
+                    </div>
+                  )}
+                <div className="floating-notification__quantity">
+                  Qty: {notification.item.quantity || 1}
+                </div>
+              </div>
             </div>
-          </Link>
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
 
       {/* Scroll to Top Button */}
       {showScrollTop && (
@@ -169,62 +142,10 @@ const FloatingContent = () => {
           onClick={scrollToTop}
           aria-label="Scroll to top"
         >
-          <Icon
-            icon="material-symbols:keyboard-arrow-up"
-            width="24"
-            height="24"
-          />
-          <span className="scroll-text">Back To Top</span>
+          <Icon icon="mdi:chevron-up" width="24" height="24" />
         </button>
       )}
-
-      {/* Add to Cart Popup */}
-      {showAddToCartPopup && affectedProduct && (
-        <div className="add-to-cart-popup" data-action={popupAction}>
-          <div className="popup-content">
-            <div className="product-thumbnail">
-              <img
-                src={
-                  affectedProduct.image ||
-                  affectedProduct.thumbnail ||
-                  "/assets/images/placeholder.jpg"
-                }
-                alt={affectedProduct.title}
-                onError={(e) => {
-                  e.target.src = "/assets/images/placeholder.jpg";
-                }}
-              />
-            </div>
-            <div className="popup-details">
-              <div className="popup-icon">
-                <Icon
-                  icon={
-                    popupAction === "added"
-                      ? "material-symbols:check-circle"
-                      : "material-symbols:remove-circle"
-                  }
-                  width="20"
-                  height="20"
-                />
-              </div>
-              <div className="popup-text">
-                <div className="popup-message">
-                  {popupAction === "added"
-                    ? "Added to Cart!"
-                    : "Removed from Cart!"}
-                </div>
-                <div className="product-name">{affectedProduct.title}</div>
-                {affectedProduct.variant && (
-                  <div className="product-variant">
-                    {affectedProduct.variant}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 

@@ -14,24 +14,35 @@ import { getProducts, getCollections } from "../utils/shopify";
 const Header = () => {
   const imageBase = useImagePath();
   const { cart, wishlist } = useStore();
+  // DEBUG: Log cart items to verify originalPrice
+  useEffect(() => {
+    if (cart && cart.length > 0) {
+      // eslint-disable-next-line no-console
+      console.log("Cart items:", cart);
+    }
+  }, [cart]);
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [showCartDropdown, setShowCartDropdown] = useState(false);
+  const [cartHoverTimeout, setCartHoverTimeout] = useState(null);
   const [allProducts, setAllProducts] = useState([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const bottomHeaderRef = useRef(null);
 
-  // Calculate total items in cart
-  const getTotalCartItems = () => {
-    return cart.reduce((total, item) => total + (item.quantity || 1), 0);
-  };
   const [allCollections, setAllCollections] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchBoxRef = useRef(null);
   const mobileSearchRef = useRef(null);
+  const cartDropdownRef = useRef(null);
   const navigate = useNavigate();
+
+  // Calculate total cart items
+  const getTotalCartItems = () => {
+    return cart.reduce((total, item) => total + (item.quantity || 1), 0);
+  };
 
   useEffect(() => {
     const fetchProductsAndCollections = async () => {
@@ -88,6 +99,12 @@ const Header = () => {
       ) {
         setMobileSearchOpen(false);
       }
+      if (
+        cartDropdownRef.current &&
+        !cartDropdownRef.current.contains(e.target)
+      ) {
+        setShowCartDropdown(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -96,39 +113,79 @@ const Header = () => {
   // Handle scroll detection for sticky header
   useEffect(() => {
     let bottomHeaderOffset = 0;
+    let mobileHeaderOffset = 0;
 
     const handleScroll = () => {
       const scrollTop =
         window.pageYOffset || document.documentElement.scrollTop;
       const bottomHeader = bottomHeaderRef.current;
+      const mobileHeader = document.querySelector(".header-mob");
+      const isDesktop = window.innerWidth >= 992;
 
-      if (bottomHeader && bottomHeaderOffset === 0) {
-        bottomHeaderOffset = bottomHeader.offsetTop;
-      }
+      if (isDesktop) {
+        // Desktop header logic
+        if (bottomHeader && bottomHeaderOffset === 0) {
+          bottomHeaderOffset = bottomHeader.offsetTop;
+        }
 
-      if (bottomHeader) {
-        if (scrollTop >= bottomHeaderOffset) {
-          setIsScrolled(true);
-          bottomHeader.classList.add("fixed-sticky");
-          // Add padding to body to prevent content jump
-          document.body.style.paddingTop = bottomHeader.offsetHeight + "px";
-        } else {
-          setIsScrolled(false);
-          bottomHeader.classList.remove("fixed-sticky");
-          // Remove padding from body
-          document.body.style.paddingTop = "0px";
+        if (bottomHeader) {
+          if (scrollTop >= bottomHeaderOffset) {
+            setIsScrolled(true);
+            bottomHeader.classList.add("fixed-sticky");
+            // Add padding to body to prevent content jump
+            document.body.style.paddingTop = bottomHeader.offsetHeight + "px";
+          } else {
+            setIsScrolled(false);
+            bottomHeader.classList.remove("fixed-sticky");
+            // Remove padding from body
+            document.body.style.paddingTop = "0px";
+          }
+        }
+      } else {
+        // Mobile header logic
+        if (mobileHeader && mobileHeaderOffset === 0) {
+          mobileHeaderOffset = mobileHeader.offsetTop;
+        }
+
+        if (mobileHeader) {
+          if (scrollTop >= mobileHeaderOffset) {
+            mobileHeader.classList.add("fixed-sticky-mobile");
+            // Add padding to body to prevent content jump
+            document.body.style.paddingTop = mobileHeader.offsetHeight + "px";
+          } else {
+            mobileHeader.classList.remove("fixed-sticky-mobile");
+            // Remove padding from body
+            document.body.style.paddingTop = "0px";
+          }
         }
       }
     };
 
-    // Calculate initial offset
+    // Calculate initial offsets
     if (bottomHeaderRef.current) {
       bottomHeaderOffset = bottomHeaderRef.current.offsetTop;
     }
 
+    const mobileHeader = document.querySelector(".header-mob");
+    if (mobileHeader) {
+      mobileHeaderOffset = mobileHeader.offsetTop;
+    }
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    window.addEventListener("resize", handleScroll); // Handle window resize
+
+    // Initial check
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      // Clear cart hover timeout if it exists
+      if (cartHoverTimeout) {
+        clearTimeout(cartHoverTimeout);
+      }
+    };
+  }, [cartHoverTimeout]);
 
   const handleInputChange = (e) => {
     setSearchTerm(e.target.value);
@@ -159,6 +216,27 @@ const Header = () => {
     if (!mobileSearchOpen) {
       setShowSuggestions(false);
     }
+  };
+
+  // Handle cart dropdown hover behavior
+  const handleCartMouseEnter = () => {
+    if (cartHoverTimeout) {
+      clearTimeout(cartHoverTimeout);
+      setCartHoverTimeout(null);
+    }
+    setShowCartDropdown(true);
+  };
+
+  const handleCartMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setShowCartDropdown(false);
+    }, 300); // 300ms delay before hiding
+    setCartHoverTimeout(timeout);
+  };
+
+  // Handle cart click to toggle dropdown
+  const handleCartClick = () => {
+    setShowCartDropdown(!showCartDropdown);
   };
 
   return (
@@ -396,15 +474,24 @@ const Header = () => {
                     )}
                   </Link>
                 </div>
-                <div className="icon-badge-box">
-                  <Link to="/cart" className="icon-link">
+                <div
+                  className="icon-badge-box cart-dropdown-container"
+                  ref={cartDropdownRef}
+                >
+                  <div
+                    className="icon-link cart-icon"
+                    onMouseEnter={handleCartMouseEnter}
+                    onMouseLeave={handleCartMouseLeave}
+                    onClick={handleCartClick}
+                    style={{ cursor: "pointer" }}
+                  >
                     <Icon icon="mage:basket" width="24" height="24" />
                     {getTotalCartItems() > 0 && (
                       <span className="icon-badge cart-badge">
                         {getTotalCartItems()}
                       </span>
                     )}
-                  </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -772,6 +859,7 @@ const Header = () => {
         </div>
       </div>
       {/* Overlay */}
+
       {mobileMenuOpen && (
         <div
           className="mobile-menu-overlay"

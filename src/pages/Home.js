@@ -8,16 +8,16 @@ import { useState, useEffect } from "react";
 import { getCollections } from "../utils/shopify";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import ProductCard from "../components/ProductCard";
+import ProductCardSmall from "../components/ProductCardSmall";
 
 const Home = () => {
   const imageBase = useImagePath();
   const [collections, setCollections] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [mainProductId, setMainProductId] = useState(null);
 
   useEffect(() => {
     const fetchCollections = async () => {
       try {
-        setLoading(true);
         const collectionsData = await getCollections();
         // Sort collections alphabetically by title
         const sortedCollections = collectionsData.sort((a, b) =>
@@ -27,8 +27,6 @@ const Home = () => {
       } catch (error) {
         console.error("Error fetching collections:", error);
         setCollections([]);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -181,8 +179,60 @@ const Home = () => {
                   </Link>
                 </div>
                 <div className="product-area">
-                  <ProductCard />
-                  <div className="product-card-small"></div>
+                  <ProductCard onProductLoad={setMainProductId} />
+                  <ProductCardSmall
+                    excludeProductId={mainProductId}
+                    collectionType="smart-cart"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="promo-area">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-lg-6 col-md-6 col-sm-12 col-12">
+              <div className="promo-left position-relative">
+                <img
+                  className="img-fluid"
+                  src={`${imageBase}promo-left.jpg`}
+                  srcSet={`${imageBase}promo-left@2x.jpg 2x, ${imageBase}promo-left@3x.jpg 3x`}
+                  alt="Promo Left"
+                />
+                <div className="promo-text">
+                  <h2>
+                    Make Your Grocery
+                    <br />
+                    Shopping Easy With Us
+                  </h2>
+                  <h6>Best quality products at lowest price</h6>
+                  <Link to="/shop" className="promo-left-btn">
+                    Shop Now
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-6 col-md-6 col-sm-12 col-12">
+              <div className="promo-right position-relative">
+                <img
+                  className="img-fluid"
+                  src={`${imageBase}promo-right.jpg`}
+                  srcSet={`${imageBase}promo-right@2x.jpg 2x, ${imageBase}promo-right@3x.jpg 3x`}
+                  alt="Promo Right"
+                />
+                <div className="promo-text">
+                  <h2>
+                    More Popular & 
+                    <br />
+                    Organic Fresh Meat
+                  </h2>
+                  <h6>10% Off on Meat limited offer’s</h6>
+                  <Link to="/shop" className="promo-left-btn">
+                    Shop Now
+                  </Link>
                 </div>
               </div>
             </div>

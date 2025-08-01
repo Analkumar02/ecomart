@@ -36,12 +36,78 @@ export const StoreProvider = ({ children }) => {
     const updatedCart = [...cart, item];
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Dispatch notification event
+    const notificationItem = {
+      title: item.title,
+      variant: item.variant !== "Default Title" ? item.variant : null,
+      image: item.image,
+      quantity: item.quantity || 1,
+    };
+
+    window.dispatchEvent(
+      new CustomEvent("cartNotification", {
+        detail: {
+          action: "added",
+          item: notificationItem,
+        },
+      })
+    );
   };
 
-  const removeFromCart = (id) => {
-    const updatedCart = cart.filter((i) => i.id !== id);
+  const removeFromCart = (id, variant = null) => {
+    const itemToRemove = cart.find((item) => {
+      if (variant !== null) {
+        return (
+          item.id === id &&
+          (item.variant || "default") === (variant || "default")
+        );
+      }
+      return item.id === id;
+    });
+
+    const updatedCart = cart.filter((item) => {
+      // If variant is specified, match both id and variant
+      if (variant !== null) {
+        return !(
+          item.id === id &&
+          (item.variant || "default") === (variant || "default")
+        );
+      }
+      // Otherwise just match id (legacy behavior)
+      return item.id !== id;
+    });
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Dispatch cart update event
+    window.dispatchEvent(
+      new CustomEvent("cartUpdated", {
+        detail: { cart: updatedCart },
+      })
+    );
+
+    // Dispatch notification event if item was found
+    if (itemToRemove) {
+      const notificationItem = {
+        title: itemToRemove.title,
+        variant:
+          itemToRemove.variant !== "Default Title"
+            ? itemToRemove.variant
+            : null,
+        image: itemToRemove.image,
+        quantity: itemToRemove.quantity || 1,
+      };
+
+      window.dispatchEvent(
+        new CustomEvent("cartNotification", {
+          detail: {
+            action: "removed",
+            item: notificationItem,
+          },
+        })
+      );
+    }
   };
 
   const addToWishlist = (item) => {

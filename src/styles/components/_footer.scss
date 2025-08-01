@@ -9,9 +9,7 @@
       align-items: center;
       justify-content: space-between;
       .icon-box {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flex-center;
         gap: 10px;
         svg {
           color: $primary-color;
@@ -189,9 +187,7 @@
           height: 100%;
         }
         .newsletter-submit {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          @include flex-center;
           background: $primary-color;
           border: none;
           width: 40px;

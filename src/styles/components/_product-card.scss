@@ -73,9 +73,7 @@
     padding: 5px;
     cursor: pointer;
     svg {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include flex-center;
       color: $gray-font-color;
       @include ease-all;
     }
@@ -101,9 +99,7 @@
     background-color: $secondary-color;
     transition: all 0.3s ease-in-out;
     svg {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include flex-center;
       color: $white-color;
       @include ease-all;
     }
@@ -138,9 +134,7 @@
         border: none;
         background-color: $secondary-color;
         color: $white-color;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flex-center;
         cursor: pointer;
         @include ease-all;
 
@@ -161,9 +155,7 @@
       .qty-display {
         min-width: 50px;
         height: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flex-center;
         background-color: $gray-color;
         color: $body-font-color;
         font-size: 14px;
@@ -172,14 +164,12 @@
     }
   }
 
-  // Show qty-box when product has show-qty class
   &.show-qty .qty-box {
     opacity: 1;
     transform: translateX(0);
     pointer-events: auto;
   }
 
-  // Hide add-cart-btn when qty-box is shown
   &.show-qty .add-cart-btn {
     opacity: 0;
     pointer-events: none;
