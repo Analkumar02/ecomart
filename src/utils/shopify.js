@@ -65,7 +65,9 @@ export async function getProducts() {
             title
             handle
             description
-            images(first: 1) {
+            productType
+            tags
+            images(first: 5) {
               edges {
                 node {
                   src
@@ -73,10 +75,11 @@ export async function getProducts() {
                 }
               }
             }
-            variants(first: 1) {
+            variants(first: 10) {
               edges {
                 node {
                   id
+                  title
                   price {
                     amount
                     currencyCode
@@ -84,6 +87,11 @@ export async function getProducts() {
                   compareAtPrice {
                     amount
                     currencyCode
+                  }
+                  availableForSale
+                  image {
+                    src
+                    altText
                   }
                 }
               }

@@ -72,6 +72,12 @@
     border-radius: 30px;
     padding: 5px;
     cursor: pointer;
+
+    // Hide by default and slide in from right on hover
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+
     svg {
       @include flex-center;
       color: $gray-font-color;
@@ -97,7 +103,12 @@
     border-radius: 3px;
     cursor: pointer;
     background-color: $secondary-color;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease;
+
+    // Hide by default and slide in from right on hover
+    opacity: 0;
+    transform: translateX(100%);
+
     svg {
       @include flex-center;
       color: $white-color;
@@ -156,7 +167,7 @@
         min-width: 50px;
         height: 18px;
         @include flex-center;
-        background-color: $gray-color;
+        background-color: $bg-gray;
         color: $body-font-color;
         font-size: 14px;
         font-weight: $font-weight-medium;
@@ -165,13 +176,49 @@
   }
 
   &.show-qty .qty-box {
-    opacity: 1;
-    transform: translateX(0);
-    pointer-events: auto;
+    // Hide by default, only show on hover
+    opacity: 0;
+    transform: translateX(100%);
+    pointer-events: none;
   }
 
   &.show-qty .add-cart-btn {
     opacity: 0;
     pointer-events: none;
+    transform: translateX(100%);
+  }
+
+  &.show-qty .wishlist-btn {
+    // Hide by default, only show on hover
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  // Show buttons on hover
+  &:hover {
+    .wishlist-btn,
+    .add-cart-btn {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    // Show quantity box on hover if product is in cart
+    &.show-qty .qty-box {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    // Show wishlist button even when quantity is available
+    &.show-qty .wishlist-btn {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    // Hide add-cart-btn when quantity box is showing
+    &.show-qty .add-cart-btn {
+      opacity: 0;
+      transform: translateX(100%);
+    }
   }
 }

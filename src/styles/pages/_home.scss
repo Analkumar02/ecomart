@@ -374,7 +374,13 @@
   .best-selling {
     border-radius: $border-radius;
     border: 2px solid $red-body-color;
-    padding: 30px;
+    padding: 30px 30px 20px;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     .best-header {
       margin-bottom: 25px;
       h5 {
@@ -385,6 +391,284 @@
         font-weight: $font-weight-semibold;
       }
       @include divider;
+    }
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: none;
+      height: 100%;
+      padding: 0;
+      border-radius: 0;
+      .best-slider {
+        position: relative;
+        margin-bottom: 10px;
+
+        .product-image-swiper {
+          width: 100%;
+          height: auto;
+
+          .swiper-slide {
+            @include flex-center;
+
+            a {
+              display: block;
+              width: 100%;
+              max-width: 200px;
+              padding-bottom: 30px;
+
+              img {
+                width: 100%;
+                height: auto;
+                object-fit: cover;
+                border-radius: 8px;
+              }
+            }
+          }
+
+          .swiper-pagination {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+
+            .swiper-pagination-bullet {
+              width: 8px;
+              height: 8px;
+              background-color: $border-color;
+              opacity: 1;
+              border-radius: 50%;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              width: 15px;
+              height: 3px;
+              border-radius: $border-radius;
+              margin: 0;
+
+              &.swiper-pagination-bullet-active {
+                background-color: $primary-color;
+              }
+            }
+          }
+        }
+      }
+      .category {
+        color: $gray-font-color;
+        font-size: 11px;
+        font-weight: $font-weight-regular;
+        margin-bottom: 0;
+      }
+      .variant-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        .variant {
+          color: $gray-font-color;
+          border: 1px solid $border-color;
+          border-radius: 30px;
+          padding: 5px 15px;
+          text-align: center;
+          font-size: 11px;
+        }
+        .active {
+          color: $primary-color;
+          border: 1px solid $primary-color;
+        }
+      }
+      .price-box {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        .org-price {
+          color: $gray-font-color;
+          font-weight: $font-weight-medium;
+          text-decoration: line-through;
+          font-size: $font-size-body;
+        }
+        .sale-price {
+          color: $body-font-color;
+          font-weight: $font-weight-semibold;
+          font-size: $font-size-body;
+        }
+      }
+      .stars {
+        display: flex;
+        align-items: center;
+        svg {
+          color: #fcb428;
+        }
+      }
+      .pr-title {
+        font-size: 14px;
+        font-weight: $font-weight-regular;
+        color: $body-font-color;
+        margin: 0;
+        text-decoration: none;
+        &:hover {
+          color: $primary-color;
+          text-decoration: none;
+        }
+      }
+      .wishlist-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+        border-radius: 30px;
+        padding: 5px;
+        cursor: pointer;
+
+        // Hide by default and slide in from right on hover
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+
+        svg {
+          @include flex-center;
+          color: $gray-font-color;
+          @include ease-all;
+        }
+        &:hover {
+          background-color: $secondary-color;
+          svg {
+            color: $white-color;
+          }
+        }
+      }
+      .wl-active {
+        svg {
+          color: $white-color;
+          background-color: $secondary-color;
+        }
+      }
+      .add-cart-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        border-radius: 3px;
+        cursor: pointer;
+        background-color: $secondary-color;
+        transition: all 0.3s ease;
+
+        // Hide by default and slide in from right on hover
+        opacity: 0;
+        transform: translateX(100%);
+
+        svg {
+          @include flex-center;
+          color: $white-color;
+          @include ease-all;
+        }
+      }
+
+      .qty-box {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease-in-out;
+        pointer-events: none;
+
+        &.show {
+          opacity: 1;
+          transform: translateX(0);
+          pointer-events: auto;
+        }
+
+        .qty-controls {
+          display: flex;
+          align-items: center;
+          background-color: $white-color;
+          border-radius: 3px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+          .qty-btn {
+            width: 28px;
+            height: 18px;
+            border: none;
+            background-color: $secondary-color;
+            color: $white-color;
+            @include flex-center;
+            cursor: pointer;
+            @include ease-all;
+
+            &:hover:not(:disabled) {
+              background-color: darken($secondary-color, 10%);
+            }
+
+            &:disabled {
+              background-color: $gray-font-color;
+              cursor: not-allowed;
+            }
+
+            svg {
+              color: inherit;
+            }
+          }
+
+          .qty-display {
+            min-width: 50px;
+            height: 18px;
+            @include flex-center;
+            background-color: $gray-color;
+            color: $body-font-color;
+            font-size: 14px;
+            font-weight: $font-weight-medium;
+          }
+        }
+      }
+
+      &.show-qty .qty-box {
+        // Hide by default, only show on hover
+        opacity: 0;
+        transform: translateX(100%);
+        pointer-events: none;
+      }
+
+      &.show-qty .add-cart-btn {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(100%);
+      }
+
+      &.show-qty .wishlist-btn {
+        // Hide by default, only show on hover
+        opacity: 0;
+        transform: translateX(100%);
+      }
+
+      // Show buttons on hover
+      &:hover {
+        .wishlist-btn,
+        .add-cart-btn {
+          opacity: 1;
+          transform: translateX(0);
+        }
+
+        // Show quantity box on hover if product is in cart
+        &.show-qty .qty-box {
+          opacity: 1;
+          transform: translateX(0);
+          pointer-events: auto;
+        }
+
+        // Show wishlist button even when quantity is available
+        &.show-qty .wishlist-btn {
+          opacity: 1;
+          transform: translateX(0);
+        }
+
+        // Hide add-cart-btn when quantity box is showing
+        &.show-qty .add-cart-btn {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+      }
     }
   }
   .trending-product {

@@ -9,6 +9,7 @@ import { getCollections } from "../utils/shopify";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import ProductCard from "../components/ProductCard";
 import ProductCardSmall from "../components/ProductCardSmall";
+import BestSellingCard from "../components/BestSellingCard";
 
 const Home = () => {
   const imageBase = useImagePath();
@@ -255,6 +256,7 @@ const Home = () => {
                     <span className="gray-line"></span>
                   </div>
                 </div>
+                <BestSellingCard />
               </div>
             </div>
             <div className="col-lg-9 col-md-12 col-sm-12">

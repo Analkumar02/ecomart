@@ -316,13 +316,13 @@ const Header = () => {
                     }}
                   />
                   <button type="submit" className="search-btn">
-                    Search{" "}
                     <Icon
                       icon="mingcute:search-line"
                       width="17"
                       height="17"
-                      style={{ marginLeft: 4 }}
+                      style={{ marginRight: 4 }}
                     />
+                    Search
                   </button>
                 </form>
                 {showSuggestions && (
