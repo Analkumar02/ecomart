@@ -191,3 +191,11 @@
     }
   }
 }
+@mixin filterdefault {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px 15px;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+}
