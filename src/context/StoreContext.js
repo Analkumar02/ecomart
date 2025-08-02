@@ -1,10 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import {
+  getProducts,
+  getCollections,
+  getProductsByCollection,
+} from "../utils/shopify";
 
 const StoreContext = createContext();
 
 export const StoreProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+
+  // Shopify data state
+  const [products, setProducts] = useState([]);
+  const [collections, setCollections] = useState([]);
+  const [newProducts, setNewProducts] = useState([]);
+  const [trendingProducts, setTrendingProducts] = useState([]);
+  const [smartCartProducts, setSmartCartProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [dataFetched, setDataFetched] = useState(false);
 
   // Load cart from localStorage on component mount
   useEffect(() => {
@@ -13,6 +27,54 @@ export const StoreProvider = ({ children }) => {
     setCart(savedCart);
     setWishlist(savedWishlist);
   }, []);
+
+  // Fetch all Shopify data once when the app loads
+  useEffect(() => {
+    const fetchShopifyData = async () => {
+      if (dataFetched) return; // Prevent duplicate calls
+
+      try {
+        setLoading(true);
+        console.log("StoreContext: Fetching Shopify data...");
+
+        // Fetch all data in parallel
+        const [
+          fetchedProducts,
+          fetchedCollections,
+          fetchedNewProducts,
+          fetchedTrendingProducts,
+          fetchedSmartCartProducts,
+        ] = await Promise.all([
+          getProducts(),
+          getCollections(),
+          getProductsByCollection("new"),
+          getProductsByCollection("trending"),
+          getProductsByCollection("smart-cart"),
+        ]);
+
+        setProducts(fetchedProducts || []);
+        setCollections(fetchedCollections || []);
+        setNewProducts(fetchedNewProducts || []);
+        setTrendingProducts(fetchedTrendingProducts || []);
+        setSmartCartProducts(fetchedSmartCartProducts || []);
+        setDataFetched(true);
+
+        console.log("StoreContext: Shopify data fetched successfully", {
+          products: fetchedProducts?.length || 0,
+          collections: fetchedCollections?.length || 0,
+          newProducts: fetchedNewProducts?.length || 0,
+          trendingProducts: fetchedTrendingProducts?.length || 0,
+          smartCartProducts: fetchedSmartCartProducts?.length || 0,
+        });
+      } catch (error) {
+        console.error("StoreContext: Error fetching Shopify data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShopifyData();
+  }, [dataFetched]);
 
   // Listen for cart updates from ProductCard
   useEffect(() => {
@@ -131,6 +193,14 @@ export const StoreProvider = ({ children }) => {
         removeFromCart,
         addToWishlist,
         removeFromWishlist,
+        // Shopify data
+        products,
+        collections,
+        newProducts,
+        trendingProducts,
+        smartCartProducts,
+        loading,
+        dataFetched,
       }}
     >
       {children}

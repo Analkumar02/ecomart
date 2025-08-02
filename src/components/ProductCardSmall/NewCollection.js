@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useImagePath } from "../../context/ImagePathContext";
-import { getProductsByCollection } from "../../utils/shopify";
+import { useStore } from "../../context/StoreContext";
 
 const NewCollection = ({ excludeProductId }) => {
   const [products, setProducts] = useState([]);
@@ -10,6 +10,7 @@ const NewCollection = ({ excludeProductId }) => {
   const [productStates, setProductStates] = useState({});
   const [maxProducts, setMaxProducts] = useState(8);
   const imageBase = useImagePath();
+  const { newProducts, dataFetched } = useStore();
 
   // Function to determine max products based on screen size
   const getMaxProducts = () => {
@@ -87,10 +88,12 @@ const NewCollection = ({ excludeProductId }) => {
 
   useEffect(() => {
     const fetchNewProducts = async () => {
+      if (!dataFetched) return;
+
       try {
         setLoading(true);
-        // Fetch products from new collection
-        const allProducts = await getProductsByCollection("new");
+        // Use products from context
+        const allProducts = newProducts;
 
         if (allProducts && allProducts.length > 0) {
           // Filter out the excluded product if provided
@@ -163,7 +166,7 @@ const NewCollection = ({ excludeProductId }) => {
     };
 
     fetchNewProducts();
-  }, [excludeProductId, maxProducts]);
+  }, [excludeProductId, maxProducts, dataFetched, newProducts]);
 
   const getCurrentImage = (product) => {
     if (product?.images?.edges?.[0]?.node?.src) {

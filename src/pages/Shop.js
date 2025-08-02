@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useImagePath } from "../context/ImagePathContext";
+import { useStore } from "../context/StoreContext";
 import { Icon } from "@iconify/react";
 import ShopProductCard from "../components/ShopProductCard";
-import {
-  getProducts,
-  getCollections,
-  getProductsByCollection,
-} from "../utils/shopify";
+import { getProductsByCollection } from "../utils/shopify";
 
 function Shop() {
   const imageBase = useImagePath();
+  const {
+    products: contextProducts,
+    collections: contextCollections,
+    newProducts: contextNewProducts,
+    trendingProducts: contextTrendingProducts,
+    smartCartProducts: contextSmartCartProducts,
+    loading: contextLoading,
+    dataFetched,
+  } = useStore();
+
   const [products, setProducts] = useState([]);
   const [allProducts, setAllProducts] = useState([]); // Store all products for reference
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -47,111 +54,91 @@ function Shop() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+    // Use data from context instead of making API calls
+    if (dataFetched && contextProducts.length > 0) {
+      setProducts(contextProducts);
+      setAllProducts(contextProducts);
 
-        // Fetch products and collections in parallel
-        const [fetchedProducts, fetchedCollections] = await Promise.all([
-          getProducts(),
-          getCollections(),
-        ]);
+      // Calculate price range from actual products
+      const prices = contextProducts.map((product) => {
+        const firstVariant = product.variants.edges[0]?.node;
+        return firstVariant ? parseFloat(firstVariant.price.amount) : 0;
+      });
 
-        if (fetchedProducts && fetchedProducts.length > 0) {
-          setProducts(fetchedProducts);
-          setAllProducts(fetchedProducts); // Store all products for reference
+      const calculatedMinPrice = Math.floor(Math.min(...prices));
+      const calculatedMaxPrice = Math.ceil(Math.max(...prices));
 
-          // Calculate price range from actual products
-          const prices = fetchedProducts.map((product) => {
-            const firstVariant = product.variants.edges[0]?.node;
-            return firstVariant ? parseFloat(firstVariant.price.amount) : 0;
-          });
+      setMinPrice(calculatedMinPrice);
+      setMaxPrice(calculatedMaxPrice);
+      setPriceRange({ min: calculatedMinPrice, max: calculatedMaxPrice });
+      setAppliedPriceRange({
+        min: calculatedMinPrice,
+        max: calculatedMaxPrice,
+      });
+      setFilteredProducts(contextProducts);
 
-          const calculatedMinPrice = Math.floor(Math.min(...prices));
-          const calculatedMaxPrice = Math.ceil(Math.max(...prices));
+      // Set collections
+      if (contextCollections.length > 0) {
+        // Filter out excluded collections
+        const excludedHandles = ["new", "trending", "smart-cart"];
+        const filteredCollections = contextCollections.filter(
+          (collection) => !excludedHandles.includes(collection.handle)
+        );
 
-          setMinPrice(calculatedMinPrice);
-          setMaxPrice(calculatedMaxPrice);
-          setPriceRange({ min: calculatedMinPrice, max: calculatedMaxPrice });
-          setAppliedPriceRange({
-            min: calculatedMinPrice,
-            max: calculatedMaxPrice,
-          });
-          setFilteredProducts(fetchedProducts);
-        } else {
-          setProducts([]);
-          setAllProducts([]);
-          setFilteredProducts([]);
-        }
+        setCollections(filteredCollections);
 
-        if (fetchedCollections && fetchedCollections.length > 0) {
-          // Filter out excluded collections
-          const excludedHandles = ["new", "trending", "smart-cart"];
-          const filteredCollections = fetchedCollections.filter(
-            (collection) => !excludedHandles.includes(collection.handle)
-          );
+        // Calculate category counts
+        const counts = {};
+        filteredCollections.forEach((collection) => {
+          // Count products that belong to this collection by checking productType or tags
+          const count = contextProducts.filter((product) => {
+            const productType = product.productType?.toLowerCase();
+            const collectionTitle = collection.title.toLowerCase();
 
-          setCollections(filteredCollections);
-
-          // Calculate category counts
-          const counts = {};
-          filteredCollections.forEach((collection) => {
-            // Count products that belong to this collection by checking productType or tags
-            const count = fetchedProducts.filter((product) => {
-              const productType = product.productType?.toLowerCase();
-              const collectionTitle = collection.title.toLowerCase();
-
-              // Match by product type or tags
-              return (
-                productType === collectionTitle ||
-                product.tags.some((tag) =>
-                  tag.toLowerCase().includes(collectionTitle)
-                )
-              );
-            }).length;
-
-            if (count > 0) {
-              counts[collection.handle] = count;
-            }
-          });
-
-          setCategoryCounts(counts);
-        }
-
-        // Calculate status counts
-        if (fetchedProducts && fetchedProducts.length > 0) {
-          const inStockCount = fetchedProducts.filter((product) => {
-            const firstVariant = product.variants.edges[0]?.node;
-            return firstVariant && firstVariant.availableForSale;
-          }).length;
-
-          const onSaleCount = fetchedProducts.filter((product) => {
-            const firstVariant = product.variants.edges[0]?.node;
-            if (!firstVariant) return false;
-            const originalPrice = parseFloat(
-              firstVariant.compareAtPrice?.amount || firstVariant.price.amount
+            // Match by product type or tags
+            return (
+              productType === collectionTitle ||
+              product.tags.some((tag) =>
+                tag.toLowerCase().includes(collectionTitle)
+              )
             );
-            const currentPrice = parseFloat(firstVariant.price.amount);
-            return originalPrice > currentPrice;
           }).length;
 
-          setStatusCounts({
-            inStock: inStockCount,
-            onSale: onSaleCount,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setProducts([]);
-        setFilteredProducts([]);
-        setCollections([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+          if (count > 0) {
+            counts[collection.handle] = count;
+          }
+        });
 
-    fetchData();
-  }, []);
+        setCategoryCounts(counts);
+      }
+
+      // Calculate status counts
+      const inStockCount = contextProducts.filter((product) => {
+        const firstVariant = product.variants.edges[0]?.node;
+        return firstVariant && firstVariant.availableForSale;
+      }).length;
+
+      const onSaleCount = contextProducts.filter((product) => {
+        const firstVariant = product.variants.edges[0]?.node;
+        if (!firstVariant) return false;
+        const originalPrice = parseFloat(
+          firstVariant.compareAtPrice?.amount || firstVariant.price.amount
+        );
+        const currentPrice = parseFloat(firstVariant.price.amount);
+        return originalPrice > currentPrice;
+      }).length;
+
+      setStatusCounts({
+        inStock: inStockCount,
+        onSale: onSaleCount,
+      });
+
+      setLoading(false);
+    } else if (!contextLoading) {
+      // If context finished loading but no data, show empty state
+      setLoading(false);
+    }
+  }, [dataFetched, contextProducts, contextCollections, contextLoading]);
 
   // Close mobile filter on window resize (desktop view)
   useEffect(() => {
@@ -422,19 +409,25 @@ function Shop() {
     try {
       let productsToUse = [];
 
-      // Check if we need to fetch from specific collections
+      // Use context data for specific collections or fetch if needed
       if (newSortBy === "new-arrival") {
-        console.log("Fetching products from 'new' collection...");
-        const newProducts = await getProductsByCollection("new");
-        productsToUse = newProducts || [];
+        console.log("Using new products from context...");
+        productsToUse =
+          contextNewProducts.length > 0
+            ? contextNewProducts
+            : await getProductsByCollection("new");
       } else if (newSortBy === "trending") {
-        console.log("Fetching products from 'trending' collection...");
-        const trendingProducts = await getProductsByCollection("trending");
-        productsToUse = trendingProducts || [];
+        console.log("Using trending products from context...");
+        productsToUse =
+          contextTrendingProducts.length > 0
+            ? contextTrendingProducts
+            : await getProductsByCollection("trending");
       } else if (newSortBy === "smart-cart") {
-        console.log("Fetching products from 'smart-cart' collection...");
-        const smartProducts = await getProductsByCollection("smart-cart");
-        productsToUse = smartProducts || [];
+        console.log("Using smart cart products from context...");
+        productsToUse =
+          contextSmartCartProducts.length > 0
+            ? contextSmartCartProducts
+            : await getProductsByCollection("smart-cart");
       } else {
         // Use all products for other sorting options
         productsToUse = allProducts;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useImagePath } from "../../context/ImagePathContext";
-import { getProductsByCollection } from "../../utils/shopify";
+import { useStore } from "../../context/StoreContext";
 
 const SmartCartCollection = ({ excludeProductId }) => {
   const [products, setProducts] = useState([]);
@@ -10,6 +10,7 @@ const SmartCartCollection = ({ excludeProductId }) => {
   const [productStates, setProductStates] = useState({});
   const [maxProducts, setMaxProducts] = useState(8);
   const imageBase = useImagePath();
+  const { smartCartProducts, dataFetched } = useStore();
 
   // Function to determine max products based on screen size
   const getMaxProducts = () => {
@@ -87,10 +88,12 @@ const SmartCartCollection = ({ excludeProductId }) => {
 
   useEffect(() => {
     const fetchSmartCartProducts = async () => {
+      if (!dataFetched) return;
+
       try {
         setLoading(true);
-        // Fetch products from smart-cart collection
-        const allProducts = await getProductsByCollection("smart-cart");
+        // Use products from context
+        const allProducts = smartCartProducts;
 
         if (allProducts && allProducts.length > 0) {
           // Filter out the excluded product (the one shown in main ProductCard)
@@ -163,7 +166,7 @@ const SmartCartCollection = ({ excludeProductId }) => {
     };
 
     fetchSmartCartProducts();
-  }, [excludeProductId, maxProducts]);
+  }, [excludeProductId, maxProducts, dataFetched, smartCartProducts]);
 
   const getCurrentImage = (product) => {
     if (product?.images?.edges?.[0]?.node?.src) {

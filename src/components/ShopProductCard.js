@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useImagePath } from "../context/ImagePathContext";
-import { getProductsByCollection } from "../utils/shopify";
+import { useStore } from "../context/StoreContext";
 
 const ShopProductCard = ({ productData }) => {
   const [product, setProduct] = useState(productData || null);
@@ -12,6 +12,7 @@ const ShopProductCard = ({ productData }) => {
   const [showQuantityBox, setShowQuantityBox] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const imageBase = useImagePath();
+  const { smartCartProducts, dataFetched } = useStore();
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -36,11 +37,11 @@ const ShopProductCard = ({ productData }) => {
   }, [product, selectedVariant]);
 
   useEffect(() => {
-    if (!productData) {
+    if (!productData && dataFetched) {
       const fetchRandomProduct = async () => {
         try {
           setLoading(true);
-          const products = await getProductsByCollection("smart-cart");
+          const products = smartCartProducts;
 
           if (products && products.length > 0) {
             const randomIndex = Math.floor(Math.random() * products.length);
@@ -66,7 +67,7 @@ const ShopProductCard = ({ productData }) => {
         setSelectedVariant(productData.variants.edges[0].node);
       }
     }
-  }, [productData]);
+  }, [productData, dataFetched, smartCartProducts]);
 
   // Check if product is already in cart when component loads or variant changes
   useEffect(() => {

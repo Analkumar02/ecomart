@@ -6,7 +6,7 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import { useImagePath } from "../context/ImagePathContext";
-import { getProductsByCollection } from "../utils/shopify";
+import { useStore } from "../context/StoreContext";
 
 const BestSellingCard = () => {
   const [product, setProduct] = useState(null);
@@ -16,6 +16,7 @@ const BestSellingCard = () => {
   const [showQuantityBox, setShowQuantityBox] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const imageBase = useImagePath();
+  const { smartCartProducts, dataFetched } = useStore();
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -41,10 +42,12 @@ const BestSellingCard = () => {
 
   useEffect(() => {
     const fetchBestSellingProduct = async () => {
+      if (!dataFetched) return;
+
       try {
         setLoading(true);
-        // Fetch products from any collection (using smart-cart as fallback)
-        const products = await getProductsByCollection("smart-cart");
+        // Use products from context
+        const products = smartCartProducts;
 
         if (products && products.length > 0) {
           // Filter products that have variants (more than just "Default Title")
@@ -84,7 +87,7 @@ const BestSellingCard = () => {
     };
 
     fetchBestSellingProduct();
-  }, []);
+  }, [dataFetched, smartCartProducts]);
 
   // Check if product is already in cart when component loads or variant changes
   useEffect(() => {

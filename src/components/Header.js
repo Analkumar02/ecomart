@@ -9,11 +9,17 @@ import "swiper/css/navigation";
 import "swiper/css/autoplay";
 import { Navigation, EffectFade, Autoplay } from "swiper/modules";
 import { Link, useNavigate } from "react-router-dom";
-import { getProducts, getCollections } from "../utils/shopify";
 
 const Header = () => {
   const imageBase = useImagePath();
-  const { cart, wishlist } = useStore();
+  const {
+    cart,
+    wishlist,
+    products: contextProducts,
+    collections: contextCollections,
+    dataFetched,
+  } = useStore();
+
   // DEBUG: Log cart items to verify originalPrice
   useEffect(() => {
     if (cart && cart.length > 0) {
@@ -21,16 +27,17 @@ const Header = () => {
       console.log("Cart items:", cart);
     }
   }, [cart]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [showCartDropdown, setShowCartDropdown] = useState(false);
   const [cartHoverTimeout, setCartHoverTimeout] = useState(null);
   const [allProducts, setAllProducts] = useState([]);
+  const [allCollections, setAllCollections] = useState([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const bottomHeaderRef = useRef(null);
 
-  const [allCollections, setAllCollections] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -45,24 +52,12 @@ const Header = () => {
   };
 
   useEffect(() => {
-    const fetchProductsAndCollections = async () => {
-      try {
-        const [products, collections] = await Promise.all([
-          getProducts(),
-          getCollections(),
-        ]);
-        setAllProducts(products);
-        setAllCollections(collections);
-      } catch (error) {
-        console.error("Failed to fetch products and collections:", error);
-        // Set empty arrays to prevent further errors
-        setAllProducts([]);
-        setAllCollections([]);
-      }
-    };
-
-    fetchProductsAndCollections();
-  }, []);
+    // Use data from context instead of making API calls
+    if (dataFetched) {
+      setAllProducts(contextProducts || []);
+      setAllCollections(contextCollections || []);
+    }
+  }, [dataFetched, contextProducts, contextCollections]);
 
   useEffect(() => {
     if (searchTerm.trim() === "") {
