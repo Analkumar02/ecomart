@@ -1,14 +1,20 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useImagePath } from "../context/ImagePathContext";
 import { Icon } from "@iconify/react";
 
 const FloatingContent = () => {
   const [notifications, setNotifications] = useState([]);
+  // Track timeouts for each notification by ID
+  const notificationTimeouts = useRef({});
   const [showScrollTop, setShowScrollTop] = useState(false);
   const imageBase = useImagePath();
 
   const removeNotification = useCallback((id) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
+    if (notificationTimeouts.current[id]) {
+      clearTimeout(notificationTimeouts.current[id]);
+      delete notificationTimeouts.current[id];
+    }
   }, []);
 
   // Handle scroll to top visibility
@@ -50,9 +56,7 @@ const FloatingContent = () => {
         const timeoutId = setTimeout(() => {
           removeNotification(notification.id);
         }, 2000);
-
-        // Store timeout ID for cleanup if needed
-        notification.timeoutId = timeoutId;
+        notificationTimeouts.current[notification.id] = timeoutId;
       }
     };
 
@@ -76,9 +80,7 @@ const FloatingContent = () => {
         const timeoutId = setTimeout(() => {
           removeNotification(notification.id);
         }, 2000);
-
-        // Store timeout ID for cleanup if needed
-        notification.timeoutId = timeoutId;
+        notificationTimeouts.current[notification.id] = timeoutId;
       }
     };
 
@@ -91,16 +93,13 @@ const FloatingContent = () => {
     };
   }, [removeNotification]);
 
-  // Cleanup timeouts on unmount
+  // Cleanup all timeouts on unmount
   useEffect(() => {
     return () => {
-      notifications.forEach((notification) => {
-        if (notification.timeoutId) {
-          clearTimeout(notification.timeoutId);
-        }
-      });
+      Object.values(notificationTimeouts.current).forEach(clearTimeout);
+      notificationTimeouts.current = {};
     };
-  }, [notifications]);
+  }, []);
 
   const getActionText = (type, category) => {
     if (category === "wishlist") {

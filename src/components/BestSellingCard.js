@@ -15,6 +15,7 @@ const BestSellingCard = () => {
   const [quantity, setQuantity] = useState(1);
   const [showQuantityBox, setShowQuantityBox] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
+  // Removed showRemoveModal state (modal replaced by notification)
   const imageBase = useImagePath();
   const { smartCartProducts, dataFetched } = useStore();
 
@@ -135,8 +136,61 @@ const BestSellingCard = () => {
       if (isInCart) {
         updateCartQuantity(newQuantity);
       }
+    } else if (quantity === 1 && isInCart) {
+      // Remove directly and show notification
+      removeFromCart();
     }
   };
+
+  const removeFromCart = () => {
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const updatedCart = existingCart.filter(
+      (item) =>
+        !(
+          item.productId === product.id && item.variantId === selectedVariant.id
+        )
+    );
+
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Reset component state
+    setIsInCart(false);
+    setShowQuantityBox(false);
+    setQuantity(1);
+
+    // Dispatch cart updated event
+    const cartUpdatedEvent = new CustomEvent("cartUpdated", {
+      detail: {
+        cart: updatedCart,
+        totalItems: updatedCart.reduce(
+          (total, item) => total + item.quantity,
+          0
+        ),
+      },
+    });
+    window.dispatchEvent(cartUpdatedEvent);
+
+    // Dispatch notification event for removal
+    const notificationItem = {
+      title: product.title,
+      variant:
+        selectedVariant && selectedVariant.title !== "Default Title"
+          ? selectedVariant.title
+          : null,
+      image: getCurrentImage(),
+      quantity: quantity,
+    };
+    window.dispatchEvent(
+      new CustomEvent("cartNotification", {
+        detail: {
+          action: "removed",
+          item: notificationItem,
+        },
+      })
+    );
+  };
+
+  // Removed modal handlers (not needed)
 
   const updateCartQuantity = (newQuantity) => {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -337,7 +391,7 @@ const BestSellingCard = () => {
       </div>
 
       <div className="variant-box">
-        {product.variants.edges.map((variant, index) => (
+        {product.variants.edges.slice(0, 2).map((variant, index) => (
           <div
             key={variant.node.id}
             className={`variant ${
@@ -388,7 +442,7 @@ const BestSellingCard = () => {
           <button
             className="qty-btn qty-decrease"
             onClick={handleQuantityDecrease}
-            disabled={quantity <= 1}
+            disabled={!isInCart && quantity <= 1}
           >
             <Icon icon="ic:baseline-minus" height="18" width="18" />
           </button>
@@ -401,6 +455,8 @@ const BestSellingCard = () => {
           </button>
         </div>
       </div>
+
+      {/* No modal: notification will show via FloatingContent */}
     </div>
   );
 };

@@ -1,5 +1,539 @@
-import React from "react";
+import { Link, useParams } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Thumbs } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { useImagePath } from "../context/ImagePathContext";
+import { useStore } from "../context/StoreContext";
+import { getProductByHandle } from "../utils/shopify";
+import { useState, useEffect } from "react";
+import ShopProductCard from "../components/ShopProductCard";
 
-const Product = () => <p>Product Page</p>;
+const Product = () => {
+  const { handle } = useParams();
+  const imageBase = useImagePath();
+  const {
+    addToCart,
+    removeFromCart,
+    toggleWishlist,
+    isInWishlist,
+    isInCart,
+    getCartItem,
+  } = useStore();
+
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const productData = await getProductByHandle(handle);
+        setProduct(productData);
+        if (productData?.variants?.edges?.length > 0) {
+          setSelectedVariant(productData.variants.edges[0].node);
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (handle) {
+      fetchProduct();
+    }
+  }, [handle]);
+
+  // Update quantity based on cart item when variant changes
+  useEffect(() => {
+    if (product && selectedVariant) {
+      const cartItem = getCartItem(product.id, selectedVariant.title);
+      if (cartItem) {
+        setQuantity(cartItem.quantity);
+      } else {
+        setQuantity(1);
+      }
+    }
+  }, [product, selectedVariant, getCartItem]);
+
+  // Listen for cart updates from other components
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      if (product && selectedVariant) {
+        const cartItem = getCartItem(product.id, selectedVariant.title);
+        if (cartItem) {
+          setQuantity(cartItem.quantity);
+        } else {
+          setQuantity(1);
+        }
+      }
+    };
+
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    return () => {
+      window.removeEventListener("cartUpdated", handleCartUpdate);
+    };
+  }, [product, selectedVariant, getCartItem]);
+
+  // Handle keyboard events for modal
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (showRemoveModal && event.key === "Escape") {
+        setShowRemoveModal(false);
+      }
+    };
+
+    if (showRemoveModal) {
+      document.addEventListener("keydown", handleKeyPress);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+      document.body.style.overflow = "unset";
+    };
+  }, [showRemoveModal]);
+
+  const handleQuantityChange = (change) => {
+    const newQuantity = quantity + change;
+
+    // If user tries to decrease quantity to 0 and product is in cart, show confirmation
+    if (newQuantity === 0 && productInCart) {
+      setShowRemoveModal(true);
+      return;
+    }
+
+    // For products not in cart, don't allow quantity below 1
+    if (!productInCart && newQuantity < 1) {
+      return;
+    }
+
+    // Allow quantity change
+    if (newQuantity >= 1) {
+      setQuantity(newQuantity);
+    }
+  };
+
+  const handleRemoveFromCart = () => {
+    if (product && selectedVariant) {
+      removeFromCart(product.id, selectedVariant.title);
+      setQuantity(1); // Reset to default quantity
+      setShowRemoveModal(false);
+    }
+  };
+
+  const handleCancelRemove = () => {
+    setShowRemoveModal(false);
+  };
+
+  const handleModalOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      setShowRemoveModal(false);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (product && selectedVariant) {
+      const cartItem = {
+        id: product.id,
+        title: product.title,
+        variant: selectedVariant.title,
+        price: selectedVariant.price.amount,
+        image:
+          selectedVariant.image?.src || product.images?.edges[0]?.node?.src,
+        quantity: quantity,
+        handle: product.handle,
+      };
+      addToCart(cartItem);
+    }
+  };
+
+  const handleToggleWishlist = () => {
+    if (product) {
+      const wishlistItem = {
+        id: product.id,
+        title: product.title,
+        price: selectedVariant?.price?.amount || 0,
+        image:
+          selectedVariant?.image?.src || product.images?.edges[0]?.node?.src,
+        handle: product.handle,
+      };
+      toggleWishlist(wishlistItem);
+    }
+  };
+
+  const calculateSavings = () => {
+    if (selectedVariant?.compareAtPrice && selectedVariant?.price) {
+      const originalPrice = parseFloat(selectedVariant.compareAtPrice.amount);
+      const salePrice = parseFloat(selectedVariant.price.amount);
+      const savings = originalPrice - salePrice;
+      const percentage = Math.round((savings / originalPrice) * 100);
+      return { amount: savings, percentage };
+    }
+    return null;
+  };
+
+  const getProductImages = () => {
+    if (!product) return [];
+
+    let images = [];
+
+    // If product has variants and selected variant has an image, use it first
+    if (selectedVariant?.image?.src) {
+      images.push({
+        src: selectedVariant.image.src,
+        altText: selectedVariant.image.altText || product.title,
+      });
+    }
+
+    // Add other product images
+    if (product.images?.edges) {
+      const otherImages = product.images.edges
+        .map((edge) => edge.node)
+        .filter((img) => img.src !== selectedVariant?.image?.src);
+      images = [...images, ...otherImages];
+    }
+
+    return images;
+  };
+
+  const getProductCollection = () => {
+    if (!product?.collections?.edges?.length) return null;
+
+    // Get the first collection that's not an excluded one
+    const excludedHandles = ["smart-cart", "trending-products", "new"];
+    const validCollection = product.collections.edges.find(
+      (edge) => !excludedHandles.includes(edge.node.handle)
+    );
+
+    return validCollection
+      ? validCollection.node
+      : product.collections.edges[0].node;
+  };
+
+  if (loading) {
+    return (
+      <div className="product-page">
+        <div className="container-xxl">
+          <div className="loading-state">Loading product...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="product-page">
+        <div className="container-xxl">
+          <div className="error-state">Product not found</div>
+        </div>
+      </div>
+    );
+  }
+
+  const savings = calculateSavings();
+  const productImages = getProductImages();
+  const productCollection = getProductCollection();
+
+  // Check if current product variant is in cart
+  const productInCart =
+    product && selectedVariant
+      ? isInCart(product.id, selectedVariant.title)
+      : false;
+
+  return (
+    <div className="product-page">
+      <div className="breadcrumb">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="breadcrumb-content">
+              <Link to="/"> Home</Link> /
+              {productCollection ? (
+                <Link
+                  to={`/shop?category=${productCollection.handle}`}
+                  className="active"
+                >
+                  {productCollection.title}
+                </Link>
+              ) : (
+                <span className="active">Product</span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="product-details">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-lg-6 col-md-12 col-sm-12 col-12">
+              <div className="product-gallery">
+                {productImages.length > 0 && (
+                  <>
+                    <div className="gallery-container">
+                      {productImages.length > 1 && (
+                        <Swiper
+                          modules={[Thumbs]}
+                          onSwiper={setThumbsSwiper}
+                          direction="vertical"
+                          slidesPerView="auto"
+                          spaceBetween={10}
+                          watchSlidesProgress={true}
+                          className="thumbs-swiper"
+                        >
+                          {productImages.map((image, index) => (
+                            <SwiperSlide key={index}>
+                              <img
+                                src={image.src}
+                                alt={image.altText || product.title}
+                                className="product-thumb-image"
+                              />
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
+                      )}
+                      <Swiper
+                        modules={[Thumbs]}
+                        thumbs={{ swiper: thumbsSwiper }}
+                        spaceBetween={20}
+                        slidesPerView={1}
+                        centeredSlides={true}
+                        className="main-swiper"
+                      >
+                        {productImages.map((image, index) => (
+                          <SwiperSlide key={index}>
+                            <img
+                              src={image.src}
+                              alt={image.altText || product.title}
+                              className="product-main-image"
+                            />
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="col-lg-6 col-md-12 col-sm-12 col-12">
+              <div className="product-info">
+                <h2 className="product-title">{product.title}</h2>
+                <div className="stars">
+                  {[...Array(5)].map((_, i) => (
+                    <Icon
+                      key={i}
+                      icon="material-symbols:star"
+                      width="14"
+                      height="14"
+                    />
+                  ))}
+                </div>
+                <div className="shipping-message">
+                  <Icon
+                    icon="healthicons:fruits-outline"
+                    width="16"
+                    height="16"
+                  />
+                  <span>Shipping within 2 hours | </span>Speedy and reliable
+                  parcel delivery!
+                </div>
+                <div className="price-box">
+                  {selectedVariant?.compareAtPrice && (
+                    <div className="org-price">
+                      MRP:{" "}
+                      <s>
+                        ₹
+                        {parseFloat(
+                          selectedVariant.compareAtPrice.amount
+                        ).toFixed(0)}
+                      </s>
+                    </div>
+                  )}
+                  <div className="sale-price">
+                    Price: ₹
+                    {selectedVariant
+                      ? parseFloat(selectedVariant.price.amount).toFixed(0)
+                      : "0"}
+                  </div>
+                  {savings && (
+                    <p>
+                      <span className="savings">
+                        You Save: {savings.percentage}% OFF
+                      </span>
+                      <br />
+                      (inclusive of all taxes)
+                    </p>
+                  )}
+                </div>
+
+                {/* Variant Selection */}
+                {product.variants?.edges?.length > 1 && (
+                  <div className="variant-selection">
+                    <h4>Select Variant:</h4>
+                    <div className="variant-options">
+                      {product.variants.edges.map((variant) => (
+                        <button
+                          key={variant.node.id}
+                          className={`variant-option ${
+                            selectedVariant?.id === variant.node.id
+                              ? "active"
+                              : ""
+                          }`}
+                          onClick={() => setSelectedVariant(variant.node)}
+                        >
+                          {variant.node.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="cart-opt">
+                  <div className="qty-big-box">
+                    <input
+                      type="number"
+                      value={quantity}
+                      readOnly
+                      className="qty-input"
+                    />
+                    <div className="qty-buttons">
+                      <button
+                        className="qty-btn plus"
+                        onClick={() => handleQuantityChange(1)}
+                      >
+                        <Icon icon="ic:round-plus" />
+                      </button>
+                      <button
+                        className="qty-btn minus"
+                        onClick={() => handleQuantityChange(-1)}
+                        disabled={!productInCart && quantity <= 1}
+                      >
+                        <Icon icon="ic:round-minus" />
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    className="add-to-cart"
+                    onClick={handleAddToCart}
+                    disabled={!selectedVariant?.availableForSale}
+                  >
+                    <Icon icon="mage:basket" width="24" height="24" />
+                    {!selectedVariant?.availableForSale
+                      ? "Out of Stock"
+                      : productInCart
+                      ? "Update Cart"
+                      : "Add to Cart"}
+                  </button>
+                  {productInCart && (
+                    <Link to="/cart" className="view-cart-btn">
+                      <Icon icon="solar:cart-3-bold" width="24" height="24" />
+                      View Cart
+                    </Link>
+                  )}
+                </div>
+                <button
+                  className={`wishlist ${
+                    isInWishlist(product.id) ? "active" : ""
+                  }`}
+                  onClick={handleToggleWishlist}
+                >
+                  <Icon
+                    icon={
+                      isInWishlist(product.id)
+                        ? "solar:heart-bold"
+                        : "solar:heart-linear"
+                    }
+                    width="28"
+                    height="28"
+                  />
+                  {isInWishlist(product.id)
+                    ? "Remove from Wishlist"
+                    : "Add to Wishlist"}
+                </button>
+                <div className="imp-info">
+                  <div className="text-area">
+                    <Icon icon="ion:card-outline" width="16" height="16" />
+                    <span>Payment:</span> 5% discount on card and UPI payments
+                  </div>
+                  <div className="gray-border"></div>
+                  <div className="text-area">
+                    <Icon
+                      icon="hugeicons:return-request"
+                      width="16"
+                      height="16"
+                    />
+                    <span>Return:</span> 1 Day Returns if you change your mind
+                  </div>
+                  <div className="gray-border"></div>
+                  <div className="text-area">
+                    <Icon
+                      icon="carbon:delivery-parcel"
+                      width="16"
+                      height="16"
+                    />
+                    <span>Delivery:</span> Free delivery on all orders over ₹500
+                  </div>
+                </div>
+                <div className="secure-checkout">
+                  <p>Guaranteed Safe Checkout</p>
+                  <img
+                    src={`${imageBase}/payment.png`}
+                    srcSet={`${imageBase}/payment@2x.png 2x, ${imageBase}/payment@3x.png 3x`}
+                    alt="Payment Methods"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="product-additional-details"></div>
+      <div className="related-products">
+        <Swiper>
+          <SwiperSlide>
+            <ShopProductCard />
+          </SwiperSlide>
+          <SwiperSlide>
+            <ShopProductCard />
+          </SwiperSlide>
+          <SwiperSlide>
+            <ShopProductCard />
+          </SwiperSlide>
+        </Swiper>
+      </div>
+
+      {/* Remove from Cart Confirmation Modal */}
+      {showRemoveModal && (
+        <div className="modal-overlay" onClick={handleModalOverlayClick}>
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Remove from Cart</h3>
+            </div>
+            <div className="modal-body">
+              <p>
+                Are you sure you want to remove this product from your cart?
+              </p>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={handleCancelRemove}>
+                No, Keep it
+              </button>
+              <button className="btn-confirm" onClick={handleRemoveFromCart}>
+                Yes, Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default Product;

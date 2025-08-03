@@ -199,3 +199,12 @@
   border: 1px solid $border-color;
   border-radius: $border-radius;
 }
+
+@mixin line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 1px;
+  background-color: $border-color;
+}

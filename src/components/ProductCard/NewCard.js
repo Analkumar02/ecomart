@@ -12,8 +12,9 @@ const NewCard = ({ onProductLoad }) => {
   const [quantity, setQuantity] = useState(1);
   const [showQuantityBox, setShowQuantityBox] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
+  // Removed showRemoveModal state
   const imageBase = useImagePath();
-  const { toggleWishlist, isInWishlist } = useStore();
+  const { toggleWishlist, isInWishlist, cartItems, updateCart } = useStore();
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -102,7 +103,6 @@ const NewCard = ({ onProductLoad }) => {
   const handleWishlistToggle = () => {
     if (!product) return;
 
-
     const wishlistItem = {
       id: product.id,
       title: product.title,
@@ -115,7 +115,6 @@ const NewCard = ({ onProductLoad }) => {
         selectedVariant?.compareAtPrice?.amount ||
         product.variants?.edges?.[0]?.node?.compareAtPrice?.amount,
     };
-
 
     toggleWishlist(wishlistItem);
   };
@@ -135,8 +134,60 @@ const NewCard = ({ onProductLoad }) => {
       if (isInCart) {
         updateCartQuantity(newQuantity);
       }
+    } else if (quantity === 1 && isInCart) {
+      // Directly remove from cart and show notification
+      removeFromCart();
     }
   };
+
+  const removeFromCart = () => {
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const updatedCart = existingCart.filter(
+      (item) =>
+        !(
+          item.productId === product.id && item.variantId === selectedVariant.id
+        )
+    );
+
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Reset component state
+    setIsInCart(false);
+    setShowQuantityBox(false);
+    setQuantity(1);
+
+    // Dispatch cart updated event
+    const cartUpdatedEvent = new CustomEvent("cartUpdated", {
+      detail: {
+        cart: updatedCart,
+        totalItems: updatedCart.reduce(
+          (total, item) => total + item.quantity,
+          0
+        ),
+      },
+    });
+    window.dispatchEvent(cartUpdatedEvent);
+
+    // Show notification (standardized for FloatingContent)
+    window.dispatchEvent(
+      new CustomEvent("cartNotification", {
+        detail: {
+          action: "removed",
+          item: {
+            title: product.title,
+            variant:
+              selectedVariant && selectedVariant.title !== "Default Title"
+                ? selectedVariant.title
+                : null,
+            image: getCurrentImage(),
+            quantity: quantity,
+          },
+        },
+      })
+    );
+  };
+
+  // Removed modal handlers
 
   const updateCartQuantity = (newQuantity) => {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -160,7 +211,6 @@ const NewCard = ({ onProductLoad }) => {
         },
       });
       window.dispatchEvent(cartUpdatedEvent);
-
     }
   };
 
@@ -210,7 +260,6 @@ const NewCard = ({ onProductLoad }) => {
       },
     });
     window.dispatchEvent(cartUpdatedEvent);
-
 
     // Dispatch notification event
     const notificationItem = {
@@ -296,7 +345,7 @@ const NewCard = ({ onProductLoad }) => {
           product.tags.find((tag) => tag.includes("category")) ||
           "New Product"}
       </div>
-      <Link to={`/products/${product.handle}`}>
+      <Link to={`/product/${product.handle}`}>
         <img
           className="img-fluid"
           src={getCurrentImage()}
@@ -304,7 +353,7 @@ const NewCard = ({ onProductLoad }) => {
         />
       </Link>
       <div className="variant-box">
-        {product.variants.edges.map((variant, index) => (
+        {product.variants.edges.slice(0, 2).map((variant, index) => (
           <div
             key={variant.node.id}
             className={`variant ${
@@ -332,7 +381,7 @@ const NewCard = ({ onProductLoad }) => {
           <Icon key={i} icon="material-symbols:star" height="16" width="16" />
         ))}
       </div>
-      <Link to={`/products/${product.handle}`} className="pr-title">
+      <Link to={`/product/${product.handle}`} className="pr-title">
         {product.title}
         {selectedVariant?.title &&
           selectedVariant.title !== "Default Title" &&
@@ -357,7 +406,7 @@ const NewCard = ({ onProductLoad }) => {
           <button
             className="qty-btn qty-decrease"
             onClick={handleQuantityDecrease}
-            disabled={quantity <= 1}
+            disabled={!isInCart && quantity <= 1}
           >
             <Icon icon="ic:baseline-minus" height="18" width="18" />
           </button>
@@ -370,6 +419,8 @@ const NewCard = ({ onProductLoad }) => {
           </button>
         </div>
       </div>
+
+      {/* Confirmation modal removed: now only notification is shown on removal */}
     </div>
   );
 };

@@ -88,7 +88,27 @@ export const StoreProvider = ({ children }) => {
 
   // Example add/remove functions (replace with your logic)
   const addToCart = (item) => {
-    const updatedCart = [...cart, item];
+    // Check if item already exists in cart
+    const existingItemIndex = cart.findIndex(
+      (cartItem) =>
+        cartItem.id === item.id &&
+        (cartItem.variant || "Default Title") ===
+          (item.variant || "Default Title")
+    );
+
+    let updatedCart;
+    if (existingItemIndex !== -1) {
+      // Update existing item quantity
+      updatedCart = [...cart];
+      updatedCart[existingItemIndex] = {
+        ...updatedCart[existingItemIndex],
+        quantity: item.quantity,
+      };
+    } else {
+      // Add new item to cart
+      updatedCart = [...cart, item];
+    }
+
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
@@ -103,34 +123,83 @@ export const StoreProvider = ({ children }) => {
     window.dispatchEvent(
       new CustomEvent("cartNotification", {
         detail: {
-          action: "added",
+          action: existingItemIndex !== -1 ? "updated" : "added",
           item: notificationItem,
         },
       })
     );
   };
 
+  // Check if product is in cart
+  const isInCart = (productId, variant = "Default Title") => {
+    return cart.some((item) => {
+      // Check both formats: new format (id/variant) and old format (productId/variantId)
+      const matchesNewFormat =
+        item.id === productId &&
+        (item.variant || "Default Title") === (variant || "Default Title");
+
+      const matchesOldFormat =
+        item.productId === productId &&
+        (item.variantId === variant ||
+          (item.variantTitle || "Default Title") ===
+            (variant || "Default Title"));
+
+      return matchesNewFormat || matchesOldFormat;
+    });
+  };
+
+  // Get cart item
+  const getCartItem = (productId, variant = "Default Title") => {
+    return cart.find((item) => {
+      // Check both formats: new format (id/variant) and old format (productId/variantId)
+      const matchesNewFormat =
+        item.id === productId &&
+        (item.variant || "Default Title") === (variant || "Default Title");
+
+      const matchesOldFormat =
+        item.productId === productId &&
+        (item.variantId === variant ||
+          (item.variantTitle || "Default Title") ===
+            (variant || "Default Title"));
+
+      return matchesNewFormat || matchesOldFormat;
+    });
+  };
+
   const removeFromCart = (id, variant = null) => {
     const itemToRemove = cart.find((item) => {
       if (variant !== null) {
-        return (
+        // Check both formats
+        const matchesNewFormat =
           item.id === id &&
-          (item.variant || "default") === (variant || "default")
-        );
+          (item.variant || "default") === (variant || "default");
+
+        const matchesOldFormat =
+          item.productId === id &&
+          (item.variantId === variant ||
+            (item.variantTitle || "default") === (variant || "default"));
+
+        return matchesNewFormat || matchesOldFormat;
       }
-      return item.id === id;
+      return item.id === id || item.productId === id;
     });
 
     const updatedCart = cart.filter((item) => {
       // If variant is specified, match both id and variant
       if (variant !== null) {
-        return !(
+        const matchesNewFormat =
           item.id === id &&
-          (item.variant || "default") === (variant || "default")
-        );
+          (item.variant || "default") === (variant || "default");
+
+        const matchesOldFormat =
+          item.productId === id &&
+          (item.variantId === variant ||
+            (item.variantTitle || "default") === (variant || "default"));
+
+        return !(matchesNewFormat || matchesOldFormat);
       }
       // Otherwise just match id (legacy behavior)
-      return item.id !== id;
+      return !(item.id === id || item.productId === id);
     });
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
@@ -251,6 +320,8 @@ export const StoreProvider = ({ children }) => {
         removeFromWishlist,
         toggleWishlist,
         isInWishlist,
+        isInCart,
+        getCartItem,
         // Shopify data
         products,
         collections,

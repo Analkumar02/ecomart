@@ -495,7 +495,7 @@
         }
       }
       select {
-        padding: 8px 32px 8px 12px; // Added right padding for custom arrow
+        padding: 8px 12px;
         border: 1px solid $border-color;
         border-radius: 4px;
         font-size: 12px;
@@ -504,11 +504,6 @@
         cursor: pointer;
         min-width: 160px;
         transition: all 0.3s ease;
-        appearance: none; // Remove default arrow
-        background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23666' d='M1.41 0L6 4.59L10.59 0L12 1.41L6 7.41L0 1.41z'/></svg>");
-        background-repeat: no-repeat;
-        background-position: right 12px center; // Position arrow 12px from right edge
-        background-size: 12px 8px;
 
         &:focus {
           outline: none;

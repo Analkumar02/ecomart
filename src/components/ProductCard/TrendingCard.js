@@ -12,8 +12,9 @@ const TrendingCard = ({ onProductLoad }) => {
   const [quantity, setQuantity] = useState(1);
   const [showQuantityBox, setShowQuantityBox] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
+  // Removed showRemoveModal state
   const imageBase = useImagePath();
-  const { toggleWishlist, isInWishlist } = useStore();
+  const { toggleWishlist, isInWishlist, cartItems } = useStore();
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -102,7 +103,6 @@ const TrendingCard = ({ onProductLoad }) => {
   const handleWishlistToggle = () => {
     if (!product) return;
 
-
     const wishlistItem = {
       id: product.id,
       title: product.title,
@@ -115,7 +115,6 @@ const TrendingCard = ({ onProductLoad }) => {
         selectedVariant?.compareAtPrice?.amount ||
         product.variants?.edges?.[0]?.node?.compareAtPrice?.amount,
     };
-
 
     toggleWishlist(wishlistItem);
   };
@@ -135,9 +134,52 @@ const TrendingCard = ({ onProductLoad }) => {
       if (isInCart) {
         updateCartQuantity(newQuantity);
       }
+    } else if (quantity === 1 && isInCart) {
+      // Directly remove from cart and show notification
+      removeFromCart();
     }
   };
 
+  const removeFromCart = () => {
+    // Remove by productId and variantId, not handle
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const updatedCart = existingCart.filter(
+      (item) =>
+        !(
+          item.productId === product.id && item.variantId === selectedVariant.id
+        )
+    );
+
+    // Save to localStorage
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Dispatch cartUpdated event for cross-component sync
+    window.dispatchEvent(
+      new CustomEvent("cartUpdated", {
+        detail: { cart: updatedCart },
+      })
+    );
+
+    // Show notification (standardized for FloatingContent)
+    window.dispatchEvent(
+      new CustomEvent("cartNotification", {
+        detail: {
+          action: "removed",
+          item: {
+            title: product.title,
+            variant:
+              selectedVariant && selectedVariant.title !== "Default Title"
+                ? selectedVariant.title
+                : null,
+            image: getCurrentImage(),
+            quantity: quantity,
+          },
+        },
+      })
+    );
+  };
+
+  // Removed modal handlers
   const updateCartQuantity = (newQuantity) => {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
     const itemIndex = existingCart.findIndex(
@@ -160,7 +202,6 @@ const TrendingCard = ({ onProductLoad }) => {
         },
       });
       window.dispatchEvent(cartUpdatedEvent);
-
     }
   };
 
@@ -210,7 +251,6 @@ const TrendingCard = ({ onProductLoad }) => {
       },
     });
     window.dispatchEvent(cartUpdatedEvent);
-
 
     // Dispatch notification event
     const notificationItem = {
@@ -296,7 +336,7 @@ const TrendingCard = ({ onProductLoad }) => {
           product.tags.find((tag) => tag.includes("category")) ||
           "Trending Product"}
       </div>
-      <Link to={`/products/${product.handle}`}>
+      <Link to={`/product/${product.handle}`}>
         <img
           className="img-fluid"
           src={getCurrentImage()}
@@ -304,7 +344,7 @@ const TrendingCard = ({ onProductLoad }) => {
         />
       </Link>
       <div className="variant-box">
-        {product.variants.edges.map((variant, index) => (
+        {product.variants.edges.slice(0, 2).map((variant, index) => (
           <div
             key={variant.node.id}
             className={`variant ${
@@ -332,7 +372,7 @@ const TrendingCard = ({ onProductLoad }) => {
           <Icon key={i} icon="material-symbols:star" height="16" width="16" />
         ))}
       </div>
-      <Link to={`/products/${product.handle}`} className="pr-title">
+      <Link to={`/product/${product.handle}`} className="pr-title">
         {product.title}
         {selectedVariant?.title &&
           selectedVariant.title !== "Default Title" &&
@@ -357,7 +397,7 @@ const TrendingCard = ({ onProductLoad }) => {
           <button
             className="qty-btn qty-decrease"
             onClick={handleQuantityDecrease}
-            disabled={quantity <= 1}
+            disabled={!isInCart && quantity <= 1}
           >
             <Icon icon="ic:baseline-minus" height="18" width="18" />
           </button>
@@ -370,6 +410,8 @@ const TrendingCard = ({ onProductLoad }) => {
           </button>
         </div>
       </div>
+
+      {/* Confirmation modal removed: now only notification is shown on removal */}
     </div>
   );
 };

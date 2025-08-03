@@ -258,3 +258,63 @@ export async function getProductsByCollection(collectionHandle) {
 
   return allProducts;
 }
+
+/**
+ * Get a single product by handle
+ */
+export async function getProductByHandle(handle) {
+  const query = `
+    query getProduct($handle: String!) {
+      productByHandle(handle: $handle) {
+        id
+        title
+        handle
+        description
+        productType
+        tags
+        collections(first: 5) {
+          edges {
+            node {
+              id
+              title
+              handle
+            }
+          }
+        }
+        images(first: 10) {
+          edges {
+            node {
+              src
+              altText
+            }
+          }
+        }
+        variants(first: 10) {
+          edges {
+            node {
+              id
+              title
+              price {
+                amount
+                currencyCode
+              }
+              compareAtPrice {
+                amount
+                currencyCode
+              }
+              availableForSale
+              image {
+                src
+                altText
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const variables = { handle };
+  const data = await shopifyRequest(query, variables);
+  return data.productByHandle;
+}

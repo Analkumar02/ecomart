@@ -151,11 +151,16 @@ const NewCollection = ({ excludeProductId }) => {
           // Ensure we never exceed maxProducts
           const finalProducts = selectedProducts.slice(0, maxProducts);
 
-          setProducts(finalProducts);
+          // Double-check: Remove any products that match the excludeProductId
+          const cleanedProducts = excludeProductId
+            ? finalProducts.filter((product) => product.id !== excludeProductId)
+            : finalProducts;
+
+          setProducts(cleanedProducts);
 
           // Initialize states for each product
           const initialStates = {};
-          finalProducts.forEach((product) => {
+          cleanedProducts.forEach((product) => {
             const selectedVariant = product?.variants?.edges?.[0]?.node;
             if (product && selectedVariant) {
               // Check if product is already in cart
@@ -273,6 +278,9 @@ const NewCollection = ({ excludeProductId }) => {
       if (productState.isInCart) {
         updateCartQuantity(product, newQuantity);
       }
+    } else if (productState.quantity === 1 && productState.isInCart) {
+      // Remove from cart when quantity would go to 0
+      removeFromCart(product);
     }
   };
 
@@ -299,6 +307,65 @@ const NewCollection = ({ excludeProductId }) => {
         },
       });
       window.dispatchEvent(cartUpdatedEvent);
+    }
+  };
+
+  const removeFromCart = (product) => {
+    const selectedVariant = product?.variants?.edges?.[0]?.node;
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+    // Find the item being removed for notification
+    const itemToRemove = existingCart.find(
+      (item) =>
+        item.productId === product.id && item.variantId === selectedVariant.id
+    );
+
+    const updatedCart = existingCart.filter(
+      (item) =>
+        !(
+          item.productId === product.id && item.variantId === selectedVariant.id
+        )
+    );
+
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Reset component state
+    updateProductState(product.id, {
+      isInCart: false,
+      showQuantityBox: false,
+      quantity: 1,
+    });
+
+    // Dispatch cart updated event
+    const cartUpdatedEvent = new CustomEvent("cartUpdated", {
+      detail: {
+        cart: updatedCart,
+        totalItems: updatedCart.reduce(
+          (total, item) => total + item.quantity,
+          0
+        ),
+      },
+    });
+    window.dispatchEvent(cartUpdatedEvent);
+
+    // Dispatch notification event
+    if (itemToRemove) {
+      window.dispatchEvent(
+        new CustomEvent("cartNotification", {
+          detail: {
+            action: "removed",
+            item: {
+              title: itemToRemove.title,
+              variant:
+                itemToRemove.variant !== "Default Title"
+                  ? itemToRemove.variant
+                  : null,
+              image: itemToRemove.image,
+              quantity: itemToRemove.quantity || 1,
+            },
+          },
+        })
+      );
     }
   };
 
@@ -473,7 +540,9 @@ const NewCollection = ({ excludeProductId }) => {
                 <button
                   className="qty-btn qty-decrease"
                   onClick={() => handleQuantityDecrease(product)}
-                  disabled={productState.quantity <= 1}
+                  disabled={
+                    !productState.isInCart && productState.quantity <= 1
+                  }
                 >
                   <Icon icon="ic:baseline-minus" height="18" width="18" />
                 </button>
