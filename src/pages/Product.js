@@ -1,15 +1,103 @@
 import { Link, useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Thumbs } from "swiper/modules";
+import { Thumbs, Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useImagePath } from "../context/ImagePathContext";
 import { useStore } from "../context/StoreContext";
-import { getProductByHandle } from "../utils/shopify";
+import { getProductByHandle, getProducts } from "../utils/shopify";
 import { useState, useEffect } from "react";
 import ShopProductCard from "../components/ShopProductCard";
+
+// Responsive Tab Section Component
+function TabSection({ description, additionalInfo }) {
+  const [activeTab, setActiveTab] = useState("description");
+
+  // Helper function to parse and extract content from Shopify metafield JSON
+  const parseMetafieldContent = (rawValue) => {
+    if (!rawValue) return "";
+
+    try {
+      // Parse the JSON string
+      const parsed = JSON.parse(rawValue);
+
+      // Extract text content from the JSON structure
+      const extractText = (node) => {
+        if (node.type === "text") {
+          return node.value;
+        }
+        if (node.type === "paragraph" && node.children) {
+          return node.children.map(extractText).join("");
+        }
+        if (node.children) {
+          return node.children.map(extractText).join("");
+        }
+        return "";
+      };
+
+      // Handle different JSON structures
+      if (parsed.children) {
+        return parsed.children.map(extractText).join("\n\n");
+      } else if (parsed.type === "root" && parsed.children) {
+        return parsed.children.map(extractText).join("\n\n");
+      } else {
+        return extractText(parsed);
+      }
+    } catch (error) {
+      console.warn("Error parsing metafield content:", error);
+      // If parsing fails, return the raw value
+      return rawValue;
+    }
+  };
+
+  const parsedDescription = parseMetafieldContent(description);
+  const parsedAdditionalInfo = parseMetafieldContent(additionalInfo);
+
+  return (
+    <div className="responsive-tabs">
+      <div className="tab-header">
+        <button
+          className={`tab-button ${
+            activeTab === "description" ? "active" : ""
+          }`}
+          onClick={() => setActiveTab("description")}
+        >
+          Description
+        </button>
+        <button
+          className={`tab-button ${activeTab === "additional" ? "active" : ""}`}
+          onClick={() => setActiveTab("additional")}
+        >
+          Additional Information
+        </button>
+      </div>
+      <div className="tab-content">
+        {activeTab === "description" && (
+          <div className="tab-panel description-panel">
+            {parsedDescription ? (
+              <div style={{ whiteSpace: "pre-wrap" }}>{parsedDescription}</div>
+            ) : (
+              <p>No description available.</p>
+            )}
+          </div>
+        )}
+        {activeTab === "additional" && (
+          <div className="tab-panel additional-panel">
+            {parsedAdditionalInfo ? (
+              <div style={{ whiteSpace: "pre-wrap" }}>
+                {parsedAdditionalInfo}
+              </div>
+            ) : (
+              <p>No additional information available.</p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const Product = () => {
   const { handle } = useParams();
@@ -21,6 +109,7 @@ const Product = () => {
     isInWishlist,
     isInCart,
     getCartItem,
+    smartCartProducts,
   } = useStore();
 
   const [product, setProduct] = useState(null);
@@ -29,6 +118,7 @@ const Product = () => {
   const [quantity, setQuantity] = useState(1);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -50,6 +140,46 @@ const Product = () => {
       fetchProduct();
     }
   }, [handle]);
+
+  // Set up related products from the same category/collection or random products
+  useEffect(() => {
+    if (product && smartCartProducts && smartCartProducts.length > 0) {
+      // Get products from the same collection or random products
+      let relatedProductsList = [];
+
+      // Try to get products from the same collection first
+      if (product.collections?.edges?.length > 0) {
+        const productCollections = product.collections.edges.map(
+          (edge) => edge.node.handle
+        );
+        relatedProductsList = smartCartProducts.filter(
+          (p) =>
+            p.id !== product.id && // Exclude current product
+            p.collections?.edges?.some((edge) =>
+              productCollections.includes(edge.node.handle)
+            )
+        );
+      }
+
+      // If we don't have enough related products, add random ones
+      if (relatedProductsList.length < 8) {
+        const remainingProducts = smartCartProducts.filter(
+          (p) =>
+            p.id !== product.id &&
+            !relatedProductsList.some((rp) => rp.id === p.id)
+        );
+
+        // Shuffle and take remaining needed products
+        const shuffled = remainingProducts.sort(() => 0.5 - Math.random());
+        relatedProductsList = [
+          ...relatedProductsList,
+          ...shuffled.slice(0, 8 - relatedProductsList.length),
+        ];
+      }
+
+      setRelatedProducts(relatedProductsList.slice(0, 8)); // Limit to 8 products
+    }
+  }, [product, smartCartProducts]);
 
   // Update quantity based on cart item when variant changes
   useEffect(() => {
@@ -494,19 +624,78 @@ const Product = () => {
           </div>
         </div>
       </div>
-      <div className="product-additional-details"></div>
+      <div className="product-additional-details">
+        <div className="container-xxl">
+          <TabSection
+            description={product?.metafield?.value || ""}
+            additionalInfo={product?.additionalInfoMetafield?.value || ""}
+          />
+        </div>
+      </div>
       <div className="related-products">
-        {/* <Swiper>
-          <SwiperSlide>
-            <ShopProductCard />
-          </SwiperSlide>
-          <SwiperSlide>
-            <ShopProductCard />
-          </SwiperSlide>
-          <SwiperSlide>
-            <ShopProductCard />
-          </SwiperSlide>
-        </Swiper> */}
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-12">
+              <div className="related-area-header mb-4">
+                <h5>Related Products</h5>
+                <div className="divider1">
+                  <span className="green-line"></span>
+                  <span className="gray-line"></span>
+                </div>
+              </div>
+              {relatedProducts.length > 0 && (
+                <Swiper
+                  modules={[Navigation, Autoplay]}
+                  spaceBetween={20}
+                  loop={true}
+                  centeredSlides={false}
+                  watchOverflow={true}
+                  autoplay={{
+                    delay: 3000,
+                    disableOnInteraction: false,
+                  }}
+                  navigation={{
+                    nextEl: ".swiper-button-next-related",
+                    prevEl: ".swiper-button-prev-related",
+                  }}
+                  breakpoints={{
+                    320: {
+                      slidesPerView: 2,
+                      spaceBetween: 10,
+                      slidesPerGroup: 1,
+                    },
+                    768: {
+                      slidesPerView: 3,
+                      spaceBetween: 15,
+                      slidesPerGroup: 1,
+                    },
+                    1024: {
+                      slidesPerView: 4,
+                      spaceBetween: 20,
+                      slidesPerGroup: 1,
+                    },
+                  }}
+                  speed={600}
+                  className="related-products-swiper"
+                >
+                  {relatedProducts.map((product) => (
+                    <SwiperSlide key={product.id}>
+                      <ShopProductCard productData={product} />
+                    </SwiperSlide>
+                  ))}
+
+                  {/* Navigation arrows */}
+                  <div className="swiper-button-prev-related">
+                    <Icon icon="ep:arrow-left" width="24" height="24" />
+                  </div>
+                  <div className="swiper-button-next-related">
+                    <Icon icon="ep:arrow-right" width="24" height="24" />
+                  </div>
+                </Swiper>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Remove from Cart Confirmation Modal */}

@@ -310,6 +310,16 @@ export async function getProductByHandle(handle) {
             }
           }
         }
+        metafield(namespace: "custom", key: "description") {
+          id
+          key
+          value
+        }
+        additionalInfoMetafield: metafield(namespace: "custom", key: "additional_information") {
+          id
+          key
+          value
+        }
       }
     }
   `;
