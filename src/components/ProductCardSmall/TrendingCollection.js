@@ -16,13 +16,11 @@ const TrendingCollection = ({ excludeProductId }) => {
   // Function to determine max products based on screen size
   const getMaxProducts = () => {
     if (typeof window !== "undefined") {
-      if (window.innerWidth <= 480) {
-        return 6; // Mobile: 6 products in 1 column
-      } else if (window.innerWidth <= 768) {
-        return 6; // Tablet: 6 products in 2x3 grid
+      if (window.innerWidth <= 768) {
+        return 4; // Mobile/Tablet: 4 products
       }
     }
-    return 8; // Desktop: 8 products in 2x4 grid
+    return 4; // Desktop: 4 products per column
   };
 
   // Handle screen resize
@@ -121,7 +119,9 @@ const TrendingCollection = ({ excludeProductId }) => {
           const shuffledTypes = productTypes.sort(() => 0.5 - Math.random());
 
           // Take up to maxProducts types and select 1 random product from each type
-          shuffledTypes.slice(0, maxProducts).forEach((type) => {
+          const typesToUse = shuffledTypes.slice(0, maxProducts);
+
+          typesToUse.forEach((type) => {
             const productsOfType = productsByType[type];
             // Select a random product from this type
             const randomProduct =
@@ -129,11 +129,32 @@ const TrendingCollection = ({ excludeProductId }) => {
             selectedProducts.push(randomProduct);
           });
 
-          setProducts(selectedProducts);
+          // If we don't have enough product types, fill remaining slots with random products
+          if (
+            selectedProducts.length < maxProducts &&
+            filteredProducts.length > selectedProducts.length
+          ) {
+            const remainingProducts = filteredProducts.filter(
+              (product) =>
+                !selectedProducts.some((selected) => selected.id === product.id)
+            );
+
+            // Shuffle and take remaining needed products
+            const shuffledRemaining = remainingProducts.sort(
+              () => 0.5 - Math.random()
+            );
+            const needed = maxProducts - selectedProducts.length;
+            selectedProducts.push(...shuffledRemaining.slice(0, needed));
+          }
+
+          // Ensure we never exceed maxProducts
+          const finalProducts = selectedProducts.slice(0, maxProducts);
+
+          setProducts(finalProducts);
 
           // Initialize states for each product
           const initialStates = {};
-          selectedProducts.forEach((product) => {
+          finalProducts.forEach((product) => {
             const selectedVariant = product?.variants?.edges?.[0]?.node;
             if (product && selectedVariant) {
               // Check if product is already in cart

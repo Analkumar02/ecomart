@@ -230,7 +230,6 @@ function Shop() {
         "new-arrival",
         "trending",
         "smart-cart",
-        "featured",
         "on-sale",
         "availability",
       ];
@@ -431,31 +430,6 @@ function Shop() {
             b.variants.edges[0]?.node.price.amount || 0
           );
           return priceA - priceB;
-        });
-
-      case "featured":
-        // Sort by tags containing "featured" or by rating
-        return sortedProducts.sort((a, b) => {
-          const aFeatured = a.tags.some(
-            (tag) =>
-              tag.toLowerCase().includes("featured") ||
-              tag.toLowerCase().includes("spotlight") ||
-              tag.toLowerCase().includes("highlight")
-          );
-          const bFeatured = b.tags.some(
-            (tag) =>
-              tag.toLowerCase().includes("featured") ||
-              tag.toLowerCase().includes("spotlight") ||
-              tag.toLowerCase().includes("highlight")
-          );
-
-          if (aFeatured && !bFeatured) return -1;
-          if (!aFeatured && bFeatured) return 1;
-
-          // Sort by creation date as fallback
-          const dateA = new Date(a.createdAt);
-          const dateB = new Date(b.createdAt);
-          return dateB - dateA;
         });
 
       case "on-sale":
@@ -1160,7 +1134,6 @@ function Shop() {
                   <option value="new-arrival">New Arrivals</option>
                   <option value="trending">Trending</option>
                   <option value="smart-cart">Smart Cart</option>
-                  <option value="featured">Featured</option>
                   <option value="on-sale">On Sale</option>
                   <option value="availability">Availability</option>
                 </select>
