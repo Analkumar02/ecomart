@@ -54,7 +54,7 @@ const Product = () => {
   // Update quantity based on cart item when variant changes
   useEffect(() => {
     if (product && selectedVariant) {
-      const cartItem = getCartItem(product.id, selectedVariant.title);
+      const cartItem = getCartItem(product.id, selectedVariant.id);
       if (cartItem) {
         setQuantity(cartItem.quantity);
       } else {
@@ -67,7 +67,7 @@ const Product = () => {
   useEffect(() => {
     const handleCartUpdate = () => {
       if (product && selectedVariant) {
-        const cartItem = getCartItem(product.id, selectedVariant.title);
+        const cartItem = getCartItem(product.id, selectedVariant.id);
         if (cartItem) {
           setQuantity(cartItem.quantity);
         } else {
@@ -124,7 +124,7 @@ const Product = () => {
 
   const handleRemoveFromCart = () => {
     if (product && selectedVariant) {
-      removeFromCart(product.id, selectedVariant.title);
+      removeFromCart(product.id, selectedVariant.id);
       setQuantity(1); // Reset to default quantity
       setShowRemoveModal(false);
     }
@@ -246,7 +246,7 @@ const Product = () => {
   // Check if current product variant is in cart
   const productInCart =
     product && selectedVariant
-      ? isInCart(product.id, selectedVariant.title)
+      ? isInCart(product.id, selectedVariant.id)
       : false;
 
   return (
@@ -496,7 +496,7 @@ const Product = () => {
       </div>
       <div className="product-additional-details"></div>
       <div className="related-products">
-        <Swiper>
+        {/* <Swiper>
           <SwiperSlide>
             <ShopProductCard />
           </SwiperSlide>
@@ -506,7 +506,7 @@ const Product = () => {
           <SwiperSlide>
             <ShopProductCard />
           </SwiperSlide>
-        </Swiper>
+        </Swiper> */}
       </div>
 
       {/* Remove from Cart Confirmation Modal */}

@@ -92,6 +92,29 @@ const ShopProductCard = ({ productData }) => {
     }
   }, [product, selectedVariant]);
 
+  // Listen for cart updates from other components and sync state
+  useEffect(() => {
+    const handleCartUpdate = (e) => {
+      if (!product || !selectedVariant) return;
+      const updatedCart = e.detail?.cart || [];
+      const existingItem = updatedCart.find(
+        (item) =>
+          item.productId === product.id && item.variantId === selectedVariant.id
+      );
+      if (existingItem) {
+        setIsInCart(true);
+        setShowQuantityBox(true);
+        setQuantity(existingItem.quantity);
+      } else {
+        setIsInCart(false);
+        setShowQuantityBox(false);
+        setQuantity(1);
+      }
+    };
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    return () => window.removeEventListener("cartUpdated", handleCartUpdate);
+  }, [product, selectedVariant]);
+
   const handleVariantSelect = (variant) => {
     setSelectedVariant(variant);
   };
