@@ -155,6 +155,91 @@ function Shop() {
     }
   }, [searchParams, collections, selectedCategories]);
 
+  // Handle initial URL parameters for collection-based sorting
+  useEffect(() => {
+    if (
+      dataFetched &&
+      sortBy &&
+      ["new-arrival", "trending", "smart-cart", "on-sale"].includes(sortBy)
+    ) {
+      setLoading(true);
+
+      if (sortBy === "new-arrival" && contextNewProducts.length > 0) {
+        setProducts(contextNewProducts);
+        // Reset filters for collection-based sorting
+        setSelectedCategories([]);
+        setSelectedStatus([]);
+        setAppliedFilters([]);
+        setPriceRange({ min: minPrice, max: maxPrice });
+        setAppliedPriceRange({ min: minPrice, max: maxPrice });
+      } else if (sortBy === "trending" && contextTrendingProducts.length > 0) {
+        setProducts(contextTrendingProducts);
+        // Reset filters for collection-based sorting
+        setSelectedCategories([]);
+        setSelectedStatus([]);
+        setAppliedFilters([]);
+        setPriceRange({ min: minPrice, max: maxPrice });
+        setAppliedPriceRange({ min: minPrice, max: maxPrice });
+      } else if (
+        sortBy === "smart-cart" &&
+        contextSmartCartProducts.length > 0
+      ) {
+        setProducts(contextSmartCartProducts);
+        // Reset filters for collection-based sorting
+        setSelectedCategories([]);
+        setSelectedStatus([]);
+        setAppliedFilters([]);
+        setPriceRange({ min: minPrice, max: maxPrice });
+        setAppliedPriceRange({ min: minPrice, max: maxPrice });
+      } else if (sortBy === "on-sale" && allProducts.length > 0) {
+        const onSaleProducts = allProducts.filter((product) => {
+          const firstVariant = product.variants.edges[0]?.node;
+          if (!firstVariant) return false;
+          const originalPrice = parseFloat(
+            firstVariant.compareAtPrice?.amount || firstVariant.price.amount
+          );
+          const currentPrice = parseFloat(firstVariant.price.amount);
+          return originalPrice > currentPrice;
+        });
+        setProducts(onSaleProducts);
+      }
+
+      setLoading(false);
+    }
+  }, [
+    dataFetched,
+    sortBy,
+    contextNewProducts,
+    contextTrendingProducts,
+    contextSmartCartProducts,
+    allProducts,
+    minPrice,
+    maxPrice,
+  ]);
+
+  // Handle URL parameters for sortBy pre-selection
+  useEffect(() => {
+    const sortByParam = searchParams.get("sortBy");
+    if (sortByParam) {
+      const validSortOptions = [
+        "default",
+        "price-low-high",
+        "price-high-low",
+        "name-a-z",
+        "name-z-a",
+        "new-arrival",
+        "trending",
+        "smart-cart",
+        "featured",
+        "on-sale",
+        "availability",
+      ];
+      if (validSortOptions.includes(sortByParam) && sortByParam !== sortBy) {
+        setSortBy(sortByParam);
+      }
+    }
+  }, [searchParams, sortBy]);
+
   // Close mobile filter on window resize (desktop view)
   useEffect(() => {
     const handleResize = () => {
@@ -406,7 +491,8 @@ function Shop() {
         });
 
       default:
-        return sortedProducts;
+        // Randomize the product order for default display
+        return sortedProducts.sort(() => Math.random() - 0.5);
     }
   };
 
@@ -417,39 +503,51 @@ function Shop() {
     setLoading(true);
 
     try {
-      let productsToUse = [];
-
-      // Use context data for specific collections or fetch if needed
-      if (newSortBy === "new-arrival") {
-        productsToUse =
-          contextNewProducts.length > 0
-            ? contextNewProducts
-            : await getProductsByCollection("new");
-      } else if (newSortBy === "trending") {
-        productsToUse =
-          contextTrendingProducts.length > 0
-            ? contextTrendingProducts
-            : await getProductsByCollection("trending-products");
-      } else if (newSortBy === "smart-cart") {
-        productsToUse =
-          contextSmartCartProducts.length > 0
-            ? contextSmartCartProducts
-            : await getProductsByCollection("smart-cart");
-      } else {
-        // Use all products for other sorting options
-        productsToUse = allProducts;
-      }
-
-      // Update products state
-      setProducts(productsToUse);
-
-      // Reset filters when switching to collection-based sorting
+      // Handle collection-based sorting (these need different base products)
       if (["new-arrival", "trending", "smart-cart"].includes(newSortBy)) {
+        let productsToUse = [];
+
+        if (newSortBy === "new-arrival") {
+          productsToUse =
+            contextNewProducts.length > 0
+              ? contextNewProducts
+              : await getProductsByCollection("new");
+        } else if (newSortBy === "trending") {
+          productsToUse =
+            contextTrendingProducts.length > 0
+              ? contextTrendingProducts
+              : await getProductsByCollection("trending-products");
+        } else if (newSortBy === "smart-cart") {
+          productsToUse =
+            contextSmartCartProducts.length > 0
+              ? contextSmartCartProducts
+              : await getProductsByCollection("smart-cart");
+        }
+
+        // Update products state and reset filters
+        setProducts(productsToUse);
         setSelectedCategories([]);
         setSelectedStatus([]);
         setAppliedFilters([]);
         setPriceRange({ min: minPrice, max: maxPrice });
         setAppliedPriceRange({ min: minPrice, max: maxPrice });
+      } else {
+        // For other sorting options, use all products as base
+        setProducts(allProducts);
+
+        // For "on-sale" sorting, we need to filter to only show products on sale
+        if (newSortBy === "on-sale") {
+          const onSaleProducts = allProducts.filter((product) => {
+            const firstVariant = product.variants.edges[0]?.node;
+            if (!firstVariant) return false;
+            const originalPrice = parseFloat(
+              firstVariant.compareAtPrice?.amount || firstVariant.price.amount
+            );
+            const currentPrice = parseFloat(firstVariant.price.amount);
+            return originalPrice > currentPrice;
+          });
+          setProducts(onSaleProducts);
+        }
       }
     } catch (error) {
       console.error("Error fetching collection products:", error);

@@ -174,7 +174,7 @@ const Home = () => {
                     <span className="green-line"></span>
                     <span className="gray-line"></span>
                   </div>
-                  <Link to="/shop" className="see-more-btn">
+                  <Link to="/shop?sortBy=smart-cart" className="see-more-btn">
                     See more
                     <Icon icon="ep:arrow-right" height="16" width="16" />
                   </Link>
@@ -267,7 +267,7 @@ const Home = () => {
                     <span className="green-line"></span>
                     <span className="gray-line"></span>
                   </div>
-                  <Link to="/shop" className="see-more-btn">
+                  <Link to="/shop?sortBy=trending" className="see-more-btn">
                     See more
                     <Icon icon="ep:arrow-right" height="16" width="16" />
                   </Link>
@@ -337,7 +337,7 @@ const Home = () => {
                     <span className="green-line"></span>
                     <span className="gray-line"></span>
                   </div>
-                  <Link to="/shop" className="see-more-btn">
+                  <Link to="/shop?sortBy=new-arrival" className="see-more-btn">
                     See more
                     <Icon icon="ep:arrow-right" height="16" width="16" />
                   </Link>
