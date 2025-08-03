@@ -14,7 +14,7 @@ const NewCard = ({ onProductLoad }) => {
   const [isInCart, setIsInCart] = useState(false);
   // Removed showRemoveModal state
   const imageBase = useImagePath();
-  const { toggleWishlist, isInWishlist, cartItems, updateCart } = useStore();
+  const { toggleWishlist, isInWishlist } = useStore();
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -151,6 +151,9 @@ const NewCard = ({ onProductLoad }) => {
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
+    // Notify StoreContext about external cart update
+    window.dispatchEvent(new CustomEvent("externalCartUpdate"));
+
     // Reset component state
     setIsInCart(false);
     setShowQuantityBox(false);
@@ -200,6 +203,9 @@ const NewCard = ({ onProductLoad }) => {
       existingCart[itemIndex].quantity = newQuantity;
       localStorage.setItem("cart", JSON.stringify(existingCart));
 
+      // Notify StoreContext about external cart update
+      window.dispatchEvent(new CustomEvent("externalCartUpdate"));
+
       // Dispatch cart updated event with total items count
       const cartUpdatedEvent = new CustomEvent("cartUpdated", {
         detail: {
@@ -216,23 +222,26 @@ const NewCard = ({ onProductLoad }) => {
 
   const addToCart = () => {
     const cartItem = {
-      productId: product.id,
-      variantId: selectedVariant.id,
+      productId: product.id, // Keep for backward compatibility
+      variantId: selectedVariant.id, // Keep for backward compatibility
+      id: product.id, // Primary identifier used by StoreContext.addToCart
       title: product.title,
-      variant: selectedVariant.title,
+      variant: selectedVariant.title, // Primary variant identifier used by StoreContext.addToCart
       price: selectedVariant.price.amount,
       image: getCurrentImage(),
       quantity: quantity,
+      handle: product.handle, // Add handle for consistency with Product page
     };
 
     // Get existing cart from localStorage
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    // Check if item already exists in cart
+    // Check if item already exists in cart using same logic as StoreContext
     const existingItemIndex = existingCart.findIndex(
       (item) =>
-        item.productId === cartItem.productId &&
-        item.variantId === cartItem.variantId
+        item.id === cartItem.id &&
+        (item.variant || "Default Title") ===
+          (cartItem.variant || "Default Title")
     );
 
     if (existingItemIndex > -1) {
@@ -245,6 +254,9 @@ const NewCard = ({ onProductLoad }) => {
 
     // Save updated cart to localStorage
     localStorage.setItem("cart", JSON.stringify(existingCart));
+
+    // Notify StoreContext about external cart update
+    window.dispatchEvent(new CustomEvent("externalCartUpdate"));
 
     // Update component state
     setIsInCart(true);

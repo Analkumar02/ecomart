@@ -28,6 +28,24 @@ export const StoreProvider = ({ children }) => {
     setWishlist(savedWishlist);
   }, []);
 
+  // Listen for external cart updates from component cards
+  useEffect(() => {
+    const handleExternalCartUpdate = () => {
+      const updatedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      setCart(updatedCart);
+    };
+
+    // Listen for custom events from component cards
+    window.addEventListener("externalCartUpdate", handleExternalCartUpdate);
+
+    return () => {
+      window.removeEventListener(
+        "externalCartUpdate",
+        handleExternalCartUpdate
+      );
+    };
+  }, []);
+
   // Fetch all Shopify data once when the app loads
   useEffect(() => {
     const fetchShopifyData = async () => {
@@ -73,8 +91,11 @@ export const StoreProvider = ({ children }) => {
   // Listen for cart updates from ProductCard
   useEffect(() => {
     const handleCartUpdate = (event) => {
-      const { cart: updatedCart } = event.detail;
-      setCart(updatedCart);
+      // Defensive check to ensure event.detail exists
+      if (event.detail && event.detail.cart) {
+        const { cart: updatedCart } = event.detail;
+        setCart(updatedCart);
+      }
     };
 
     window.addEventListener("cartUpdated", handleCartUpdate);
@@ -112,6 +133,15 @@ export const StoreProvider = ({ children }) => {
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
+    // Dispatch cart updated event for components that need to sync
+    window.dispatchEvent(
+      new CustomEvent("cartUpdated", {
+        detail: {
+          cart: updatedCart,
+        },
+      })
+    );
+
     // Dispatch notification event
     const notificationItem = {
       title: item.title,
@@ -131,36 +161,36 @@ export const StoreProvider = ({ children }) => {
   };
 
   // Check if product is in cart
-  const isInCart = (productId, variant = "Default Title") => {
+  const isInCart = (productId, variantId = "Default Title") => {
     return cart.some((item) => {
       // Check both formats: new format (id/variant) and old format (productId/variantId)
       const matchesNewFormat =
         item.id === productId &&
-        (item.variant || "Default Title") === (variant || "Default Title");
+        (item.variant || "Default Title") === (variantId || "Default Title");
 
       const matchesOldFormat =
         item.productId === productId &&
-        (item.variantId === variant ||
+        (item.variantId === variantId ||
           (item.variantTitle || "Default Title") ===
-            (variant || "Default Title"));
+            (variantId || "Default Title"));
 
       return matchesNewFormat || matchesOldFormat;
     });
   };
 
   // Get cart item
-  const getCartItem = (productId, variant = "Default Title") => {
+  const getCartItem = (productId, variantId = "Default Title") => {
     return cart.find((item) => {
       // Check both formats: new format (id/variant) and old format (productId/variantId)
       const matchesNewFormat =
         item.id === productId &&
-        (item.variant || "Default Title") === (variant || "Default Title");
+        (item.variant || "Default Title") === (variantId || "Default Title");
 
       const matchesOldFormat =
         item.productId === productId &&
-        (item.variantId === variant ||
+        (item.variantId === variantId ||
           (item.variantTitle || "Default Title") ===
-            (variant || "Default Title"));
+            (variantId || "Default Title"));
 
       return matchesNewFormat || matchesOldFormat;
     });

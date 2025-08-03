@@ -20,10 +20,19 @@ const ShopProductCard = ({ productData }) => {
     const handleCartUpdated = (e) => {
       if (!product || !selectedVariant) return;
       const updatedCart = e.detail?.cart || [];
-      const existingItem = updatedCart.find(
-        (item) =>
-          item.productId === product.id && item.variantId === selectedVariant.id
-      );
+      const existingItem = updatedCart.find((item) => {
+        // Check both formats: new format (id/variant) and old format (productId/variantId)
+        const matchesNewFormat =
+          item.id === product.id &&
+          (item.variant || "Default Title") ===
+            (selectedVariant.title || "Default Title");
+
+        const matchesOldFormat =
+          item.productId === product.id &&
+          item.variantId === selectedVariant.id;
+
+        return matchesNewFormat || matchesOldFormat;
+      });
       if (existingItem) {
         setIsInCart(true);
         setShowQuantityBox(true);
@@ -75,10 +84,19 @@ const ShopProductCard = ({ productData }) => {
   useEffect(() => {
     if (product && selectedVariant) {
       const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const existingItem = existingCart.find(
-        (item) =>
-          item.productId === product.id && item.variantId === selectedVariant.id
-      );
+      const existingItem = existingCart.find((item) => {
+        // Check both formats: new format (id/variant) and old format (productId/variantId)
+        const matchesNewFormat =
+          item.id === product.id &&
+          (item.variant || "Default Title") ===
+            (selectedVariant.title || "Default Title");
+
+        const matchesOldFormat =
+          item.productId === product.id &&
+          item.variantId === selectedVariant.id;
+
+        return matchesNewFormat || matchesOldFormat;
+      });
 
       if (existingItem) {
         setIsInCart(true);
@@ -97,10 +115,19 @@ const ShopProductCard = ({ productData }) => {
     const handleCartUpdate = (e) => {
       if (!product || !selectedVariant) return;
       const updatedCart = e.detail?.cart || [];
-      const existingItem = updatedCart.find(
-        (item) =>
-          item.productId === product.id && item.variantId === selectedVariant.id
-      );
+      const existingItem = updatedCart.find((item) => {
+        // Check both formats: new format (id/variant) and old format (productId/variantId)
+        const matchesNewFormat =
+          item.id === product.id &&
+          (item.variant || "Default Title") ===
+            (selectedVariant.title || "Default Title");
+
+        const matchesOldFormat =
+          item.productId === product.id &&
+          item.variantId === selectedVariant.id;
+
+        return matchesNewFormat || matchesOldFormat;
+      });
       if (existingItem) {
         setIsInCart(true);
         setShowQuantityBox(true);
@@ -119,18 +146,13 @@ const ShopProductCard = ({ productData }) => {
     setSelectedVariant(variant);
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!selectedVariant) return;
 
     try {
-      const variantId = selectedVariant.id;
-      const result = await addToCart(variantId, quantity);
-
-      if (result.success) {
-        setIsInCart(true);
-        setShowQuantityBox(false);
-        setQuantity(1);
-      }
+      addToCart(); // Call the local addToCart function
+      // Let the cart event listeners handle state updates
+      // Don't manually set state here as it conflicts with cart event handlers
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
@@ -177,12 +199,18 @@ const ShopProductCard = ({ productData }) => {
 
   const removeFromCart = () => {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const updatedCart = existingCart.filter(
-      (item) =>
-        !(
-          item.productId === product.id && item.variantId === selectedVariant.id
-        )
-    );
+    const updatedCart = existingCart.filter((item) => {
+      // Check both formats: new format (id/variant) and old format (productId/variantId)
+      const matchesNewFormat =
+        item.id === product.id &&
+        (item.variant || "Default Title") ===
+          (selectedVariant.title || "Default Title");
+
+      const matchesOldFormat =
+        item.productId === product.id && item.variantId === selectedVariant.id;
+
+      return !(matchesNewFormat || matchesOldFormat);
+    });
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
@@ -226,10 +254,18 @@ const ShopProductCard = ({ productData }) => {
 
   const updateCartQuantity = (newQuantity) => {
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const itemIndex = existingCart.findIndex(
-      (item) =>
-        item.productId === product.id && item.variantId === selectedVariant.id
-    );
+    const itemIndex = existingCart.findIndex((item) => {
+      // Check both formats: new format (id/variant) and old format (productId/variantId)
+      const matchesNewFormat =
+        item.id === product.id &&
+        (item.variant || "Default Title") ===
+          (selectedVariant.title || "Default Title");
+
+      const matchesOldFormat =
+        item.productId === product.id && item.variantId === selectedVariant.id;
+
+      return matchesNewFormat || matchesOldFormat;
+    });
 
     if (itemIndex > -1) {
       existingCart[itemIndex].quantity = newQuantity;
@@ -250,20 +286,25 @@ const ShopProductCard = ({ productData }) => {
 
   const addToCart = () => {
     const cartItem = {
-      productId: product.id,
-      variantId: selectedVariant.id,
+      productId: product.id, // Keep for backward compatibility
+      variantId: selectedVariant.id, // Keep for backward compatibility
+      id: product.id, // Primary identifier used by StoreContext.addToCart
       title: product.title,
-      variant: selectedVariant.title,
+      variant: selectedVariant.title, // Primary variant identifier used by StoreContext.addToCart
       price: selectedVariant.price.amount,
       image: getCurrentImage(),
       quantity: quantity,
+      handle: product.handle, // Add handle for consistency with Product page
     };
 
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+    // Check if item already exists in cart using same logic as StoreContext
     const existingItemIndex = existingCart.findIndex(
       (item) =>
-        item.productId === cartItem.productId &&
-        item.variantId === cartItem.variantId
+        item.id === cartItem.id &&
+        (item.variant || "Default Title") ===
+          (cartItem.variant || "Default Title")
     );
 
     if (existingItemIndex > -1) {
@@ -274,6 +315,7 @@ const ShopProductCard = ({ productData }) => {
 
     localStorage.setItem("cart", JSON.stringify(existingCart));
     setIsInCart(true);
+    setShowQuantityBox(true);
 
     const cartUpdatedEvent = new CustomEvent("cartUpdated", {
       detail: {

@@ -7,7 +7,7 @@ import "swiper/css/thumbs";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useImagePath } from "../context/ImagePathContext";
 import { useStore } from "../context/StoreContext";
-import { getProductByHandle, getProducts } from "../utils/shopify";
+import { getProductByHandle } from "../utils/shopify";
 import { useState, useEffect } from "react";
 import ShopProductCard from "../components/ShopProductCard";
 
@@ -184,7 +184,7 @@ const Product = () => {
   // Update quantity based on cart item when variant changes
   useEffect(() => {
     if (product && selectedVariant) {
-      const cartItem = getCartItem(product.id, selectedVariant.id);
+      const cartItem = getCartItem(product.id, selectedVariant.title);
       if (cartItem) {
         setQuantity(cartItem.quantity);
       } else {
@@ -197,7 +197,7 @@ const Product = () => {
   useEffect(() => {
     const handleCartUpdate = () => {
       if (product && selectedVariant) {
-        const cartItem = getCartItem(product.id, selectedVariant.id);
+        const cartItem = getCartItem(product.id, selectedVariant.title);
         if (cartItem) {
           setQuantity(cartItem.quantity);
         } else {
@@ -254,7 +254,7 @@ const Product = () => {
 
   const handleRemoveFromCart = () => {
     if (product && selectedVariant) {
-      removeFromCart(product.id, selectedVariant.id);
+      removeFromCart(product.id, selectedVariant.title);
       setQuantity(1); // Reset to default quantity
       setShowRemoveModal(false);
     }
@@ -272,17 +272,24 @@ const Product = () => {
 
   const handleAddToCart = () => {
     if (product && selectedVariant) {
-      const cartItem = {
-        id: product.id,
-        title: product.title,
-        variant: selectedVariant.title,
-        price: selectedVariant.price.amount,
-        image:
-          selectedVariant.image?.src || product.images?.edges[0]?.node?.src,
-        quantity: quantity,
-        handle: product.handle,
-      };
-      addToCart(cartItem);
+      const currentCartItem = getCartItem(product.id, selectedVariant.title);
+      // Only update cart if quantity has changed or item is not in cart
+      if (!currentCartItem || currentCartItem.quantity !== quantity) {
+        const cartItem = {
+          productId: product.id, // Use productId for consistency with ShopProductCard
+          variantId: selectedVariant.id, // Use variantId for consistency with ShopProductCard
+          id: product.id, // Keep id for backward compatibility
+          title: product.title,
+          variant: selectedVariant.title,
+          price: selectedVariant.price.amount,
+          image:
+            selectedVariant.image?.src || product.images?.edges[0]?.node?.src,
+          quantity: quantity,
+          handle: product.handle,
+        };
+        addToCart(cartItem);
+      }
+      // else do nothing (no update needed)
     }
   };
 
@@ -376,7 +383,7 @@ const Product = () => {
   // Check if current product variant is in cart
   const productInCart =
     product && selectedVariant
-      ? isInCart(product.id, selectedVariant.id)
+      ? isInCart(product.id, selectedVariant.title)
       : false;
 
   return (
@@ -651,7 +658,7 @@ const Product = () => {
                   centeredSlides={false}
                   watchOverflow={true}
                   autoplay={{
-                    delay: 3000,
+                    delay: 5000,
                     disableOnInteraction: false,
                   }}
                   navigation={{
