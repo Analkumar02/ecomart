@@ -12,14 +12,7 @@ const SHOPIFY_API_URL = `https://${SHOPIFY_DOMAIN}/api/2023-07/graphql.json`;
  */
 export async function shopifyRequest(query, variables = {}) {
   try {
-    // Only log in development mode to reduce console spam
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `Making request to Shopify API: ${
-          query.split("\n")[1]?.trim() || "GraphQL Request"
-        }`
-      );
-    }
+    // Removed console logging to reduce console spam
 
     if (!SHOPIFY_API_URL || !SHOPIFY_API_KEY) {
       console.error("Missing Shopify API configuration:", {

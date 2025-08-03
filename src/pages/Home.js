@@ -123,7 +123,7 @@ const Home = () => {
               {collections.map((collection) => (
                 <SwiperSlide key={collection.id}>
                   <Link
-                    to={`/collections/${collection.handle}`}
+                    to={`/shop?category=${collection.handle}`}
                     className="category-slide"
                   >
                     <img

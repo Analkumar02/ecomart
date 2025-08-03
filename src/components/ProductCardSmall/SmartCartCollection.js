@@ -8,20 +8,21 @@ const SmartCartCollection = ({ excludeProductId }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productStates, setProductStates] = useState({});
-  const [maxProducts, setMaxProducts] = useState(8);
+  const [maxProducts, setMaxProducts] = useState(12);
   const imageBase = useImagePath();
-  const { smartCartProducts, dataFetched } = useStore();
+  const { smartCartProducts, dataFetched, toggleWishlist, isInWishlist } =
+    useStore();
 
   // Function to determine max products based on screen size
   const getMaxProducts = () => {
     if (typeof window !== "undefined") {
       if (window.innerWidth <= 480) {
-        return 4; // Mobile: 4 products in 1 column
+        return 6; // Mobile: 6 products in 1 column
       } else if (window.innerWidth <= 768) {
-        return 4; // Tablet: 4 products in 2x2 grid
+        return 8; // Tablet: 8 products in 2x4 grid
       }
     }
-    return 8; // Desktop: 8 products in 2x4 grid
+    return 12; // Desktop: 12 products in 2x6 grid
   };
 
   // Handle screen resize
@@ -213,6 +214,28 @@ const SmartCartCollection = ({ excludeProductId }) => {
     // Show quantity box and add to cart immediately
     updateProductState(product.id, { showQuantityBox: true });
     addToCart(product, selectedVariant, productState.quantity);
+  };
+
+  const handleWishlistToggle = (product) => {
+    if (!product) return;
+
+    // Debug logging removed to reduce console spam
+
+    const selectedVariant = product?.variants?.edges?.[0]?.node;
+    const wishlistItem = {
+      id: product.id,
+      title: product.title,
+      handle: product.handle,
+      image: getCurrentImage(product),
+      price: selectedVariant?.price || product.priceRange?.minVariantPrice,
+      compareAtPrice:
+        selectedVariant?.compareAtPrice ||
+        product.compareAtPriceRange?.minVariantPrice,
+    };
+
+    // Debug logging removed to reduce console spam
+
+    toggleWishlist(wishlistItem);
   };
 
   const handleQuantityIncrease = (product) => {
@@ -409,7 +432,12 @@ const SmartCartCollection = ({ excludeProductId }) => {
               </Link>
             </div>
 
-            <div className="wishlist-btn">
+            <div
+              className={`wishlist-btn ${
+                isInWishlist(product) ? "wl-active" : ""
+              }`}
+              onClick={() => handleWishlistToggle(product)}
+            >
               <Icon icon="solar:heart-linear" height="16" width="16" />
             </div>
 

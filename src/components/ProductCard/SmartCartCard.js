@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useImagePath } from "../../context/ImagePathContext";
+import { useStore } from "../../context/StoreContext";
 import { getProductsByCollection } from "../../utils/shopify";
 
 const SmartCartCard = ({ onProductLoad }) => {
@@ -12,6 +13,7 @@ const SmartCartCard = ({ onProductLoad }) => {
   const [showQuantityBox, setShowQuantityBox] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const imageBase = useImagePath();
+  const { toggleWishlist, isInWishlist } = useStore();
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -97,6 +99,27 @@ const SmartCartCard = ({ onProductLoad }) => {
     addToCart();
   };
 
+  const handleWishlistToggle = () => {
+    if (!product) return;
+
+
+    const wishlistItem = {
+      id: product.id,
+      title: product.title,
+      handle: product.handle,
+      image: product.images?.edges?.[0]?.node?.src || null,
+      price:
+        selectedVariant?.price?.amount ||
+        product.variants?.edges?.[0]?.node?.price?.amount,
+      compareAtPrice:
+        selectedVariant?.compareAtPrice?.amount ||
+        product.variants?.edges?.[0]?.node?.compareAtPrice?.amount,
+    };
+
+
+    toggleWishlist(wishlistItem);
+  };
+
   const handleQuantityIncrease = () => {
     const newQuantity = quantity + 1;
     setQuantity(newQuantity);
@@ -138,8 +161,6 @@ const SmartCartCard = ({ onProductLoad }) => {
       });
       window.dispatchEvent(cartUpdatedEvent);
 
-      console.log("Quantity updated in cart:", existingCart);
-      console.log("Event dispatched:", cartUpdatedEvent.detail);
     }
   };
 
@@ -190,9 +211,6 @@ const SmartCartCard = ({ onProductLoad }) => {
     });
     window.dispatchEvent(cartUpdatedEvent);
 
-    console.log("Added to cart:", cartItem);
-    console.log("Updated cart:", existingCart);
-    console.log("Event dispatched:", cartUpdatedEvent.detail);
 
     // Dispatch notification event
     const notificationItem = {
@@ -321,7 +339,12 @@ const SmartCartCard = ({ onProductLoad }) => {
           `, ${selectedVariant.title}`}
       </Link>
 
-      <div className="wishlist-btn">
+      <div
+        className={`wishlist-btn ${
+          product && isInWishlist(product.id) ? "wl-active" : ""
+        }`}
+        onClick={() => handleWishlistToggle()}
+      >
         <Icon icon="solar:heart-linear" height="16" width="16" />
       </div>
 

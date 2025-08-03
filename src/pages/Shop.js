@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useImagePath } from "../context/ImagePathContext";
 import { useStore } from "../context/StoreContext";
 import { Icon } from "@iconify/react";
@@ -8,6 +8,7 @@ import { getProductsByCollection } from "../utils/shopify";
 
 function Shop() {
   const imageBase = useImagePath();
+  const [searchParams] = useSearchParams();
   const {
     products: contextProducts,
     collections: contextCollections,
@@ -79,8 +80,8 @@ function Shop() {
 
       // Set collections
       if (contextCollections.length > 0) {
-        // Filter out excluded collections
-        const excludedHandles = ["new", "trending", "smart-cart"];
+        // Filter out excluded collections (using actual collection handles)
+        const excludedHandles = ["new", "trending-products", "smart-cart"];
         const filteredCollections = contextCollections.filter(
           (collection) => !excludedHandles.includes(collection.handle)
         );
@@ -139,6 +140,20 @@ function Shop() {
       setLoading(false);
     }
   }, [dataFetched, contextProducts, contextCollections, contextLoading]);
+
+  // Handle URL parameters for category pre-filtering
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (categoryParam && collections.length > 0) {
+      // Check if the category exists in our collections
+      const categoryExists = collections.some(
+        (collection) => collection.handle === categoryParam
+      );
+      if (categoryExists && !selectedCategories.includes(categoryParam)) {
+        setSelectedCategories([categoryParam]);
+      }
+    }
+  }, [searchParams, collections, selectedCategories]);
 
   // Close mobile filter on window resize (desktop view)
   useEffect(() => {
@@ -249,8 +264,6 @@ function Shop() {
   const sortProducts = (products, sortType) => {
     const sortedProducts = [...products];
 
-    console.log(`Sorting ${products.length} products by: ${sortType}`);
-
     switch (sortType) {
       case "price-low-high":
         return sortedProducts.sort((a, b) => {
@@ -282,7 +295,6 @@ function Shop() {
 
       case "new-arrival":
         // Products are already from the "new" collection, just sort by creation date
-        console.log("Sorting new arrival products by creation date...");
         return sortedProducts.sort((a, b) => {
           const dateA = new Date(a.createdAt);
           const dateB = new Date(b.createdAt);
@@ -290,8 +302,7 @@ function Shop() {
         });
 
       case "trending":
-        // Products are already from the "trending" collection, sort by creation date or popularity
-        console.log("Sorting trending products...");
+        // Products are already from the "trending-products" collection, sort by creation date or popularity
         return sortedProducts.sort((a, b) => {
           // Check if products have popularity indicators in tags
           const aTrending = a.tags.some(
@@ -319,7 +330,6 @@ function Shop() {
 
       case "smart-cart":
         // Products are already from the "smart-cart" collection, sort by availability and price
-        console.log("Sorting smart cart products...");
         return sortedProducts.sort((a, b) => {
           // Sort by availability first
           const aAvailable = a.variants.edges[0]?.node.availableForSale;
@@ -411,19 +421,16 @@ function Shop() {
 
       // Use context data for specific collections or fetch if needed
       if (newSortBy === "new-arrival") {
-        console.log("Using new products from context...");
         productsToUse =
           contextNewProducts.length > 0
             ? contextNewProducts
             : await getProductsByCollection("new");
       } else if (newSortBy === "trending") {
-        console.log("Using trending products from context...");
         productsToUse =
           contextTrendingProducts.length > 0
             ? contextTrendingProducts
-            : await getProductsByCollection("trending");
+            : await getProductsByCollection("trending-products");
       } else if (newSortBy === "smart-cart") {
-        console.log("Using smart cart products from context...");
         productsToUse =
           contextSmartCartProducts.length > 0
             ? contextSmartCartProducts
@@ -432,10 +439,6 @@ function Shop() {
         // Use all products for other sorting options
         productsToUse = allProducts;
       }
-
-      console.log(
-        `Found ${productsToUse.length} products for sorting: ${newSortBy}`
-      );
 
       // Update products state
       setProducts(productsToUse);

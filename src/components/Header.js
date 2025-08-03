@@ -20,14 +20,6 @@ const Header = () => {
     dataFetched,
   } = useStore();
 
-  // DEBUG: Log cart items to verify originalPrice
-  useEffect(() => {
-    if (cart && cart.length > 0) {
-      // eslint-disable-next-line no-console
-      console.log("Cart items:", cart);
-    }
-  }, [cart]);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -505,16 +497,19 @@ const Header = () => {
                 <Link to="/shop" className="menu-link">
                   Shop
                 </Link>
-                <Link to="/fresh-fruits" className="menu-link">
+                <Link
+                  to="/shop?category=fruits-vegetables"
+                  className="menu-link"
+                >
                   <Icon
                     icon="healthicons:fruits-outline"
                     width="16"
                     height="16"
                     style={{ marginRight: "6px" }}
                   />
-                  Fresh Fruits
+                  Fruits & Vegetables
                 </Link>
-                <Link to="/beverage" className="menu-link">
+                <Link to="/shop?category=beverage" className="menu-link">
                   <Icon
                     icon="arcticons:bottle-jump"
                     width="16"
@@ -787,7 +782,7 @@ const Header = () => {
             Shop
           </Link>
           <Link
-            to="/fresh-fruits"
+            to="/shop?category=fruits-vegetables"
             className="mobile-menu-link"
             onClick={() => setMobileMenuOpen(false)}
           >
@@ -797,10 +792,10 @@ const Header = () => {
               height="16"
               style={{ marginRight: "6px" }}
             />
-            Fresh Fruits
+            Fruits & Vegetables
           </Link>
           <Link
-            to="/beverage"
+            to="/shop?category=beverage"
             className="mobile-menu-link"
             onClick={() => setMobileMenuOpen(false)}
           >

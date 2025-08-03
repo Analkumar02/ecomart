@@ -25,6 +25,14 @@
   &--warning {
     border-left-color: $orange-color;
   }
+
+  &--wishlist {
+    border-left-color: $secondary-color;
+
+    &.floating-notification--success {
+      border-left-color: $secondary-color;
+    }
+  }
 }
 
 .floating-notification__content {
@@ -65,6 +73,10 @@
 
   .floating-notification--warning & {
     color: $orange-color;
+  }
+
+  .floating-notification--wishlist & {
+    color: $secondary-color;
   }
 }
 

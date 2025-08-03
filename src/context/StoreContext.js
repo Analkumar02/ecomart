@@ -35,7 +35,7 @@ export const StoreProvider = ({ children }) => {
 
       try {
         setLoading(true);
-        console.log("StoreContext: Fetching Shopify data...");
+        // Removed console logging to reduce console spam
 
         // Fetch all data in parallel
         const [
@@ -48,7 +48,7 @@ export const StoreProvider = ({ children }) => {
           getProducts(),
           getCollections(),
           getProductsByCollection("new"),
-          getProductsByCollection("trending"),
+          getProductsByCollection("trending-products"),
           getProductsByCollection("smart-cart"),
         ]);
 
@@ -59,13 +59,7 @@ export const StoreProvider = ({ children }) => {
         setSmartCartProducts(fetchedSmartCartProducts || []);
         setDataFetched(true);
 
-        console.log("StoreContext: Shopify data fetched successfully", {
-          products: fetchedProducts?.length || 0,
-          collections: fetchedCollections?.length || 0,
-          newProducts: fetchedNewProducts?.length || 0,
-          trendingProducts: fetchedTrendingProducts?.length || 0,
-          smartCartProducts: fetchedSmartCartProducts?.length || 0,
-        });
+        // Removed success logging to reduce console spam
       } catch (error) {
         console.error("StoreContext: Error fetching Shopify data:", error);
       } finally {
@@ -79,17 +73,16 @@ export const StoreProvider = ({ children }) => {
   // Listen for cart updates from ProductCard
   useEffect(() => {
     const handleCartUpdate = (event) => {
-      console.log("StoreContext received cartUpdated event:", event.detail);
       const { cart: updatedCart } = event.detail;
       setCart(updatedCart);
     };
 
     window.addEventListener("cartUpdated", handleCartUpdate);
-    console.log("StoreContext: Event listener added for cartUpdated");
+    // Removed event listener logging to reduce console spam
 
     return () => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
-      console.log("StoreContext: Event listener removed for cartUpdated");
+      // Removed event listener logging to reduce console spam
     };
   }, []);
 
@@ -172,16 +165,79 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  // Helper function to extract image URL from various image formats
+  const getImageUrl = (image) => {
+    if (!image) return null;
+    if (typeof image === "string") return image;
+    if (image.url) return image.url;
+    if (image.src) return image.src;
+    if (image.originalSrc) return image.originalSrc;
+    return null;
+  };
+
   const addToWishlist = (item) => {
+    // Check if item already exists in wishlist
+    const existingItem = wishlist.find((w) => w.id === item.id);
+    if (existingItem) {
+      return; // Item already in wishlist, don't add again
+    }
+
     const updatedWishlist = [...wishlist, item];
     setWishlist(updatedWishlist);
     localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+
+    // Dispatch wishlist notification event
+    window.dispatchEvent(
+      new CustomEvent("wishlistNotification", {
+        detail: {
+          action: "added",
+          item: {
+            title: item.title,
+            image: getImageUrl(item.image),
+          },
+        },
+      })
+    );
   };
 
   const removeFromWishlist = (id) => {
+    const itemToRemove = wishlist.find((item) => item.id === id);
     const updatedWishlist = wishlist.filter((i) => i.id !== id);
     setWishlist(updatedWishlist);
     localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+
+    // Dispatch wishlist notification event
+    if (itemToRemove) {
+      window.dispatchEvent(
+        new CustomEvent("wishlistNotification", {
+          detail: {
+            action: "removed",
+            item: {
+              title: itemToRemove.title,
+              image: getImageUrl(itemToRemove.image),
+            },
+          },
+        })
+      );
+    }
+  };
+
+  const toggleWishlist = (item) => {
+    const existingItem = wishlist.find((w) => w.id === item.id);
+    if (existingItem) {
+      removeFromWishlist(item.id);
+      return false; // Item was removed
+    } else {
+      addToWishlist(item);
+      return true; // Item was added
+    }
+  };
+
+  const isInWishlist = (productOrId) => {
+    // Handle both product object and product ID
+    const productId =
+      typeof productOrId === "object" ? productOrId?.id : productOrId;
+    return wishlist.some((item) => item.id === productId);
   };
 
   return (
@@ -193,6 +249,8 @@ export const StoreProvider = ({ children }) => {
         removeFromCart,
         addToWishlist,
         removeFromWishlist,
+        toggleWishlist,
+        isInWishlist,
         // Shopify data
         products,
         collections,

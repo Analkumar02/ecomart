@@ -1,5 +1,4 @@
 .shop-page {
-  @include gap;
   .breadcrumb {
     padding: 20px 0;
     margin-bottom: 0;
@@ -28,6 +27,7 @@
     gap: 30px;
     position: sticky;
     top: 70px;
+    margin-bottom: 40px;
     .price-filer {
       @include filterdefault;
       .price-header {
@@ -321,6 +321,7 @@
     @include flex-center;
     flex-direction: column;
     gap: 15px;
+    margin-bottom: 40px;
     img {
       width: 100%;
       height: auto;
@@ -721,9 +722,9 @@
         }
 
         .wl-active {
+          background-color: $secondary-color;
           svg {
             color: $white-color;
-            background-color: $secondary-color;
           }
         }
 
@@ -831,6 +832,7 @@
             cursor: pointer;
             text-decoration: none;
             white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             @media (max-width: 576px) {
               padding: 8px 8px;
             }

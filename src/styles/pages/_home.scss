@@ -520,8 +520,6 @@
         border-radius: 30px;
         padding: 5px;
         cursor: pointer;
-
-        // Hide by default and slide in from right on hover
         opacity: 0;
         transform: translateX(100%);
         transition: all 0.3s ease;
@@ -539,9 +537,9 @@
         }
       }
       .wl-active {
+        background-color: $secondary-color;
         svg {
           color: $white-color;
-          background-color: $secondary-color;
         }
       }
       .add-cart-btn {

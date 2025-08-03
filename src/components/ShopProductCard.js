@@ -12,7 +12,8 @@ const ShopProductCard = ({ productData }) => {
   const [showQuantityBox, setShowQuantityBox] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const imageBase = useImagePath();
-  const { smartCartProducts, dataFetched } = useStore();
+  const { smartCartProducts, dataFetched, toggleWishlist, isInWishlist } =
+    useStore();
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -94,11 +95,41 @@ const ShopProductCard = ({ productData }) => {
     setSelectedVariant(variant);
   };
 
-  const handleAddToCart = () => {
-    setShowQuantityBox(true);
-    addToCart();
+  const handleAddToCart = async () => {
+    if (!selectedVariant) return;
+
+    try {
+      const variantId = selectedVariant.id;
+      const result = await addToCart(variantId, quantity);
+
+      if (result.success) {
+        setIsInCart(true);
+        setShowQuantityBox(false);
+        setQuantity(1);
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
 
+  const handleWishlistToggle = () => {
+    if (!product) return;
+
+    // Debug logging to see what image data we have
+
+    const wishlistItem = {
+      id: product.id,
+      title: product.title,
+      handle: product.handle,
+      image: getCurrentImage(),
+      price: selectedVariant?.price || product.priceRange?.minVariantPrice,
+      compareAtPrice:
+        selectedVariant?.compareAtPrice ||
+        product.compareAtPriceRange?.minVariantPrice,
+    };
+
+    toggleWishlist(wishlistItem);
+  };
   const handleQuantityIncrease = () => {
     const newQuantity = quantity + 1;
     setQuantity(newQuantity);
@@ -331,7 +362,10 @@ const ShopProductCard = ({ productData }) => {
           `, ${selectedVariant.title}`}
       </Link>
 
-      <div className="wishlist-btn">
+      <div
+        className={`wishlist-btn ${isInWishlist(product) ? "wl-active" : ""}`}
+        onClick={handleWishlistToggle}
+      >
         <Icon icon="solar:heart-linear" height="16" width="16" />
       </div>
 
