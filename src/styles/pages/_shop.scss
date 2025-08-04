@@ -495,7 +495,7 @@
         }
       }
       select {
-        padding: 8px 12px;
+        padding: 8px 32px 8px 12px; // Increase right padding for custom arrow
         border: 1px solid $border-color;
         border-radius: 4px;
         font-size: 12px;
@@ -524,6 +524,16 @@
             background-color: rgba($primary-color, 0.1);
           }
         }
+      }
+      // Custom arrow for select
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23999" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px 16px;
       }
     }
     .product-grid {

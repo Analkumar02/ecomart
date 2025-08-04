@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start EcoMart App",
+			"type": "shell",
+			"command": "npm start",
+			"group": "build",
+			"problemMatcher": [],
+			"isBackground": true
+		}
+	]
+}

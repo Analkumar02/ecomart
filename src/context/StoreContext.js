@@ -299,14 +299,14 @@ export const StoreProvider = ({ children }) => {
     );
   };
 
-  const removeFromWishlist = (id) => {
+  const removeFromWishlist = (id, showNotification = true) => {
     const itemToRemove = wishlist.find((item) => item.id === id);
     const updatedWishlist = wishlist.filter((i) => i.id !== id);
     setWishlist(updatedWishlist);
     localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
 
-    // Dispatch wishlist notification event
-    if (itemToRemove) {
+    // Dispatch wishlist notification event only if showNotification is true
+    if (itemToRemove && showNotification) {
       window.dispatchEvent(
         new CustomEvent("wishlistNotification", {
           detail: {

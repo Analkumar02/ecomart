@@ -59,7 +59,13 @@ const ShopProductCard = ({ productData }) => {
             const fetchedProduct = products[randomIndex];
             setProduct(fetchedProduct);
 
-            if (fetchedProduct.variants.edges.length > 0) {
+            if (
+              fetchedProduct &&
+              fetchedProduct.variants &&
+              fetchedProduct.variants.edges &&
+              Array.isArray(fetchedProduct.variants.edges) &&
+              fetchedProduct.variants.edges.length > 0
+            ) {
               setSelectedVariant(fetchedProduct.variants.edges[0].node);
             }
           }
@@ -74,7 +80,13 @@ const ShopProductCard = ({ productData }) => {
       fetchRandomProduct();
     } else {
       setProduct(productData);
-      if (productData.variants.edges.length > 0) {
+      if (
+        productData &&
+        productData.variants &&
+        productData.variants.edges &&
+        Array.isArray(productData.variants.edges) &&
+        productData.variants.edges.length > 0
+      ) {
         setSelectedVariant(productData.variants.edges[0].node);
       }
     }

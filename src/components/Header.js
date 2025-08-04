@@ -790,6 +790,12 @@ const Header = () => {
             className="mobile-menu-link"
             onClick={() => setMobileMenuOpen(false)}
           >
+            <Icon
+              icon="solar:home-linear"
+              width="16"
+              height="16"
+              style={{ marginRight: "6px" }}
+            />
             Home
           </Link>
           <Link
@@ -797,6 +803,12 @@ const Header = () => {
             className="mobile-menu-link"
             onClick={() => setMobileMenuOpen(false)}
           >
+            <Icon
+              icon="bi:shop"
+              width="16"
+              height="16"
+              style={{ marginRight: "6px" }}
+            />
             Shop
           </Link>
           <Link
@@ -830,6 +842,12 @@ const Header = () => {
             className="mobile-menu-link"
             onClick={() => setMobileMenuOpen(false)}
           >
+            <Icon
+              icon="healthicons:fruits-outline"
+              width="16"
+              height="16"
+              style={{ marginRight: "6px" }}
+            />
             Contact
           </Link>
         </nav>
