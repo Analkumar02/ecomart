@@ -9,7 +9,7 @@ const TrendingCollection = ({ excludeProductId }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productStates, setProductStates] = useState({});
-  const [maxProducts, setMaxProducts] = useState(8);
+  const [maxProducts, setMaxProducts] = useState(4);
   const imageBase = useImagePath();
   const { toggleWishlist, isInWishlist } = useStore();
 

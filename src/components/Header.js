@@ -492,9 +492,21 @@ const Header = () => {
             <div className="bottom-header-content">
               <div className="menu-links">
                 <Link to="/" className="menu-link">
+                  <Icon
+                    icon="solar:home-linear"
+                    width="16"
+                    height="16"
+                    style={{ marginRight: "6px" }}
+                  />
                   Home
                 </Link>
                 <Link to="/shop" className="menu-link">
+                  <Icon
+                    icon="bi:shop"
+                    width="16"
+                    height="16"
+                    style={{ marginRight: "6px" }}
+                  />
                   Shop
                 </Link>
                 <Link
@@ -519,6 +531,12 @@ const Header = () => {
                   Beverage
                 </Link>
                 <Link to="/contact" className="menu-link">
+                  <Icon
+                    icon="healthicons:fruits-outline"
+                    width="16"
+                    height="16"
+                    style={{ marginRight: "6px" }}
+                  />
                   Contact
                 </Link>
               </div>
