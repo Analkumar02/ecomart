@@ -4,19 +4,19 @@ import TrendingCollection from "./ProductCardSmall/TrendingCollection";
 import NewCollection from "./ProductCardSmall/NewCollection";
 
 const ProductCardSmall = ({
-  excludeProductId,
+  excludeProductIds = [],
   collectionType = "smart-cart",
 }) => {
   // Render the appropriate collection component based on collectionType
   switch (collectionType) {
     case "smart-cart":
-      return <SmartCartCollection excludeProductId={excludeProductId} />;
+      return <SmartCartCollection excludeProductIds={excludeProductIds} />;
     case "trending":
-      return <TrendingCollection excludeProductId={excludeProductId} />;
+      return <TrendingCollection excludeProductIds={excludeProductIds} />;
     case "new":
-      return <NewCollection excludeProductId={excludeProductId} />;
+      return <NewCollection excludeProductIds={excludeProductIds} />;
     default:
-      return <SmartCartCollection excludeProductId={excludeProductId} />;
+      return <SmartCartCollection excludeProductIds={excludeProductIds} />;
   }
 };
 

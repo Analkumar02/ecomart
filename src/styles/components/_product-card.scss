@@ -7,6 +7,9 @@
   border: 1px solid $border-color;
   position: relative;
   overflow: hidden;
+  img {
+    border-radius: $border-radius;
+  }
   .category {
     color: $gray-font-color;
     font-size: 11px;

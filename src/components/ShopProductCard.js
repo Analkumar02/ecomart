@@ -146,13 +146,27 @@ const ShopProductCard = ({ productData }) => {
     setSelectedVariant(variant);
   };
 
+  // Utility to detect touch devices (mobile/tablet)
+  const isTouchDevice = () =>
+    typeof window !== "undefined" &&
+    ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+
   const handleAddToCart = () => {
     if (!selectedVariant) return;
 
     try {
-      addToCart(); // Call the local addToCart function
+      if (isTouchDevice()) {
+        // On mobile/tablet, add to cart immediately
+        addToCart();
+      } else {
+        // On desktop, show quantity box if not already shown, else add to cart
+        if (!showQuantityBox) {
+          setShowQuantityBox(true);
+        } else {
+          addToCart();
+        }
+      }
       // Let the cart event listeners handle state updates
-      // Don't manually set state here as it conflicts with cart event handlers
     } catch (error) {
       console.error("Error adding to cart:", error);
     }

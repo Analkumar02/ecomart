@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { useImagePath } from "../../context/ImagePathContext";
 import { useStore } from "../../context/StoreContext";
 
-const SmartCartCollection = ({ excludeProductId }) => {
+const SmartCartCollection = ({ excludeProductIds = [] }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productStates, setProductStates] = useState({});
@@ -97,9 +97,9 @@ const SmartCartCollection = ({ excludeProductId }) => {
         if (allProducts && allProducts.length > 0) {
           // Filter out the excluded product (the one shown in main ProductCard)
           let filteredProducts = allProducts;
-          if (excludeProductId) {
+          if (excludeProductIds && excludeProductIds.length > 0) {
             filteredProducts = allProducts.filter(
-              (product) => product.id !== excludeProductId
+              (product) => !excludeProductIds.includes(product.id)
             );
           }
 
@@ -152,10 +152,13 @@ const SmartCartCollection = ({ excludeProductId }) => {
           // Ensure we never exceed maxProducts
           const finalProducts = selectedProducts.slice(0, maxProducts);
 
-          // Double-check: Remove any products that match the excludeProductId
-          const cleanedProducts = excludeProductId
-            ? finalProducts.filter((product) => product.id !== excludeProductId)
-            : finalProducts;
+          // Double-check: Remove any products that match the excludeProductIds
+          const cleanedProducts =
+            excludeProductIds && excludeProductIds.length > 0
+              ? finalProducts.filter(
+                  (product) => !excludeProductIds.includes(product.id)
+                )
+              : finalProducts;
 
           setProducts(cleanedProducts);
 
@@ -193,7 +196,7 @@ const SmartCartCollection = ({ excludeProductId }) => {
     };
 
     fetchSmartCartProducts();
-  }, [excludeProductId, maxProducts, dataFetched, smartCartProducts]);
+  }, [excludeProductIds, maxProducts, dataFetched, smartCartProducts]);
 
   const getCurrentImage = (product) => {
     if (product?.images?.edges?.[0]?.node?.src) {
