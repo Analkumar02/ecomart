@@ -45,7 +45,6 @@ const Home = () => {
                 src={`${imageBase}/hero-left.webp`}
                 srcSet={`${imageBase}/hero-left@2x.webp 2x, ${imageBase}/hero-left@3x.webp 3x`}
                 alt="Hero Left"
-                loading="lazy"
               />
               <div className="hero-left-text">
                 <div className="tag">100% Farm Fresh Food</div>
@@ -63,7 +62,6 @@ const Home = () => {
                   src={`${imageBase}/hero2.webp`}
                   srcSet={`${imageBase}/hero2@2x.webp 2x, ${imageBase}/hero2@3x.webp 3x`}
                   alt="Hero Left"
-                  loading="lazy"
                 />
                 <div className="hero2-text">
                   <h4>Fresh Lentils for Every Indian Kitchen!</h4>
@@ -78,7 +76,6 @@ const Home = () => {
                   src={`${imageBase}/hero3.webp`}
                   srcSet={`${imageBase}/hero3@2x.webp 2x, ${imageBase}/hero3@3x.webp 3x`}
                   alt="Hero Left"
-                  loading="lazy"
                 />
                 <div className="hero3-text">
                   <h4>Fresh. Crunchy. Delicious.</h4>

@@ -182,7 +182,7 @@ const Header = () => {
     setSearchTerm("");
     setShowSuggestions(false);
     if (type === "collection") {
-      navigate(`/collections/${handle}`);
+      navigate(`/shop?category=${handle}`);
     } else {
       navigate(`/product/${handle}`);
     }
