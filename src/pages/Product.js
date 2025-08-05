@@ -431,6 +431,7 @@ const Product = () => {
                                 src={image.src}
                                 alt={image.altText || product.title}
                                 className="product-thumb-image"
+                                loading="lazy"
                               />
                             </SwiperSlide>
                           ))}
@@ -450,6 +451,7 @@ const Product = () => {
                               src={image.src}
                               alt={image.altText || product.title}
                               className="product-main-image"
+                              loading="lazy"
                             />
                           </SwiperSlide>
                         ))}
@@ -621,9 +623,10 @@ const Product = () => {
                 <div className="secure-checkout">
                   <p>Guaranteed Safe Checkout</p>
                   <img
-                    src={`${imageBase}/payment.png`}
-                    srcSet={`${imageBase}/payment@2x.png 2x, ${imageBase}/payment@3x.png 3x`}
+                    src={`${imageBase}/payment.webp`}
+                    srcSet={`${imageBase}/payment@2x.webp 2x, ${imageBase}/payment@3x.webp 3x`}
                     alt="Payment Methods"
+                    loading="lazy"
                   />
                 </div>
               </div>

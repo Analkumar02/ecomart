@@ -281,13 +281,14 @@ const Header = () => {
             <div className="mid-header-box">
               <Link to="/" className="header-logo-dt img-fluid">
                 <img
-                  src={`${imageBase}logo.png`}
+                  src={`${imageBase}logo.webp`}
                   srcSet={`
-                  ${imageBase}logo.png 1x,
-                  ${imageBase}logo@2x.png 2x,
-                  ${imageBase}logo@3x.png 3x
+                  ${imageBase}logo.webp 1x,
+                  ${imageBase}logo@2x.webp 2x,
+                  ${imageBase}logo@3x.webp 3x
                 `}
                   alt="Ecomart Logo"
+                  loading="lazy"
                 />
               </Link>
               <div className="search-box" ref={searchBoxRef}>
@@ -332,10 +333,11 @@ const Header = () => {
                             <img
                               src={
                                 collection.image?.src ||
-                                `${imageBase}placeholder.png`
+                                `${imageBase}placeholder.webp`
                               }
                               alt={collection.title}
                               className="suggestion-thumb"
+                              loading="lazy"
                             />
                             <div className="suggestion-info">
                               <div className="suggestion-title">
@@ -372,10 +374,11 @@ const Header = () => {
                                 product.images.edges &&
                                 product.images.edges[0]
                                   ? product.images.edges[0].node.src
-                                  : `${imageBase}placeholder.png`
+                                  : `${imageBase}placeholder.webp`
                               }
                               alt={product.title}
                               className="suggestion-thumb"
+                              loading="lazy"
                             />
                             <div className="suggestion-info">
                               <div className="suggestion-title">
@@ -563,13 +566,14 @@ const Header = () => {
           <div className="header-mob-box">
             <Link to="/" className="header-logo-mob">
               <img
-                src={`${imageBase}logo.png`}
+                src={`${imageBase}logo.webp`}
                 srcSet={`
-                  ${imageBase}logo.png 1x,
-                  ${imageBase}logo@2x.png 2x,
-                  ${imageBase}logo@3x.png 3x
+                  ${imageBase}logo.webp 1x,
+                  ${imageBase}logo@2x.webp 2x,
+                  ${imageBase}logo@3x.webp 3x
                 `}
                 alt="Ecomart Logo"
+                loading="lazy"
               />
             </Link>
             <div className="header-icons">
@@ -661,10 +665,11 @@ const Header = () => {
                           <img
                             src={
                               collection.image?.src ||
-                              `${imageBase}placeholder.png`
+                              `${imageBase}placeholder.webp`
                             }
                             alt={collection.title}
                             className="suggestion-thumb"
+                            loading="lazy"
                           />
                           <div className="suggestion-info">
                             <div className="suggestion-title">
@@ -696,10 +701,11 @@ const Header = () => {
                               product.images.edges &&
                               product.images.edges[0]
                                 ? product.images.edges[0].node.src
-                                : `${imageBase}placeholder.png`
+                                : `${imageBase}placeholder.webp`
                             }
                             alt={product.title}
                             className="suggestion-thumb"
+                            loading="lazy"
                           />
                           <div className="suggestion-info">
                             <div className="suggestion-title">

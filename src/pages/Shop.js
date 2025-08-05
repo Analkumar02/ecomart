@@ -1075,9 +1075,10 @@ function Shop() {
           <div className="col-lg-9 col-md-12 col-sm-12 col-12">
             <div className="product-grid-area">
               <img
-                src={`${imageBase}/shop-banner.jpg`}
-                srcSet={`${imageBase}/shop-banner@2x.jpg 2x, ${imageBase}/shop-banner@3x.jpg 3x`}
+                src={`${imageBase}/shop-banner.webp`}
+                srcSet={`${imageBase}/shop-banner@2x.webp 2x, ${imageBase}/shop-banner@3x.webp 3x`}
                 alt="Shop Banner"
+                loading="lazy"
               />
 
               {/* Applied Filters */}

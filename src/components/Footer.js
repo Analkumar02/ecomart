@@ -56,13 +56,14 @@ const Footer = () => {
               <div className="footer-info">
                 <Link to="/" className="footer-logo img-fluid">
                   <img
-                    src={`${imageBase}logo.png`}
+                    src={`${imageBase}logo.webp`}
                     srcSet={`
-                  ${imageBase}logo.png 1x,
-                  ${imageBase}logo@2x.png 2x,
-                  ${imageBase}logo@3x.png 3x
+                  ${imageBase}logo.webp 1x,
+                  ${imageBase}logo@2x.webp 2x,
+                  ${imageBase}logo@3x.webp 3x
                 `}
                     alt="Ecomart Logo"
+                    loading="lazy"
                   />
                 </Link>
                 <p>
@@ -186,24 +187,26 @@ const Footer = () => {
                 <div className="download-btn">
                   <Link to="/">
                     <img
-                      src={`${imageBase}play-store.png`}
+                      src={`${imageBase}play-store.webp`}
                       srcSet={`
-                  ${imageBase}play-store.png 1x,
-                  ${imageBase}play-store@2x.png 2x,
-                  ${imageBase}play-store@3x.png 3x
+                  ${imageBase}play-store.webp 1x,
+                  ${imageBase}play-store@2x.webp 2x,
+                  ${imageBase}play-store@3x.webp 3x
                 `}
                       alt="Download from Playstore"
+                      loading="lazy"
                     />
                   </Link>
                   <Link to="/">
                     <img
-                      src={`${imageBase}app-store.png`}
+                      src={`${imageBase}app-store.webp`}
                       srcSet={`
-                  ${imageBase}app-store.png 1x,
-                  ${imageBase}app-store@2x.png 2x,
-                  ${imageBase}app-store@3x.png 3x
+                  ${imageBase}app-store.webp 1x,
+                  ${imageBase}app-store@2x.webp 2x,
+                  ${imageBase}app-store@3x.webp 3x
                 `}
                       alt="Download from Appstore"
+                      loading="lazy"
                     />
                   </Link>
                 </div>
@@ -219,13 +222,14 @@ const Footer = () => {
               Copyright 2025 © Ecomart India Pvt. Ltd.. All rights reserved.
             </p>
             <img
-              src={`${imageBase}Payment_Icons1.png`}
+              src={`${imageBase}Payment_Icons1.webp`}
               srcSet={`
-                  ${imageBase}Payment_Icons1.png 1x,
-                  ${imageBase}Payment_Icons1@2x.png 2x,
-                  ${imageBase}Payment_Icons1@3x.png 3x
+                  ${imageBase}Payment_Icons1.webp 1x,
+                  ${imageBase}Payment_Icons1@2x.webp 2x,
+                  ${imageBase}Payment_Icons1@3x.webp 3x
                 `}
               alt="Payment Icons"
+              loading="lazy"
             />
           </div>
         </div>

@@ -42,9 +42,10 @@ const Home = () => {
             <div className="hero-left position-relative">
               <img
                 className="img-fluid"
-                src={`${imageBase}/hero-left.jpg`}
-                srcSet={`${imageBase}/hero-left@2x.jpg 2x, ${imageBase}/hero-left@3x.jpg 3x`}
+                src={`${imageBase}/hero-left.webp`}
+                srcSet={`${imageBase}/hero-left@2x.webp 2x, ${imageBase}/hero-left@3x.webp 3x`}
                 alt="Hero Left"
+                loading="lazy"
               />
               <div className="hero-left-text">
                 <div className="tag">100% Farm Fresh Food</div>
@@ -59,9 +60,10 @@ const Home = () => {
               <div className="hero2 position-relative">
                 <img
                   className="img-fluid"
-                  src={`${imageBase}/hero2.jpg`}
-                  srcSet={`${imageBase}/hero2@2x.jpg 2x, ${imageBase}/hero2@3x.jpg 3x`}
+                  src={`${imageBase}/hero2.webp`}
+                  srcSet={`${imageBase}/hero2@2x.webp 2x, ${imageBase}/hero2@3x.webp 3x`}
                   alt="Hero Left"
+                  loading="lazy"
                 />
                 <div className="hero2-text">
                   <h4>Fresh Lentils for Every Indian Kitchen!</h4>
@@ -73,9 +75,10 @@ const Home = () => {
               <div className="hero3 position-relative">
                 <img
                   className="img-fluid"
-                  src={`${imageBase}/hero3.jpg`}
-                  srcSet={`${imageBase}/hero3@2x.jpg 2x, ${imageBase}/hero3@3x.jpg 3x`}
+                  src={`${imageBase}/hero3.webp`}
+                  srcSet={`${imageBase}/hero3@2x.webp 2x, ${imageBase}/hero3@3x.webp 3x`}
                   alt="Hero Left"
+                  loading="lazy"
                 />
                 <div className="hero3-text">
                   <h4>Fresh. Crunchy. Delicious.</h4>
@@ -128,10 +131,11 @@ const Home = () => {
                   >
                     <img
                       src={
-                        collection.image?.src || `${imageBase}placeholder.png`
+                        collection.image?.src || `${imageBase}placeholder.webp`
                       }
                       alt={collection.title}
                       className="category-image"
+                      loading="lazy"
                     />
                     <p className="category-name">{collection.title}</p>
                   </Link>
@@ -149,9 +153,10 @@ const Home = () => {
               <div className="smartcart-left">
                 <img
                   className="img-fluid"
-                  src={`${imageBase}/smart-banner.jpg`}
-                  srcSet={`${imageBase}/smart-banner@2x.jpg 2x, ${imageBase}/smart-banner@3x.jpg 3x`}
+                  src={`${imageBase}/smart-banner.webp`}
+                  srcSet={`${imageBase}/smart-banner@2x.webp 2x, ${imageBase}/smart-banner@3x.webp 3x`}
                   alt="Smart Cart banner"
+                  loading="lazy"
                 />
                 <div className="text-area">
                   <h4>
@@ -202,9 +207,10 @@ const Home = () => {
               <div className="promo-left position-relative">
                 <img
                   className="img-fluid"
-                  src={`${imageBase}promo-left.jpg`}
-                  srcSet={`${imageBase}promo-left@2x.jpg 2x, ${imageBase}promo-left@3x.jpg 3x`}
+                  src={`${imageBase}promo-left.webp`}
+                  srcSet={`${imageBase}promo-left@2x.webp 2x, ${imageBase}promo-left@3x.webp 3x`}
                   alt="Promo Left"
+                  loading="lazy"
                 />
                 <div className="promo-text">
                   <h2>
@@ -223,9 +229,10 @@ const Home = () => {
               <div className="promo-right position-relative">
                 <img
                   className="img-fluid"
-                  src={`${imageBase}promo-right.jpg`}
-                  srcSet={`${imageBase}promo-right@2x.jpg 2x, ${imageBase}promo-right@3x.jpg 3x`}
+                  src={`${imageBase}promo-right.webp`}
+                  srcSet={`${imageBase}promo-right@2x.webp 2x, ${imageBase}promo-right@3x.webp 3x`}
                   alt="Promo Right"
+                  loading="lazy"
                 />
                 <div className="promo-text">
                   <h2>
@@ -312,9 +319,10 @@ const Home = () => {
               <div className="new-arrival-left">
                 <img
                   className="img-fluid"
-                  src={`${imageBase}/new-banner.jpg`}
-                  srcSet={`${imageBase}/new-banner@2x.jpg 2x, ${imageBase}/new-banner@3x.jpg 3x`}
+                  src={`${imageBase}/new-banner.webp`}
+                  srcSet={`${imageBase}/new-banner@2x.webp 2x, ${imageBase}/new-banner@3x.webp 3x`}
                   alt="Smart Cart banner"
+                  loading="lazy"
                 />
                 <div className="text-area">
                   <h4>

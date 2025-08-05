@@ -197,7 +197,7 @@ const TrendingCollection = ({ excludeProductId }) => {
     if (product?.images?.edges?.[0]?.node?.src) {
       return product.images.edges[0].node.src;
     }
-    return `${imageBase}/pr-img.png`;
+    return `${imageBase}/pr-img.webp`;
   };
 
   const getCurrentPrice = (product) => {
@@ -473,8 +473,9 @@ const TrendingCollection = ({ excludeProductId }) => {
               <img
                 src={getCurrentImage(product)}
                 alt={product.title}
+                loading="lazy"
                 onError={(e) => {
-                  e.target.src = `${imageBase}/pr-img.png`;
+                  e.target.src = `${imageBase}/pr-img.webp`;
                 }}
               />
             </Link>

@@ -289,7 +289,7 @@ const TrendingCard = ({ onProductLoad }) => {
     if (selectedVariant && selectedVariant.image) {
       return selectedVariant.image.src;
     }
-    return product?.images.edges[0]?.node.src || `${imageBase}/pr-img.png`;
+    return product?.images.edges[0]?.node.src || `${imageBase}/pr-img.webp`;
   };
 
   const getCurrentPrice = () => {
@@ -353,6 +353,7 @@ const TrendingCard = ({ onProductLoad }) => {
           className="img-fluid"
           src={getCurrentImage()}
           alt={product.title}
+          loading="lazy"
         />
       </Link>
       <div className="variant-box">

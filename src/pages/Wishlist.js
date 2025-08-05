@@ -113,10 +113,11 @@ const Wishlist = () => {
                             <div className="product-info">
                               <div className="product-image">
                                 <img
-                                  src={item.image || `${imageBase}/pr-img.png`}
+                                  src={item.image || `${imageBase}/pr-img.webp`}
                                   alt={item.title}
+                                  loading="lazy"
                                   onError={(e) => {
-                                    e.target.src = `${imageBase}/pr-img.png`;
+                                    e.target.src = `${imageBase}/pr-img.webp`;
                                   }}
                                 />
                               </div>
@@ -225,10 +226,11 @@ const Wishlist = () => {
                             <div className="product-info">
                               <div className="product-image">
                                 <img
-                                  src={item.image || `${imageBase}/pr-img.png`}
+                                  src={item.image || `${imageBase}/pr-img.webp`}
                                   alt={item.title}
+                                  loading="lazy"
                                   onError={(e) => {
-                                    e.target.src = `${imageBase}/pr-img.png`;
+                                    e.target.src = `${imageBase}/pr-img.webp`;
                                   }}
                                 />
                               </div>

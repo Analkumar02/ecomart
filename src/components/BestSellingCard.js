@@ -295,7 +295,7 @@ const BestSellingCard = () => {
     if (selectedVariant && selectedVariant.image) {
       return selectedVariant.image.src;
     }
-    return product?.images.edges[0]?.node.src || `${imageBase}/pr-img.png`;
+    return product?.images.edges[0]?.node.src || `${imageBase}/pr-img.webp`;
   };
 
   const getCurrentPrice = () => {
@@ -315,7 +315,7 @@ const BestSellingCard = () => {
     if (product?.images?.edges && product.images.edges.length > 0) {
       return product.images.edges.map((edge) => edge.node.src);
     }
-    return [`${imageBase}/pr-img.png`];
+    return [`${imageBase}/pr-img.webp`];
   };
 
   if (loading) {
@@ -386,8 +386,9 @@ const BestSellingCard = () => {
                   className="img-fluid"
                   src={imageSrc}
                   alt={`${product.title} - View ${index + 1}`}
+                  loading="lazy"
                   onError={(e) => {
-                    e.target.src = `${imageBase}/pr-img.png`;
+                    e.target.src = `${imageBase}/pr-img.webp`;
                   }}
                 />
               </Link>

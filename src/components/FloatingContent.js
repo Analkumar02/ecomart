@@ -141,10 +141,11 @@ const FloatingContent = () => {
             <div className="floating-notification__content">
               <div className="floating-notification__image">
                 <img
-                  src={notification.item.image || `${imageBase}/pr-img.png`}
+                  src={notification.item.image || `${imageBase}/pr-img.webp`}
                   alt={notification.item.title}
+                  loading="lazy"
                   onError={(e) => {
-                    e.target.src = `${imageBase}/pr-img.png`;
+                    e.target.src = `${imageBase}/pr-img.webp`;
                   }}
                 />
               </div>
