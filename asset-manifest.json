@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/ecomart/static/css/main.49e08fb3.css",
-    "main.js": "/ecomart/static/js/main.983f3bda.js",
+    "main.js": "/ecomart/static/js/main.658edf1b.js",
     "static/media/banner-bg.webp": "/ecomart/static/media/banner-bg.4c44175579ccc715b0ba.webp",
     "index.html": "/ecomart/index.html",
     "main.49e08fb3.css.map": "/ecomart/static/css/main.49e08fb3.css.map",
-    "main.983f3bda.js.map": "/ecomart/static/js/main.983f3bda.js.map"
+    "main.658edf1b.js.map": "/ecomart/static/js/main.658edf1b.js.map"
   },
   "entrypoints": [
     "static/css/main.49e08fb3.css",
-    "static/js/main.983f3bda.js"
+    "static/js/main.658edf1b.js"
   ]
 }
