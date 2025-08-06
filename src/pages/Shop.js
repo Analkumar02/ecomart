@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useImagePath } from "../context/ImagePathContext";
 import { useStore } from "../context/StoreContext";
 import { Icon } from "@iconify/react";
@@ -9,6 +9,7 @@ import { getProductsByCollection } from "../utils/shopify";
 function Shop() {
   const imageBase = useImagePath();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const {
     products: contextProducts,
     collections: contextCollections,
@@ -149,11 +150,15 @@ function Shop() {
       const categoryExists = collections.some(
         (collection) => collection.handle === categoryParam
       );
-      if (categoryExists && !selectedCategories.includes(categoryParam)) {
+      if (categoryExists) {
         setSelectedCategories([categoryParam]);
       }
+    } else if (!categoryParam && collections.length > 0) {
+      // If no category parameter in URL, clear selected categories
+      // This allows users to uncheck categories and have the URL updated
+      setSelectedCategories([]);
     }
-  }, [searchParams, collections, selectedCategories]);
+  }, [searchParams, collections]); // Removed selectedCategories from dependencies
 
   // Handle initial URL parameters for collection-based sorting
   useEffect(() => {
@@ -578,6 +583,20 @@ function Shop() {
     }
 
     setSelectedCategories(updatedCategories);
+
+    // Update URL based on category selection
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (updatedCategories.length > 0) {
+      // If categories are selected, update URL with first category
+      newSearchParams.set("category", updatedCategories[0]);
+    } else {
+      // If no categories selected, remove category from URL
+      newSearchParams.delete("category");
+    }
+
+    // Navigate to new URL without adding to history
+    const newUrl = newSearchParams.toString();
+    navigate(newUrl ? `/shop?${newUrl}` : "/shop", { replace: true });
 
     // Update applied filters
     const categoryFilters = updatedCategories.map((handle) => {
