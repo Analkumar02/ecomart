@@ -110,56 +110,61 @@ const Cart = () => {
       <div className="cart-info">
         <div className="container-xxl">
           <div className="row">
-            <div className="col-lg-8 col-md-12">
-              <div className="cart-box">
-                <div className="cart-progress">
-                  <div className="text-area">
-                    <Icon
-                      icon={
-                        remainingForFreeShipping > 0
-                          ? "icon-park-outline:shopping-cart"
-                          : "mdi:check-circle"
-                      }
-                      width="18"
-                      height="18"
-                    />
-                    <p>
-                      {remainingForFreeShipping > 0 ? (
-                        <>
-                          Add<span> ₹{remainingForFreeShipping} </span>to cart
-                          and get free shipping!
-                        </>
-                      ) : (
-                        "You've earned free shipping!"
-                      )}
-                    </p>
-                  </div>
-                  <div className="progressbar">
-                    <div
-                      className="progress-fill"
-                      style={{
-                        width: `${Math.min(
-                          100,
-                          (subtotal / FREE_SHIPPING_THRESHOLD) * 100
-                        )}%`,
-                      }}
-                    ></div>
+            {!cart || cart.length === 0 ? (
+              // Empty cart layout - full width
+              <div className="col-12">
+                <div className="empty-cart">
+                  <div className="empty-content">
+                    <Icon icon="mdi:cart-outline" width="64" height="64" />
+                    <h3>Your cart is empty</h3>
+                    <p>Add some products to your cart</p>
+                    <Link to="/shop" className="continue-shopping-btn">
+                      Continue Shopping
+                    </Link>
                   </div>
                 </div>
-
-                {!cart || cart.length === 0 ? (
-                  <div className="empty-cart">
-                    <div className="empty-content">
-                      <Icon icon="mdi:cart-outline" width="64" height="64" />
-                      <h3>Your cart is empty</h3>
-                      <p>Add some products to your cart</p>
-                      <Link to="/shop" className="continue-shopping-btn">
-                        Continue Shopping
-                      </Link>
+              </div>
+            ) : (
+              // Cart with items layout
+              <>
+                <div className="col-lg-8 col-md-12">
+                  <div className="cart-box">
+                    <div className="cart-progress">
+                      <div className="text-area">
+                        <Icon
+                          icon={
+                            remainingForFreeShipping > 0
+                              ? "icon-park-outline:shopping-cart"
+                              : "mdi:check-circle"
+                          }
+                          width="18"
+                          height="18"
+                        />
+                        <p>
+                          {remainingForFreeShipping > 0 ? (
+                            <>
+                              Add<span> ₹{remainingForFreeShipping} </span>to cart
+                              and get free shipping!
+                            </>
+                          ) : (
+                            "You've earned free shipping!"
+                          )}
+                        </p>
+                      </div>
+                      <div className="progressbar">
+                        <div
+                          className="progress-fill"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              (subtotal / FREE_SHIPPING_THRESHOLD) * 100
+                            )}%`,
+                          }}
+                        ></div>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="cart-content">
+
+                    <div className="cart-content">
                     <div className="cart-table-wrapper">
                       <table className="cart-table-desktop">
                         <thead>
@@ -485,51 +490,52 @@ const Cart = () => {
                         Clear All
                       </button>
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="col-lg-4 col-md-4 col-sm-12 co-12">
-              <div className="cart-total">
-                <div className="cart-total-header">
-                  <h5>Cart total</h5>
-                  <div className="divider1">
-                    <span className="green-line"></span>
-                    <span className="gray-line"></span>
+                    </div>
                   </div>
                 </div>
-                <div className="cart-total-body">
-                  <div className="subtotal">
-                    <span>Subtotal</span>
-                    <span>₹{subtotal.toFixed(0)}</span>
-                  </div>
-                  <div className="line"></div>
-                  <div className="shipping">
-                    <span>Shipping</span>
-                    <span>
-                      {shippingCost === 0 ? "Free" : `₹${shippingCost}`}
-                    </span>
-                  </div>
-                  {couponDiscount > 0 && (
-                    <>
-                      <div className="line"></div>
-                      <div className="discount">
-                        <span>Discount</span>
-                        <span>-₹{couponDiscount}</span>
+                <div className="col-lg-4 col-md-4 col-sm-12 co-12">
+                  <div className="cart-total">
+                    <div className="cart-total-header">
+                      <h5>Cart total</h5>
+                      <div className="divider1">
+                        <span className="green-line"></span>
+                        <span className="gray-line"></span>
                       </div>
-                    </>
-                  )}
-                  <div className="line"></div>
+                    </div>
+                    <div className="cart-total-body">
+                      <div className="subtotal">
+                        <span>Subtotal</span>
+                        <span>₹{subtotal.toFixed(0)}</span>
+                      </div>
+                      <div className="line"></div>
+                      <div className="shipping">
+                        <span>Shipping</span>
+                        <span>
+                          {shippingCost === 0 ? "Free" : `₹${shippingCost}`}
+                        </span>
+                      </div>
+                      {couponDiscount > 0 && (
+                        <>
+                          <div className="line"></div>
+                          <div className="discount">
+                            <span>Discount</span>
+                            <span>-₹{couponDiscount}</span>
+                          </div>
+                        </>
+                      )}
+                      <div className="line"></div>
+                    </div>
+                    <div className="cart-total-footer">
+                      <span>Total</span>
+                      <span className="total-amount">₹{total.toFixed(0)}</span>
+                    </div>
+                    <Link to={"/checkout"} className="checkout-btn">
+                      Proceed to checkout
+                    </Link>
+                  </div>
                 </div>
-                <div className="cart-total-footer">
-                  <span>Total</span>
-                  <span className="total-amount">₹{total.toFixed(0)}</span>
-                </div>
-                <Link to={"/checkout"} className="checkout-btn">
-                  Proceed to checkout
-                </Link>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </div>
