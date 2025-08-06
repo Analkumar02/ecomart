@@ -108,7 +108,7 @@ export const StoreProvider = ({ children }) => {
   }, []);
 
   // Example add/remove functions (replace with your logic)
-  const addToCart = (item) => {
+  const addToCart = (item, showNotification = true) => {
     // Check if item already exists in cart
     const existingItemIndex = cart.findIndex(
       (cartItem) =>
@@ -118,6 +118,8 @@ export const StoreProvider = ({ children }) => {
     );
 
     let updatedCart;
+    let isNewItem = false;
+
     if (existingItemIndex !== -1) {
       // Update existing item quantity
       updatedCart = [...cart];
@@ -128,6 +130,7 @@ export const StoreProvider = ({ children }) => {
     } else {
       // Add new item to cart
       updatedCart = [...cart, item];
+      isNewItem = true;
     }
 
     setCart(updatedCart);
@@ -142,22 +145,24 @@ export const StoreProvider = ({ children }) => {
       })
     );
 
-    // Dispatch notification event
-    const notificationItem = {
-      title: item.title,
-      variant: item.variant !== "Default Title" ? item.variant : null,
-      image: item.image,
-      quantity: item.quantity || 1,
-    };
+    // Only show notification for new items or when explicitly requested
+    if (showNotification && isNewItem) {
+      const notificationItem = {
+        title: item.title,
+        variant: item.variant !== "Default Title" ? item.variant : null,
+        image: item.image,
+        quantity: item.quantity || 1,
+      };
 
-    window.dispatchEvent(
-      new CustomEvent("cartNotification", {
-        detail: {
-          action: existingItemIndex !== -1 ? "updated" : "added",
-          item: notificationItem,
-        },
-      })
-    );
+      window.dispatchEvent(
+        new CustomEvent("cartNotification", {
+          detail: {
+            action: "added",
+            item: notificationItem,
+          },
+        })
+      );
+    }
   };
 
   // Check if product is in cart
@@ -264,6 +269,18 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  const clearCart = () => {
+    setCart([]);
+    localStorage.setItem("cart", JSON.stringify([]));
+
+    // Dispatch cart update event only - no notification when clearing cart
+    window.dispatchEvent(
+      new CustomEvent("cartUpdated", {
+        detail: { cart: [] },
+      })
+    );
+  };
+
   // Helper function to extract image URL from various image formats
   const getImageUrl = (image) => {
     if (!image) return null;
@@ -346,6 +363,7 @@ export const StoreProvider = ({ children }) => {
         wishlist,
         addToCart,
         removeFromCart,
+        clearCart,
         addToWishlist,
         removeFromWishlist,
         toggleWishlist,

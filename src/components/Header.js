@@ -468,11 +468,11 @@ const Header = () => {
                   className="icon-badge-box cart-dropdown-container"
                   ref={cartDropdownRef}
                 >
-                  <div
+                  <Link
+                    to="/cart"
                     className="icon-link cart-icon"
                     onMouseEnter={handleCartMouseEnter}
                     onMouseLeave={handleCartMouseLeave}
-                    onClick={handleCartClick}
                     style={{ cursor: "pointer" }}
                   >
                     <Icon icon="mage:basket" width="24" height="24" />
@@ -481,7 +481,7 @@ const Header = () => {
                         {getTotalCartItems()}
                       </span>
                     )}
-                  </div>
+                  </Link>
                 </div>
               </div>
             </div>

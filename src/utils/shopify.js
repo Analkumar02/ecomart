@@ -328,3 +328,38 @@ export async function getProductByHandle(handle) {
   const data = await shopifyRequest(query, variables);
   return data.productByHandle;
 }
+
+/**
+ * Get shipping rates for checkout
+ * Note: This is a simplified version. In a real implementation, you would
+ * need to integrate with Shopify's checkout API to get accurate shipping rates
+ * based on the customer's address and cart contents.
+ */
+export async function getShippingRates(subtotal, country = "IN") {
+  // This is a mock implementation since Shopify's Storefront API doesn't
+  // directly provide shipping rates without a checkout session
+
+  const FREE_SHIPPING_THRESHOLD = 500;
+  const STANDARD_SHIPPING_RATE = 20;
+  const EXPRESS_SHIPPING_RATE = 50;
+
+  const rates = [
+    {
+      id: "standard",
+      title: "Standard Shipping",
+      price: subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE,
+      description:
+        subtotal >= FREE_SHIPPING_THRESHOLD
+          ? "Free shipping on orders ₹500+"
+          : "5-7 business days",
+    },
+    {
+      id: "express",
+      title: "Express Shipping",
+      price: EXPRESS_SHIPPING_RATE,
+      description: "2-3 business days",
+    },
+  ];
+
+  return rates;
+}

@@ -371,18 +371,21 @@ const NewCollection = ({ excludeProductId }) => {
 
   const addToCart = (product, selectedVariant, quantity) => {
     const cartItem = {
-      productId: product.id, // Keep for backward compatibility
-      variantId: selectedVariant.id, // Keep for backward compatibility
-      id: product.id, // Primary identifier used by StoreContext.addToCart
+      productId: product.id,
+      variantId: selectedVariant.id,
+      id: product.id,
       title: product.title,
-      variant: selectedVariant.title, // Primary variant identifier used by StoreContext.addToCart
+      variant: selectedVariant.title,
       price: selectedVariant.price.amount,
+      compareAtPrice: selectedVariant.compareAtPrice
+        ? {
+            amount: selectedVariant.compareAtPrice.amount,
+          }
+        : null,
       image: getCurrentImage(product),
       quantity: quantity,
-      handle: product.handle, // Add handle for consistency with Product page
-    };
-
-    // Get existing cart from localStorage
+      handle: product.handle,
+    }; // Get existing cart from localStorage
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
     // Check if item already exists in cart using same logic as StoreContext

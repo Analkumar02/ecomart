@@ -15,15 +15,6 @@ const Wishlist = () => {
       const initialQuantities = {};
       wishlist.forEach((item) => {
         initialQuantities[item.id] = 1;
-        // Debug: Log the item structure to see what data we have
-        console.log("Wishlist item:", {
-          id: item.id,
-          title: item.title,
-          price: item.price,
-          compareAtPrice: item.compareAtPrice,
-          priceAmount: item.price?.amount,
-          compareAtPriceAmount: item.compareAtPrice?.amount,
-        });
       });
       setQuantities(initialQuantities);
     }
@@ -43,6 +34,7 @@ const Wishlist = () => {
       id: item.id,
       title: item.title,
       price: item.price,
+      compareAtPrice: item.compareAtPrice,
       image: item.image,
       handle: item.handle,
       quantity: quantity,

@@ -376,6 +376,7 @@ const TrendingCollection = ({ excludeProductId }) => {
       title: product.title,
       variant: selectedVariant.title, // Primary variant identifier used by StoreContext.addToCart
       price: selectedVariant.price.amount,
+      compareAtPrice: selectedVariant.compareAtPrice, // Add compareAtPrice for sale display
       image: getCurrentImage(product),
       quantity: quantity,
       handle: product.handle, // Add handle for consistency with Product page

@@ -282,6 +282,7 @@ const Product = () => {
           title: product.title,
           variant: selectedVariant.title,
           price: selectedVariant.price.amount,
+          compareAtPrice: selectedVariant.compareAtPrice, // Add compareAtPrice for sale display
           image:
             selectedVariant.image?.src || product.images?.edges[0]?.node?.src,
           quantity: quantity,
@@ -298,7 +299,14 @@ const Product = () => {
       const wishlistItem = {
         id: product.id,
         title: product.title,
-        price: selectedVariant?.price?.amount || 0,
+        price: {
+          amount: selectedVariant?.price?.amount || 0,
+        },
+        compareAtPrice: selectedVariant?.compareAtPrice?.amount
+          ? {
+              amount: selectedVariant?.compareAtPrice?.amount,
+            }
+          : null,
         image:
           selectedVariant?.image?.src || product.images?.edges[0]?.node?.src,
         handle: product.handle,

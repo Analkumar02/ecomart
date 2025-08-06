@@ -13,8 +13,16 @@ const ShopProductCard = ({ productData }) => {
   const [isInCart, setIsInCart] = useState(false);
   // Removed showRemoveModal state
   const imageBase = useImagePath();
-  const { smartCartProducts, dataFetched, toggleWishlist, isInWishlist } =
-    useStore();
+  const {
+    smartCartProducts,
+    dataFetched,
+    toggleWishlist,
+    isInWishlist,
+    addToCart: addToCartContext,
+    isInCart: isInCartContext,
+    getCartItem,
+    removeFromCart: removeFromCartContext,
+  } = useStore();
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -95,55 +103,31 @@ const ShopProductCard = ({ productData }) => {
   // Check if product is already in cart when component loads or variant changes
   useEffect(() => {
     if (product && selectedVariant) {
-      const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const existingItem = existingCart.find((item) => {
-        // Check both formats: new format (id/variant) and old format (productId/variantId)
-        const matchesNewFormat =
-          item.id === product.id &&
-          (item.variant || "Default Title") ===
-            (selectedVariant.title || "Default Title");
-
-        const matchesOldFormat =
-          item.productId === product.id &&
-          item.variantId === selectedVariant.id;
-
-        return matchesNewFormat || matchesOldFormat;
-      });
-
-      if (existingItem) {
+      const productInCart = isInCartContext(product.id, selectedVariant.title);
+      if (productInCart) {
+        const cartItem = getCartItem(product.id, selectedVariant.title);
         setIsInCart(true);
         setShowQuantityBox(true);
-        setQuantity(existingItem.quantity);
+        setQuantity(cartItem ? cartItem.quantity : 1);
       } else {
         setIsInCart(false);
         setShowQuantityBox(false);
         setQuantity(1);
       }
     }
-  }, [product, selectedVariant]);
+  }, [product, selectedVariant, isInCartContext, getCartItem]);
 
   // Listen for cart updates from other components and sync state
   useEffect(() => {
     const handleCartUpdate = (e) => {
       if (!product || !selectedVariant) return;
-      const updatedCart = e.detail?.cart || [];
-      const existingItem = updatedCart.find((item) => {
-        // Check both formats: new format (id/variant) and old format (productId/variantId)
-        const matchesNewFormat =
-          item.id === product.id &&
-          (item.variant || "Default Title") ===
-            (selectedVariant.title || "Default Title");
 
-        const matchesOldFormat =
-          item.productId === product.id &&
-          item.variantId === selectedVariant.id;
-
-        return matchesNewFormat || matchesOldFormat;
-      });
-      if (existingItem) {
+      const productInCart = isInCartContext(product.id, selectedVariant.title);
+      if (productInCart) {
+        const cartItem = getCartItem(product.id, selectedVariant.title);
         setIsInCart(true);
         setShowQuantityBox(true);
-        setQuantity(existingItem.quantity);
+        setQuantity(cartItem ? cartItem.quantity : 1);
       } else {
         setIsInCart(false);
         setShowQuantityBox(false);
@@ -152,33 +136,24 @@ const ShopProductCard = ({ productData }) => {
     };
     window.addEventListener("cartUpdated", handleCartUpdate);
     return () => window.removeEventListener("cartUpdated", handleCartUpdate);
-  }, [product, selectedVariant]);
+  }, [product, selectedVariant, isInCartContext, getCartItem]);
 
   const handleVariantSelect = (variant) => {
     setSelectedVariant(variant);
   };
 
-  // Utility to detect touch devices (mobile/tablet)
-  const isTouchDevice = () =>
-    typeof window !== "undefined" &&
-    ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-
   const handleAddToCart = () => {
     if (!selectedVariant) return;
 
     try {
-      if (isTouchDevice()) {
-        // On mobile/tablet, add to cart immediately
-        addToCart();
-      } else {
-        // On desktop, show quantity box if not already shown, else add to cart
-        if (!showQuantityBox) {
-          setShowQuantityBox(true);
-        } else {
-          addToCart();
-        }
-      }
-      // Let the cart event listeners handle state updates
+      // Add to cart immediately for both mobile and desktop
+      addToCart();
+
+      // Show quantity box after adding to cart
+      setShowQuantityBox(true);
+      setIsInCart(true);
+
+      // Let the cart event listeners handle additional state updates
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
@@ -224,90 +199,34 @@ const ShopProductCard = ({ productData }) => {
   };
 
   const removeFromCart = () => {
-    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const updatedCart = existingCart.filter((item) => {
-      // Check both formats: new format (id/variant) and old format (productId/variantId)
-      const matchesNewFormat =
-        item.id === product.id &&
-        (item.variant || "Default Title") ===
-          (selectedVariant.title || "Default Title");
-
-      const matchesOldFormat =
-        item.productId === product.id && item.variantId === selectedVariant.id;
-
-      return !(matchesNewFormat || matchesOldFormat);
-    });
-
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    // Use StoreContext removeFromCart function
+    removeFromCartContext(product.id, selectedVariant.title);
 
     // Reset component state
     setIsInCart(false);
     setShowQuantityBox(false);
     setQuantity(1);
-
-    // Dispatch cart updated event
-    const cartUpdatedEvent = new CustomEvent("cartUpdated", {
-      detail: {
-        cart: updatedCart,
-        totalItems: updatedCart.reduce(
-          (total, item) => total + item.quantity,
-          0
-        ),
-      },
-    });
-    window.dispatchEvent(cartUpdatedEvent);
-
-    // Show notification (standardized for FloatingContent)
-    window.dispatchEvent(
-      new CustomEvent("cartNotification", {
-        detail: {
-          action: "removed",
-          item: {
-            title: product.title,
-            variant:
-              selectedVariant && selectedVariant.title !== "Default Title"
-                ? selectedVariant.title
-                : null,
-            image: getCurrentImage(),
-            quantity: quantity,
-          },
-        },
-      })
-    );
   };
 
   // Removed modal handlers
 
   const updateCartQuantity = (newQuantity) => {
-    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const itemIndex = existingCart.findIndex((item) => {
-      // Check both formats: new format (id/variant) and old format (productId/variantId)
-      const matchesNewFormat =
-        item.id === product.id &&
-        (item.variant || "Default Title") ===
-          (selectedVariant.title || "Default Title");
+    // Use StoreContext addToCart to update quantity (it handles existing items)
+    const cartItem = {
+      productId: product.id, // Keep for backward compatibility
+      variantId: selectedVariant.id, // Keep for backward compatibility
+      id: product.id,
+      title: product.title,
+      variant: selectedVariant.title,
+      price: selectedVariant.price.amount, // Match the format used in addToCart
+      compareAtPrice: selectedVariant.compareAtPrice, // Add compareAtPrice for sale display
+      image: getCurrentImage(),
+      quantity: newQuantity,
+      handle: product.handle,
+    };
 
-      const matchesOldFormat =
-        item.productId === product.id && item.variantId === selectedVariant.id;
-
-      return matchesNewFormat || matchesOldFormat;
-    });
-
-    if (itemIndex > -1) {
-      existingCart[itemIndex].quantity = newQuantity;
-      localStorage.setItem("cart", JSON.stringify(existingCart));
-
-      const cartUpdatedEvent = new CustomEvent("cartUpdated", {
-        detail: {
-          cart: existingCart,
-          totalItems: existingCart.reduce(
-            (total, item) => total + item.quantity,
-            0
-          ),
-        },
-      });
-      window.dispatchEvent(cartUpdatedEvent);
-    }
+    // Use StoreContext addToCart function with showNotification = false for quantity updates
+    addToCartContext(cartItem, false);
   };
 
   const addToCart = () => {
@@ -317,61 +236,15 @@ const ShopProductCard = ({ productData }) => {
       id: product.id, // Primary identifier used by StoreContext.addToCart
       title: product.title,
       variant: selectedVariant.title, // Primary variant identifier used by StoreContext.addToCart
-      price: selectedVariant.price.amount,
+      price: selectedVariant.price.amount, // Use direct amount value
+      compareAtPrice: selectedVariant.compareAtPrice, // Add compareAtPrice for sale display
       image: getCurrentImage(),
       quantity: quantity,
-      handle: product.handle, // Add handle for consistency with Product page
+      handle: product.handle,
     };
 
-    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-    // Check if item already exists in cart using same logic as StoreContext
-    const existingItemIndex = existingCart.findIndex(
-      (item) =>
-        item.id === cartItem.id &&
-        (item.variant || "Default Title") ===
-          (cartItem.variant || "Default Title")
-    );
-
-    if (existingItemIndex > -1) {
-      existingCart[existingItemIndex].quantity += quantity;
-    } else {
-      existingCart.push(cartItem);
-    }
-
-    localStorage.setItem("cart", JSON.stringify(existingCart));
-    setIsInCart(true);
-    setShowQuantityBox(true);
-
-    const cartUpdatedEvent = new CustomEvent("cartUpdated", {
-      detail: {
-        cart: existingCart,
-        totalItems: existingCart.reduce(
-          (total, item) => total + item.quantity,
-          0
-        ),
-      },
-    });
-    window.dispatchEvent(cartUpdatedEvent);
-
-    const notificationItem = {
-      title: product.title,
-      variant:
-        selectedVariant.title !== "Default Title"
-          ? selectedVariant.title
-          : null,
-      image: getCurrentImage(),
-      quantity: quantity,
-    };
-
-    window.dispatchEvent(
-      new CustomEvent("cartNotification", {
-        detail: {
-          action: "added",
-          item: notificationItem,
-        },
-      })
-    );
+    // Use the StoreContext addToCart function
+    addToCartContext(cartItem);
   };
 
   const getCurrentImage = () => {

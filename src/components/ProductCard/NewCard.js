@@ -108,12 +108,20 @@ const NewCard = ({ onProductLoad }) => {
       title: product.title,
       handle: product.handle,
       image: product.images?.edges?.[0]?.node?.src || null,
-      price:
-        selectedVariant?.price?.amount ||
-        product.variants?.edges?.[0]?.node?.price?.amount,
+      price: {
+        amount:
+          selectedVariant?.price?.amount ||
+          product.variants?.edges?.[0]?.node?.price?.amount,
+      },
       compareAtPrice:
         selectedVariant?.compareAtPrice?.amount ||
-        product.variants?.edges?.[0]?.node?.compareAtPrice?.amount,
+        product.variants?.edges?.[0]?.node?.compareAtPrice?.amount
+          ? {
+              amount:
+                selectedVariant?.compareAtPrice?.amount ||
+                product.variants?.edges?.[0]?.node?.compareAtPrice?.amount,
+            }
+          : null,
     };
 
     toggleWishlist(wishlistItem);
@@ -228,6 +236,11 @@ const NewCard = ({ onProductLoad }) => {
       title: product.title,
       variant: selectedVariant.title, // Primary variant identifier used by StoreContext.addToCart
       price: selectedVariant.price.amount,
+      compareAtPrice: selectedVariant.compareAtPrice
+        ? {
+            amount: selectedVariant.compareAtPrice.amount,
+          }
+        : null,
       image: getCurrentImage(),
       quantity: quantity,
       handle: product.handle, // Add handle for consistency with Product page

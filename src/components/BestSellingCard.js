@@ -17,7 +17,8 @@ const BestSellingCard = () => {
   const [isInCart, setIsInCart] = useState(false);
   // Removed showRemoveModal state (modal replaced by notification)
   const imageBase = useImagePath();
-  const { smartCartProducts, dataFetched } = useStore();
+  const { smartCartProducts, dataFetched, toggleWishlist, isInWishlist } =
+    useStore();
 
   useEffect(() => {
     const handleCartUpdated = (e) => {
@@ -119,6 +120,23 @@ const BestSellingCard = () => {
     // Show quantity box and add to cart immediately
     setShowQuantityBox(true);
     addToCart();
+  };
+
+  const handleWishlistToggle = (prod) => {
+    const p = prod || product;
+    if (p && selectedVariant) {
+      const wishlistItem = {
+        id: p.id,
+        title: p.title,
+        handle: p.handle,
+        image: p.images?.edges?.[0]?.node?.src || null,
+        price: selectedVariant?.price || p.priceRange?.minVariantPrice,
+        compareAtPrice:
+          selectedVariant?.compareAtPrice ||
+          p.compareAtPriceRange?.minVariantPrice,
+      };
+      toggleWishlist(wishlistItem);
+    }
   };
 
   const handleQuantityIncrease = () => {
@@ -225,6 +243,7 @@ const BestSellingCard = () => {
       title: product.title,
       variant: selectedVariant.title, // Primary variant identifier used by StoreContext.addToCart
       price: selectedVariant.price.amount,
+      compareAtPrice: selectedVariant.compareAtPrice, // Add compareAtPrice for sale display
       image: getCurrentImage(),
       quantity: quantity,
       handle: product.handle, // Add handle for consistency with Product page
@@ -436,7 +455,10 @@ const BestSellingCard = () => {
           `, ${selectedVariant.title}`}
       </Link>
 
-      <div className="wishlist-btn">
+      <div
+        className={`wishlist-btn${isInWishlist(product) ? " wl-active" : ""}`}
+        onClick={() => handleWishlistToggle(product)}
+      >
         <Icon icon="solar:heart-linear" height="16" width="16" />
       </div>
 

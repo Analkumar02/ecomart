@@ -1,5 +1,6 @@
 import "./styles/main.scss";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import FloatingContent from "./components/FloatingContent";
@@ -11,9 +12,21 @@ import Wishlist from "./pages/Wishlist";
 import Checkout from "./pages/Checkout";
 import ThankYou from "./pages/ThankYou";
 
+// ScrollToTop component
+function ScrollToTop() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  return null;
+}
+
 function App() {
   return (
     <HashRouter>
+      <ScrollToTop />
       <div className="App">
         <Header />
         <main>
