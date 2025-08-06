@@ -5,16 +5,33 @@
   <meta charset="utf-8" />
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Web site created using create-react-app" />
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <meta name="description"
+    content="EcoMart - Your trusted online grocery store with fresh produce, organic foods, and everyday essentials delivered to your doorstep." />
 
+  <!-- DNS Prefetch -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
+  <link rel="dns-prefetch" href="//cdn.shopify.com">
+
+  <!-- Preconnect to critical origins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Preload critical assets -->
+  <link rel="preload" href="%PUBLIC_URL%/assets/images/logo.webp" as="image" type="image/webp">
+  <link rel="preload" href="%PUBLIC_URL%/assets/images/hero-left.webp" as="image" type="image/webp">
+
+  <!-- Fonts -->
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
     rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Salsa&display=swap" rel="stylesheet">
 
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+  <!-- Theme Color for browsers -->
+  <meta name="theme-color" content="#4CAF50" />
 
   <title>EcoMart Grocery</title>
 </head>
