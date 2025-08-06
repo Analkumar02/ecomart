@@ -143,8 +143,8 @@ const Cart = () => {
                         <p>
                           {remainingForFreeShipping > 0 ? (
                             <>
-                              Add<span> ₹{remainingForFreeShipping} </span>to cart
-                              and get free shipping!
+                              Add<span> ₹{remainingForFreeShipping} </span>to
+                              cart and get free shipping!
                             </>
                           ) : (
                             "You've earned free shipping!"
@@ -165,197 +165,17 @@ const Cart = () => {
                     </div>
 
                     <div className="cart-content">
-                    <div className="cart-table-wrapper">
-                      <table className="cart-table-desktop">
-                        <thead>
-                          <tr>
-                            <th className="product-col">Product</th>
-                            <th className="price-col">Price</th>
-                            <th className="quantity-col">Quantity</th>
-                            <th className="subtotal-col">Subtotal</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {cart?.map((item) => {
-                            const key = `${item.id}-${
-                              item.variant || "Default Title"
-                            }`;
-                            const currentQuantity =
-                              quantities[key] || item.quantity || 1;
-                            const price = parseFloat(
-                              item.price?.amount || item.price || 0
-                            );
-                            const itemSubtotal = price * currentQuantity;
-
-                            return (
-                              <tr key={key} className="cart-item">
-                                <td className="product-cell">
-                                  <button
-                                    className="remove-btn"
-                                    onClick={() =>
-                                      handleRemoveFromCart(
-                                        item.id,
-                                        item.variant
-                                      )
-                                    }
-                                    aria-label="Remove from cart"
-                                  >
-                                    <Icon
-                                      icon="mdi:close"
-                                      width="16"
-                                      height="16"
-                                    />
-                                  </button>
-                                  <div className="product-info">
-                                    <div className="product-image">
-                                      <img
-                                        src={
-                                          item.image ||
-                                          `${imageBase}/pr-img.webp`
-                                        }
-                                        alt={item.title}
-                                        loading="lazy"
-                                        onError={(e) => {
-                                          e.target.src = `${imageBase}/pr-img.webp`;
-                                        }}
-                                      />
-                                    </div>
-                                    <div className="product-details">
-                                      <Link
-                                        to={`/product/${item.handle}`}
-                                        className="product-title"
-                                      >
-                                        {item.title}
-                                      </Link>
-                                      {item.variant &&
-                                        item.variant !== "Default Title" && (
-                                          <span className="product-variant">
-                                            {item.variant}
-                                          </span>
-                                        )}
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="price-cell">
-                                  <div className="price-info">
-                                    {item.compareAtPrice?.amount &&
-                                      parseFloat(item.compareAtPrice.amount) >
-                                        0 &&
-                                      parseFloat(item.compareAtPrice.amount) >
-                                        price && (
-                                        <span className="original-price">
-                                          ₹
-                                          {parseFloat(
-                                            item.compareAtPrice.amount
-                                          ).toFixed(0)}
-                                        </span>
-                                      )}
-                                    <span
-                                      className={
-                                        item.compareAtPrice?.amount &&
-                                        parseFloat(item.compareAtPrice.amount) >
-                                          0 &&
-                                        parseFloat(item.compareAtPrice.amount) >
-                                          price
-                                          ? "sale-price"
-                                          : "current-price"
-                                      }
-                                    >
-                                      ₹{price.toFixed(0)}
-                                    </span>
-                                  </div>
-                                </td>
-                                <td className="quantity-cell">
-                                  <div className="quantity-controls">
-                                    <button
-                                      className="qty-btn minus"
-                                      onClick={() =>
-                                        handleQuantityChange(
-                                          item.id,
-                                          item.variant,
-                                          currentQuantity - 1
-                                        )
-                                      }
-                                      disabled={currentQuantity <= 1}
-                                    >
-                                      <Icon
-                                        icon="mdi:minus"
-                                        width="16"
-                                        height="16"
-                                      />
-                                    </button>
-                                    <span className="qty-display">
-                                      {currentQuantity}
-                                    </span>
-                                    <button
-                                      className="qty-btn plus"
-                                      onClick={() =>
-                                        handleQuantityChange(
-                                          item.id,
-                                          item.variant,
-                                          currentQuantity + 1
-                                        )
-                                      }
-                                    >
-                                      <Icon
-                                        icon="mdi:plus"
-                                        width="16"
-                                        height="16"
-                                      />
-                                    </button>
-                                  </div>
-                                </td>
-                                <td className="subtotal-cell">
-                                  <span className="subtotal-amount">
-                                    ₹{itemSubtotal.toFixed(0)}
-                                  </span>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-
-                      {/* Mobile Card View */}
-                      <div className="cart-items-mobile d-block d-md-none">
-                        <div
-                          className="mobile-cart-header"
-                          onClick={() =>
-                            setIsMobileCartExpanded(!isMobileCartExpanded)
-                          }
-                        >
-                          <div className="header-content">
-                            <div className="header-left">
-                              <div className="cart-icon">
-                                <Icon
-                                  icon="mdi:shopping"
-                                  width="20"
-                                  height="20"
-                                />
-                              </div>
-                              <div className="header-text">
-                                <h6>Your Cart</h6>
-                                <span className="item-count">
-                                  {cart?.length || 0}{" "}
-                                  {cart?.length === 1 ? "item" : "items"}
-                                </span>
-                              </div>
-                            </div>
-                            <div
-                              className={`toggle-icon ${
-                                isMobileCartExpanded ? "expanded" : ""
-                              }`}
-                            >
-                              <Icon
-                                icon="mdi:chevron-down"
-                                width="18"
-                                height="18"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        {isMobileCartExpanded && (
-                          <div className="mobile-cart-items">
+                      <div className="cart-table-wrapper">
+                        <table className="cart-table-desktop">
+                          <thead>
+                            <tr>
+                              <th className="product-col">Product</th>
+                              <th className="price-col">Price</th>
+                              <th className="quantity-col">Quantity</th>
+                              <th className="subtotal-col">Subtotal</th>
+                            </tr>
+                          </thead>
+                          <tbody>
                             {cart?.map((item) => {
                               const key = `${item.id}-${
                                 item.variant || "Default Title"
@@ -368,78 +188,8 @@ const Cart = () => {
                               const itemSubtotal = price * currentQuantity;
 
                               return (
-                                <div key={key} className="cart-item">
-                                  <div className="item-main">
-                                    <div className="product-thumb">
-                                      <img
-                                        src={
-                                          item.image ||
-                                          `${imageBase}/pr-img.webp`
-                                        }
-                                        alt={item.title}
-                                        loading="lazy"
-                                        onError={(e) => {
-                                          e.target.src = `${imageBase}/pr-img.webp`;
-                                        }}
-                                      />
-                                    </div>
-                                    <div className="item-details">
-                                      <div className="product-info">
-                                        <Link
-                                          to={`/product/${item.handle}`}
-                                          className="product-title"
-                                        >
-                                          {item.title}
-                                        </Link>
-                                        {item.variant &&
-                                          item.variant !== "Default Title" && (
-                                            <span className="product-variant">
-                                              {item.variant}
-                                            </span>
-                                          )}
-                                        <div className="subtotal">
-                                          Subtotal: ₹{itemSubtotal.toFixed(0)}
-                                        </div>
-                                      </div>
-                                      <div className="quantity-controls">
-                                        <button
-                                          className="qty-btn minus"
-                                          onClick={() =>
-                                            handleQuantityChange(
-                                              item.id,
-                                              item.variant,
-                                              currentQuantity - 1
-                                            )
-                                          }
-                                          disabled={currentQuantity <= 1}
-                                        >
-                                          <Icon
-                                            icon="mdi:minus"
-                                            width="14"
-                                            height="14"
-                                          />
-                                        </button>
-                                        <span className="qty-display">
-                                          {currentQuantity}
-                                        </span>
-                                        <button
-                                          className="qty-btn plus"
-                                          onClick={() =>
-                                            handleQuantityChange(
-                                              item.id,
-                                              item.variant,
-                                              currentQuantity + 1
-                                            )
-                                          }
-                                        >
-                                          <Icon
-                                            icon="mdi:plus"
-                                            width="14"
-                                            height="14"
-                                          />
-                                        </button>
-                                      </div>
-                                    </div>
+                                <tr key={key} className="cart-item">
+                                  <td className="product-cell">
                                     <button
                                       className="remove-btn"
                                       onClick={() =>
@@ -456,40 +206,293 @@ const Cart = () => {
                                         height="16"
                                       />
                                     </button>
-                                  </div>
-                                </div>
+                                    <div className="product-info">
+                                      <div className="product-image">
+                                        <img
+                                          src={
+                                            item.image ||
+                                            `${imageBase}/pr-img.webp`
+                                          }
+                                          alt={item.title}
+                                          loading="lazy"
+                                          onError={(e) => {
+                                            e.target.src = `${imageBase}/pr-img.webp`;
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="product-details">
+                                        <Link
+                                          to={`/product/${item.handle}`}
+                                          className="product-title"
+                                        >
+                                          {item.title}
+                                        </Link>
+                                        {item.variant &&
+                                          item.variant !== "Default Title" && (
+                                            <span className="product-variant">
+                                              {item.variant}
+                                            </span>
+                                          )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="price-cell">
+                                    <div className="price-info">
+                                      {item.compareAtPrice?.amount &&
+                                        parseFloat(item.compareAtPrice.amount) >
+                                          0 &&
+                                        parseFloat(item.compareAtPrice.amount) >
+                                          price && (
+                                          <span className="original-price">
+                                            ₹
+                                            {parseFloat(
+                                              item.compareAtPrice.amount
+                                            ).toFixed(0)}
+                                          </span>
+                                        )}
+                                      <span
+                                        className={
+                                          item.compareAtPrice?.amount &&
+                                          parseFloat(
+                                            item.compareAtPrice.amount
+                                          ) > 0 &&
+                                          parseFloat(
+                                            item.compareAtPrice.amount
+                                          ) > price
+                                            ? "sale-price"
+                                            : "current-price"
+                                        }
+                                      >
+                                        ₹{price.toFixed(0)}
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td className="quantity-cell">
+                                    <div className="quantity-controls">
+                                      <button
+                                        className="qty-btn minus"
+                                        onClick={() =>
+                                          handleQuantityChange(
+                                            item.id,
+                                            item.variant,
+                                            currentQuantity - 1
+                                          )
+                                        }
+                                        disabled={currentQuantity <= 1}
+                                      >
+                                        <Icon
+                                          icon="mdi:minus"
+                                          width="16"
+                                          height="16"
+                                        />
+                                      </button>
+                                      <span className="qty-display">
+                                        {currentQuantity}
+                                      </span>
+                                      <button
+                                        className="qty-btn plus"
+                                        onClick={() =>
+                                          handleQuantityChange(
+                                            item.id,
+                                            item.variant,
+                                            currentQuantity + 1
+                                          )
+                                        }
+                                      >
+                                        <Icon
+                                          icon="mdi:plus"
+                                          width="16"
+                                          height="16"
+                                        />
+                                      </button>
+                                    </div>
+                                  </td>
+                                  <td className="subtotal-cell">
+                                    <span className="subtotal-amount">
+                                      ₹{itemSubtotal.toFixed(0)}
+                                    </span>
+                                  </td>
+                                </tr>
                               );
                             })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                          </tbody>
+                        </table>
 
-                    {/* Coupon Section */}
-                    <div className="coupon-section">
-                      <div className="coupon-input-group">
-                        <input
-                          type="text"
-                          placeholder="Coupon code"
-                          value={couponCode}
-                          onChange={(e) => setCouponCode(e.target.value)}
-                          className="coupon-input"
-                        />
+                        {/* Mobile Card View */}
+                        <div className="cart-items-mobile d-block d-md-none">
+                          <div
+                            className="mobile-cart-header"
+                            onClick={() =>
+                              setIsMobileCartExpanded(!isMobileCartExpanded)
+                            }
+                          >
+                            <div className="header-content">
+                              <div className="header-left">
+                                <div className="cart-icon">
+                                  <Icon
+                                    icon="mdi:shopping"
+                                    width="20"
+                                    height="20"
+                                  />
+                                </div>
+                                <div className="header-text">
+                                  <h6>Your Cart</h6>
+                                  <span className="item-count">
+                                    {cart?.length || 0}{" "}
+                                    {cart?.length === 1 ? "item" : "items"}
+                                  </span>
+                                </div>
+                              </div>
+                              <div
+                                className={`toggle-icon ${
+                                  isMobileCartExpanded ? "expanded" : ""
+                                }`}
+                              >
+                                <Icon
+                                  icon="mdi:chevron-down"
+                                  width="18"
+                                  height="18"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          {isMobileCartExpanded && (
+                            <div className="mobile-cart-items">
+                              {cart?.map((item) => {
+                                const key = `${item.id}-${
+                                  item.variant || "Default Title"
+                                }`;
+                                const currentQuantity =
+                                  quantities[key] || item.quantity || 1;
+                                const price = parseFloat(
+                                  item.price?.amount || item.price || 0
+                                );
+                                const itemSubtotal = price * currentQuantity;
+
+                                return (
+                                  <div key={key} className="cart-item">
+                                    <div className="item-main">
+                                      <div className="product-thumb">
+                                        <img
+                                          src={
+                                            item.image ||
+                                            `${imageBase}/pr-img.webp`
+                                          }
+                                          alt={item.title}
+                                          loading="lazy"
+                                          onError={(e) => {
+                                            e.target.src = `${imageBase}/pr-img.webp`;
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="item-details">
+                                        <div className="product-info">
+                                          <Link
+                                            to={`/product/${item.handle}`}
+                                            className="product-title"
+                                          >
+                                            {item.title}
+                                          </Link>
+                                          {item.variant &&
+                                            item.variant !==
+                                              "Default Title" && (
+                                              <span className="product-variant">
+                                                {item.variant}
+                                              </span>
+                                            )}
+                                          <div className="subtotal">
+                                            Subtotal: ₹{itemSubtotal.toFixed(0)}
+                                          </div>
+                                        </div>
+                                        <div className="quantity-controls">
+                                          <button
+                                            className="qty-btn minus"
+                                            onClick={() =>
+                                              handleQuantityChange(
+                                                item.id,
+                                                item.variant,
+                                                currentQuantity - 1
+                                              )
+                                            }
+                                            disabled={currentQuantity <= 1}
+                                          >
+                                            <Icon
+                                              icon="mdi:minus"
+                                              width="14"
+                                              height="14"
+                                            />
+                                          </button>
+                                          <span className="qty-display">
+                                            {currentQuantity}
+                                          </span>
+                                          <button
+                                            className="qty-btn plus"
+                                            onClick={() =>
+                                              handleQuantityChange(
+                                                item.id,
+                                                item.variant,
+                                                currentQuantity + 1
+                                              )
+                                            }
+                                          >
+                                            <Icon
+                                              icon="mdi:plus"
+                                              width="14"
+                                              height="14"
+                                            />
+                                          </button>
+                                        </div>
+                                      </div>
+                                      <button
+                                        className="remove-btn"
+                                        onClick={() =>
+                                          handleRemoveFromCart(
+                                            item.id,
+                                            item.variant
+                                          )
+                                        }
+                                        aria-label="Remove from cart"
+                                      >
+                                        <Icon
+                                          icon="mdi:close"
+                                          width="16"
+                                          height="16"
+                                        />
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Coupon Section */}
+                      <div className="coupon-section">
+                        <div className="coupon-input-group">
+                          <input
+                            type="text"
+                            placeholder="Coupon code"
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value)}
+                            className="coupon-input"
+                          />
+                          <button
+                            className="apply-coupon-btn"
+                            onClick={applyCoupon}
+                          >
+                            Apply coupon
+                          </button>
+                        </div>
+
                         <button
-                          className="apply-coupon-btn"
-                          onClick={applyCoupon}
+                          className="clear-all-btn"
+                          onClick={handleClearAll}
                         >
-                          Apply coupon
+                          Clear All
                         </button>
                       </div>
-
-                      <button
-                        className="clear-all-btn"
-                        onClick={handleClearAll}
-                      >
-                        Clear All
-                      </button>
-                    </div>
                     </div>
                   </div>
                 </div>
