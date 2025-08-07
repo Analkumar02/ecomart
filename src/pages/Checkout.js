@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useStore } from "../context/StoreContext";
 import { useState, useEffect } from "react";
+import { createShopifyOrder } from "../utils/shopify";
 
 const FREE_SHIPPING_THRESHOLD = 500;
 const SHIPPING_RATE = 20;
@@ -38,6 +39,7 @@ const Checkout = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [agreementChecked, setAgreementChecked] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load applied coupon from localStorage on component mount
   useEffect(() => {
@@ -152,73 +154,106 @@ const Checkout = () => {
     localStorage.removeItem("couponDiscount");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsValidated(true);
     if (validateForm()) {
-      // Prepare data for submission
-      const orderData = {
-        billing: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          streetAddress: formData.streetAddress,
-          townCity: formData.townCity,
-          pinCode: formData.pinCode,
-          state: formData.state,
-          country: formData.country,
-          phone: formData.phone,
-          email: formData.email,
-        },
-        shipping: formData.shipToDifferent
-          ? {
-              firstName: formData.shippingFirstName,
-              lastName: formData.shippingLastName,
-              streetAddress: formData.shippingStreetAddress,
-              townCity: formData.shippingTownCity,
-              pinCode: formData.shippingPinCode,
-              state: formData.shippingState,
-              country: formData.shippingCountry,
-              phone: formData.shippingPhone,
-              email: formData.shippingEmail,
-            }
-          : {
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              streetAddress: formData.streetAddress,
-              townCity: formData.townCity,
-              pinCode: formData.pinCode,
-              state: formData.state,
-              country: formData.country,
-              phone: formData.phone,
-              email: formData.email,
-            },
-        orderNotes: formData.orderNotes,
-        cart,
-        total,
-        shipToDifferent: formData.shipToDifferent,
-        timestamp: new Date().toISOString(),
-      };
+      setIsSubmitting(true);
+      try {
+        // Prepare data for submission
+        const orderData = {
+          billing: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            streetAddress: formData.streetAddress,
+            townCity: formData.townCity,
+            pinCode: formData.pinCode,
+            state: formData.state,
+            country: formData.country,
+            phone: formData.phone,
+            email: formData.email,
+          },
+          shipping: formData.shipToDifferent
+            ? {
+                firstName: formData.shippingFirstName,
+                lastName: formData.shippingLastName,
+                streetAddress: formData.shippingStreetAddress,
+                townCity: formData.shippingTownCity,
+                pinCode: formData.shippingPinCode,
+                state: formData.shippingState,
+                country: formData.shippingCountry,
+                phone: formData.shippingPhone,
+                email: formData.shippingEmail,
+              }
+            : {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                streetAddress: formData.streetAddress,
+                townCity: formData.townCity,
+                pinCode: formData.pinCode,
+                state: formData.state,
+                country: formData.country,
+                phone: formData.phone,
+                email: formData.email,
+              },
+          orderNotes: formData.orderNotes,
+          cart,
+          total,
+          couponDiscount,
+          appliedCoupon,
+          shipToDifferent: formData.shipToDifferent,
+          timestamp: new Date().toISOString(),
+        };
 
-      // Save to localStorage with guest user identifier
-      const guestUserId =
-        localStorage.getItem("guestUserId") || `guest_${Date.now()}`;
-      localStorage.setItem("guestUserId", guestUserId);
-      localStorage.setItem(
-        `orderData_${guestUserId}`,
-        JSON.stringify(orderData)
-      );
+        // Save to localStorage with guest user identifier
+        const guestUserId =
+          localStorage.getItem("guestUserId") || `guest_${Date.now()}`;
+        localStorage.setItem("guestUserId", guestUserId);
+        localStorage.setItem(
+          `orderData_${guestUserId}`,
+          JSON.stringify(orderData)
+        );
 
-      // Generate order number
-      const orderNumber = `ECM${Date.now().toString().slice(-8)}`;
-      localStorage.setItem("lastOrderNumber", orderNumber);
+        // Generate order number
+        const orderNumber = `ECM${Date.now().toString().slice(-8)}`;
+        localStorage.setItem("lastOrderNumber", orderNumber);
 
-      console.log("Form is valid:", orderData);
+        console.log("Form is valid:", orderData);
 
-      // Clear cart, coupon data, and navigate to thank you page
-      clearCart();
-      localStorage.removeItem("appliedCoupon");
-      localStorage.removeItem("couponDiscount");
-      navigate("/thankyou");
+        // Create order in Shopify
+        console.log("Creating Shopify order...");
+        const shopifyResult = await createShopifyOrder(orderData);
+
+        if (shopifyResult.success) {
+          console.log(
+            "Shopify order created successfully:",
+            shopifyResult.order
+          );
+          // Store Shopify order details
+          localStorage.setItem("lastShopifyOrderId", shopifyResult.order.id);
+          localStorage.setItem(
+            "lastShopifyOrderNumber",
+            shopifyResult.order.order_number || shopifyResult.order.name
+          );
+        } else {
+          console.error("Failed to create Shopify order:", shopifyResult.error);
+          // Continue with local order even if Shopify fails
+          alert(
+            "Order placed successfully, but there was an issue with Shopify integration. Your order has been recorded locally."
+          );
+        }
+
+        // Clear cart, coupon data, and navigate to thank you page
+        clearCart();
+        localStorage.removeItem("appliedCoupon");
+        localStorage.removeItem("couponDiscount");
+        navigate("/thankyou");
+      } catch (error) {
+        console.error("Error during order submission:", error);
+        alert("There was an error processing your order. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -1042,8 +1077,12 @@ const Checkout = () => {
                     <Link to="/cart" className="back-to-cart">
                       Back to cart
                     </Link>
-                    <button type="submit" className="checkout-btn">
-                      Place order
+                    <button
+                      type="submit"
+                      className="checkout-btn"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Processing Order..." : "Place order"}
                     </button>
                   </div>
                 </div>

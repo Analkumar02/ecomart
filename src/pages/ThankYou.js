@@ -4,12 +4,16 @@ import { useState, useEffect } from "react";
 const ThankYou = () => {
   const [orderData, setOrderData] = useState(null);
   const [orderNumber, setOrderNumber] = useState("");
+  const [shopifyOrderNumber, setShopifyOrderNumber] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Get order data from localStorage
     const guestUserId = localStorage.getItem("guestUserId");
     const lastOrderNumber = localStorage.getItem("lastOrderNumber");
+    const lastShopifyOrderNumber = localStorage.getItem(
+      "lastShopifyOrderNumber"
+    );
 
     if (guestUserId) {
       const storedOrderData = localStorage.getItem(`orderData_${guestUserId}`);
@@ -22,6 +26,10 @@ const ThankYou = () => {
       setOrderNumber(lastOrderNumber);
     }
 
+    if (lastShopifyOrderNumber) {
+      setShopifyOrderNumber(lastShopifyOrderNumber);
+    }
+
     setLoading(false);
 
     // Optional: Clean up order data after a delay (uncomment if you want to clear data)
@@ -31,6 +39,8 @@ const ThankYou = () => {
         localStorage.removeItem(`orderData_${guestUserId}`);
       }
       localStorage.removeItem("lastOrderNumber");
+      localStorage.removeItem("lastShopifyOrderNumber");
+      localStorage.removeItem("lastShopifyOrderId");
       localStorage.removeItem("guestUserId");
     }, 300000); // Clean up after 5 minutes (300000ms)
   }, []);
@@ -107,8 +117,16 @@ const ThankYou = () => {
               </div>
               <div className="order-info">
                 <div className="order-number">
-                  Order number: <span>{orderNumber || "N/A"}</span>
+                  Order number:{" "}
+                  <span>{shopifyOrderNumber || orderNumber || "N/A"}</span>
                 </div>
+                {shopifyOrderNumber &&
+                  orderNumber &&
+                  shopifyOrderNumber !== orderNumber && (
+                    <div className="order-number">
+                      Local order number: <span>{orderNumber}</span>
+                    </div>
+                  )}
                 <div className="order-date">
                   Date: <span>{formatDate(orderData.timestamp)}</span>
                 </div>
