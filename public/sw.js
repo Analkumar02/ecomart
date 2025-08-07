@@ -1,6 +1,11 @@
 /* eslint-env serviceworker */
 /* eslint-disable no-restricted-globals */
 
+// To fully resolve reload issues, unregister old service workers and clear caches in your browser:
+// 1. Open DevTools > Application > Service Workers > Unregister all.
+// 2. Clear site data and hard reload.
+// This ensures the latest service worker is used and avoids forced reloads from previous versions.
+
 const STATIC_CACHE = "ecomart-static-v2.0.0";
 const DYNAMIC_CACHE = "ecomart-dynamic-v2.0.0";
 
@@ -29,8 +34,14 @@ self.addEventListener("install", (event) => {
         return cache.addAll(urlsToCache);
       })
       .then(() => {
-        console.log("[SW] Skip waiting");
-        return self.skipWaiting();
+        // Only cache GET requests for static assets, never HTML navigation
+        if (event.request.method !== "GET") return;
+        const acceptHeader = event.request.headers.get("accept");
+        if (acceptHeader && acceptHeader.includes("text/html")) {
+          // Always fetch HTML from network
+          event.respondWith(fetch(event.request));
+          return;
+        }
       })
   );
 });
@@ -57,8 +68,8 @@ self.addEventListener("activate", (event) => {
         );
       })
       .then(() => {
-        console.log("[SW] Claiming clients");
-        return self.clients.claim();
+        // console.log("[SW] Claiming clients");
+        // return self.clients.claim();
       })
   );
 });

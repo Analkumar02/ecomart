@@ -9,12 +9,35 @@ const Cart = () => {
   const [quantities, setQuantities] = useState({});
   const [couponCode, setCouponCode] = useState("");
   const [couponDiscount, setCouponDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [isMobileCartExpanded, setIsMobileCartExpanded] = useState(true);
   const imageBase = useImagePath();
 
   // Shipping configuration
   const FREE_SHIPPING_THRESHOLD = 500;
   const SHIPPING_RATE = 20;
+
+  // Available coupons
+  const availableCoupons = [
+    {
+      id: "FLAT100",
+      title: "Flat ₹100 Off",
+      description: "Get flat ₹100 off on your order",
+      type: "flat",
+      value: 100,
+      minAmount: 0,
+      icon: "💰",
+    },
+    {
+      id: "SAVE20",
+      title: "20% Off",
+      description: "Get 20% off on orders above ₹1000",
+      type: "percentage",
+      value: 20,
+      minAmount: 1000,
+      icon: "🎉",
+    },
+  ];
 
   // Initialize quantities for all cart items
   useEffect(() => {
@@ -27,6 +50,17 @@ const Cart = () => {
       setQuantities(initialQuantities);
     }
   }, [cart]);
+
+  // Load applied coupon from localStorage
+  useEffect(() => {
+    const savedCoupon = localStorage.getItem("appliedCoupon");
+    const savedDiscount = localStorage.getItem("couponDiscount");
+
+    if (savedCoupon && savedDiscount) {
+      setAppliedCoupon(JSON.parse(savedCoupon));
+      setCouponDiscount(parseFloat(savedDiscount));
+    }
+  }, []);
 
   // Calculate totals
   const calculateSubtotal = () => {
@@ -91,6 +125,42 @@ const Cart = () => {
       setCouponDiscount(0);
       // You could show an error message here
     }
+  };
+
+  // Apply new coupon function
+  const applyNewCoupon = (coupon) => {
+    const currentSubtotal = calculateSubtotal();
+
+    if (coupon.minAmount > 0 && currentSubtotal < coupon.minAmount) {
+      alert(
+        `Minimum order amount of ₹${coupon.minAmount} required for this coupon`
+      );
+      return;
+    }
+
+    let discount = 0;
+    if (coupon.type === "flat") {
+      discount = coupon.value;
+    } else if (coupon.type === "percentage") {
+      discount = (currentSubtotal * coupon.value) / 100;
+    }
+
+    setAppliedCoupon(coupon);
+    setCouponDiscount(discount);
+
+    // Save coupon data to localStorage for checkout page
+    localStorage.setItem("appliedCoupon", JSON.stringify(coupon));
+    localStorage.setItem("couponDiscount", discount.toString());
+  };
+
+  // Remove coupon function
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponDiscount(0);
+
+    // Remove coupon data from localStorage
+    localStorage.removeItem("appliedCoupon");
+    localStorage.removeItem("couponDiscount");
   };
 
   return (
@@ -162,6 +232,81 @@ const Cart = () => {
                           }}
                         ></div>
                       </div>
+                    </div>
+
+                    {/* Coupon Section */}
+                    <div className="coupon-section">
+                      <div className="coupon-header">
+                        <Icon
+                          icon="mdi:ticket-percent"
+                          width="20"
+                          height="20"
+                        />
+                        <h6>Available Coupons</h6>
+                      </div>
+
+                      {!appliedCoupon ? (
+                        <div className="available-coupons">
+                          {availableCoupons.map((coupon) => {
+                            const isEligible =
+                              calculateSubtotal() >= coupon.minAmount;
+                            return (
+                              <div
+                                key={coupon.id}
+                                className={`coupon-card ${
+                                  !isEligible ? "disabled" : ""
+                                }`}
+                              >
+                                <div className="coupon-icon">{coupon.icon}</div>
+                                <div className="coupon-details">
+                                  <h6>{coupon.title}</h6>
+                                  <p>{coupon.description}</p>
+                                  {coupon.minAmount > 0 && (
+                                    <small>
+                                      Min. order: ₹{coupon.minAmount}
+                                    </small>
+                                  )}
+                                </div>
+                                <button
+                                  className={`apply-btn ${
+                                    !isEligible ? "disabled" : ""
+                                  }`}
+                                  onClick={() => applyNewCoupon(coupon)}
+                                  disabled={!isEligible}
+                                >
+                                  Apply
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="applied-coupon">
+                          <div className="coupon-card applied">
+                            <div className="coupon-icon">
+                              {appliedCoupon.icon}
+                            </div>
+                            <div className="coupon-details">
+                              <h6>{appliedCoupon.title}</h6>
+                              <p>Coupon applied successfully!</p>
+                              <span className="discount-amount">
+                                -
+                                {appliedCoupon.type === "percentage"
+                                  ? `${
+                                      appliedCoupon.value
+                                    }% (₹${couponDiscount.toFixed(2)})`
+                                  : `₹${couponDiscount.toFixed(2)}`}
+                              </span>
+                            </div>
+                            <button
+                              className="remove-btn"
+                              onClick={removeCoupon}
+                            >
+                              <Icon icon="mdi:close" width="16" height="16" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="cart-content">
@@ -521,8 +666,10 @@ const Cart = () => {
                         <>
                           <div className="line"></div>
                           <div className="discount">
-                            <span>Discount</span>
-                            <span>-₹{couponDiscount}</span>
+                            <span>Coupon ({appliedCoupon?.title})</span>
+                            <span className="discount-amount">
+                              -₹{couponDiscount.toFixed(2)}
+                            </span>
                           </div>
                         </>
                       )}

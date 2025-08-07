@@ -152,6 +152,147 @@
         }
       }
 
+      // Coupon Section Styles
+      .coupon-section {
+        border: 1px solid $border-color;
+        border-radius: $border-radius;
+        padding: 20px;
+        background: $white-color;
+
+        .coupon-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 16px;
+
+          svg {
+            color: $primary-color;
+          }
+
+          h6 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: $font-weight-semibold;
+            color: $body-font-color;
+          }
+        }
+
+        .available-coupons {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .coupon-card {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px;
+          border: 1px solid $border-color;
+          border-radius: 8px;
+          background: $gray-color;
+          @include ease-all;
+
+          &:hover:not(.disabled) {
+            border-color: $primary-color;
+            background: rgba($primary-color, 0.05);
+          }
+
+          &.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+
+            .apply-btn {
+              background: $border-color;
+              color: $gray-font-color;
+              cursor: not-allowed;
+            }
+          }
+
+          &.applied {
+            border-color: $primary-color;
+            background: rgba($primary-color, 0.1);
+
+            .coupon-details {
+              .discount-amount {
+                color: $primary-color;
+                font-weight: $font-weight-semibold;
+                font-size: 14px;
+              }
+            }
+          }
+
+          .coupon-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba($primary-color, 0.1);
+            border-radius: 50%;
+          }
+
+          .coupon-details {
+            flex: 1;
+
+            h6 {
+              margin: 0 0 4px 0;
+              font-size: 14px;
+              font-weight: $font-weight-semibold;
+              color: $body-font-color;
+            }
+
+            p {
+              margin: 0 0 4px 0;
+              font-size: 12px;
+              color: $gray-font-color;
+            }
+
+            small {
+              font-size: 11px;
+              color: $gray-font-color;
+              font-style: italic;
+            }
+          }
+
+          .apply-btn {
+            padding: 8px 16px;
+            background: $primary-color;
+            color: $white-color;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: $font-weight-medium;
+            cursor: pointer;
+            @include ease-all;
+
+            &:hover:not(.disabled) {
+              background: $secondary-color;
+            }
+          }
+
+          .remove-btn {
+            padding: 8px;
+            background: transparent;
+            color: $gray-font-color;
+            border: 1px solid $border-color;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            @include ease-all;
+
+            &:hover {
+              background: $red-body-color;
+              color: $white-color;
+              border-color: $red-body-color;
+            }
+          }
+        }
+      }
+
       // Cart content styles
       .cart-content {
         // Desktop Table View
@@ -482,6 +623,11 @@
           font-size: 12px;
           color: $body-font-color;
           font-weight: $font-weight-semibold;
+
+          .discount-amount {
+            color: $primary-color;
+            font-weight: $font-weight-bold;
+          }
         }
         .line {
           @include line;
